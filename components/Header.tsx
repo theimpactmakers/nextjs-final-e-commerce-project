@@ -6,6 +6,7 @@ import Image from "next/image";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
@@ -15,6 +16,17 @@ export default function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (mobileOpen) {
+      document.documentElement.classList.add("overflow-hidden");
+    } else {
+      document.documentElement.classList.remove("overflow-hidden");
+    }
+    return () => document.documentElement.classList.remove("overflow-hidden");
+  }, [mobileOpen]);
 
   return (
     <header
@@ -230,6 +242,16 @@ export default function Header() {
 
             <ul className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 top-full mt-0.5 w-56 pointer-events-auto bg-white/95 dark:bg-slate-900/95 border rounded-lg shadow-lg p-3 z-50">
               <li className="py-1">
+                <Link href="/contact" className="block hover:text-primary">
+                  Kontakt
+                </Link>
+              </li>
+              <li className="py-1">
+                <Link href="/about" className="block hover:text-primary">
+                  Über Uns
+                </Link>
+              </li>
+              <li className="py-1">
                 <Link href="/impressum" className="block hover:text-primary">
                   Impressum
                 </Link>
@@ -253,11 +275,8 @@ export default function Header() {
                 </Link>
               </li>
               <li className="py-1">
-                <Link
-                  href="/ruecktrittsrecht"
-                  className="block hover:text-primary"
-                >
-                  Rücktrittsrecht
+                <Link href="/widerruf" className="block hover:text-primary">
+                  Widerruf
                 </Link>
               </li>
             </ul>
@@ -349,29 +368,227 @@ export default function Header() {
             <span className="sr-only">Anmelden</span>
           </Link>
 
-          {/* Hamburger menu (no functionality yet) */}
+          {/* Hamburger menu */}
           <button
-            aria-label="Öffne Menü"
+            aria-label={mobileOpen ? "Schließe Menü" : "Öffne Menü"}
+            onClick={() => setMobileOpen((s) => !s)}
             className="p-1 rounded hover:bg-accent/10"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
+            {mobileOpen ? (
+              // X icon
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            ) : (
+              // Hamburger icon
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            )}
           </button>
         </div>
       </div>
+      {/* Mobile menu overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="absolute inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-slate-900 p-6 overflow-auto">
+            <div className="flex items-center justify-between mb-6">
+              <Link
+                href="/"
+                onClick={() => setMobileOpen(false)}
+                className="inline-flex items-center"
+              >
+                <Image
+                  src="/images/Logo_example_6.png"
+                  alt="Elite"
+                  width={120}
+                  height={36}
+                  className="h-auto w-auto"
+                />
+              </Link>
+              <button
+                aria-label="Schließe Menü"
+                onClick={() => setMobileOpen(false)}
+                className="p-1 rounded hover:bg-accent/10"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <nav className="space-y-4">
+              <Link
+                href="/shop"
+                onClick={() => setMobileOpen(false)}
+                className="block text-lg font-medium hover:text-primary"
+              >
+                Hundefutter
+              </Link>
+              <div className="pl-3">
+                <Link
+                  href="/shop?age=junior"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm hover:text-primary"
+                >
+                  Junior
+                </Link>
+                <Link
+                  href="/shop?age=adult"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm hover:text-primary"
+                >
+                  Adult
+                </Link>
+                <Link
+                  href="/shop?age=senior"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm hover:text-primary"
+                >
+                  Senior
+                </Link>
+              </div>
+
+              <Link
+                href="/specials"
+                onClick={() => setMobileOpen(false)}
+                className="block text-lg font-medium hover:text-primary"
+              >
+                Specials
+              </Link>
+              <div className="pl-3">
+                <Link
+                  href="/specials/diat"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm hover:text-primary"
+                >
+                  Diätfutter
+                </Link>
+                <Link
+                  href="/specials/hypoallergen"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm hover:text-primary"
+                >
+                  Hypoallergen
+                </Link>
+                <Link
+                  href="/specials/darmgesundheit"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm hover:text-primary"
+                >
+                  Darmgesundheit
+                </Link>
+                <Link
+                  href="/specials/gelenkfit"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm hover:text-primary"
+                >
+                  Gelenkfit
+                </Link>
+              </div>
+
+              <Link
+                href="/beratung"
+                onClick={() => setMobileOpen(false)}
+                className="block text-lg font-medium hover:text-primary"
+              >
+                Beratung
+              </Link>
+
+              <Link
+                href="/impressum"
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm hover:text-primary"
+              >
+                Impressum
+              </Link>
+              <Link
+                href="/datenschutz"
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm hover:text-primary"
+              >
+                Datenschutz
+              </Link>
+              <Link
+                href="/agb"
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm hover:text-primary"
+              >
+                AGB
+              </Link>
+              <Link
+                href="/zahlung-versand"
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm hover:text-primary"
+              >
+                Zahlung & Versand
+              </Link>
+              <Link
+                href="/widerruf"
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm hover:text-primary"
+              >
+                Widerruf
+              </Link>
+
+              <div className="pt-4 border-t mt-4">
+                <Link
+                  href="/auth/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm font-medium hover:text-primary"
+                >
+                  Anmelden
+                </Link>
+                <Link
+                  href="/cart"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm mt-2 hover:text-primary"
+                >
+                  Warenkorb (0)
+                </Link>
+              </div>
+            </nav>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -12,7 +12,7 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Elite Tail Treats - Online Shop",
+  title: "Elite Dog Treats - Online-Shop",
   description: "Hochwertiges artgerechtes Hundefutter für deinen besten Freund",
 };
 

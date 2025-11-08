@@ -75,7 +75,7 @@ export function LoginForm({
                   <Label htmlFor="password">Passwort</Label>
                   <Link
                     href="/auth/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-accent"
+                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-muted-foreground"
                   >
                     Passwort vergessen?
                   </Link>
@@ -97,7 +97,7 @@ export function LoginForm({
               Hast Du noch keinen Account?{" "}
               <Link
                 href="/auth/sign-up"
-                className="underline underline-offset-4 text-accent"
+                className="underline underline-offset-4 text-muted-foreground"
               >
                 Registrieren
               </Link>
