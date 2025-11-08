@@ -80,7 +80,9 @@ export default function Header() {
         </button>
         <Link
           href="/"
-          className="col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 flex-shrink-0 min-w-[72px] logo-md-narrow"
+          className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 flex-shrink-0 min-w-[72px] ${
+            mobileOpen ? "min-w-[48px]" : ""
+          } logo-md-narrow`}
         >
           {" "}
           <Image
@@ -89,7 +91,9 @@ export default function Header() {
             width={120}
             height={48}
             priority
-            className="block w-20 sm:w-24 md:w-28 lg:w-32"
+            className={`block w-20 sm:w-24 md:w-28 lg:w-32 transition-all duration-150 ${
+              mobileOpen ? "w-12 sm:w-16" : ""
+            }`}
             style={{
               height: "auto",
             }}
@@ -638,7 +642,7 @@ export default function Header() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setMobileOpen(false)}
           />{" "}
-          <div className="absolute inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-slate-900 p-6 overflow-auto">
+          <div className="absolute inset-y-0 right-0 w-1/2 bg-white dark:bg-slate-900 p-6 overflow-auto">
             {" "}
             <div className="flex items-center justify-between mb-6">
               {" "}
@@ -651,10 +655,10 @@ export default function Header() {
                 <Image
                   src="/images/Logo_example_6.png"
                   alt="Elite"
-                  width={120}
-                  height={36}
-                  className="h-auto w-auto"
-                />{" "}
+                  width={80}
+                  height={24}
+                  className="h-auto w-20 transition-all duration-150"
+                />
               </Link>{" "}
               <button
                 aria-label="Schließe Menü"

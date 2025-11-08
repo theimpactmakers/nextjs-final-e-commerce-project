@@ -113,7 +113,7 @@
   }
 }
 
-/* Reduce header search width slightly between 768px and 886px to avoid overlap with center nav items */
+
 @media (min-width: 768px) and (max-width: 886px) {
 
   /* target the header search input by id */
