@@ -25,7 +25,7 @@
     --popover: var(--background);
     --popover-foreground: var(--foreground);
     --muted: 26 18% 90%; /* Etwas dunkler als Secondary */
-    --muted-foreground: 27 38% 45%;
+    --muted-foreground: 6, 25%, 25%;
     --border: 26 18% 85%;
     --input: 26 18% 85%;
     --ring: var(--primary);

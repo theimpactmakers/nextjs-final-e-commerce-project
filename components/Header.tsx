@@ -56,15 +56,17 @@ export default function Header() {
           <div className="relative group inline-block">
             <Link
               href="/shop"
-              className="inline-flex items-center h-10 px-2 hover:text-primary transition-colors"
+              className="relative inline-flex items-center h-10 px-2 hover:text-primary transition-colors"
             >
               Hundefutter
+              {/* animated underline */}
+              <span className="absolute left-0 -bottom-1 h-0.5 w-full bg-accent origin-left scale-x-0 group-hover:scale-x-100 transform transition-transform duration-300 rounded"></span>
             </Link>
 
             <div
               role="menu"
               aria-label="Hundefutter Menü"
-              className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 top-full mt-1 w-72 pointer-events-auto bg-white/95 dark:bg-slate-900/95 border rounded-lg shadow-lg p-3 z-50"
+              className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 top-full mt-2 w-72 pointer-events-auto bg-white/95 dark:bg-slate-900/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-4 z-50"
             >
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -73,7 +75,7 @@ export default function Header() {
                     <li>
                       <Link
                         href="/shop?age=junior"
-                        className="block hover:text-primary"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                       >
                         Junior
                       </Link>
@@ -81,7 +83,7 @@ export default function Header() {
                     <li>
                       <Link
                         href="/shop?age=adult"
-                        className="block hover:text-primary"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                       >
                         Adult
                       </Link>
@@ -89,7 +91,7 @@ export default function Header() {
                     <li>
                       <Link
                         href="/shop?age=senior"
-                        className="block hover:text-primary"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                       >
                         Senior
                       </Link>
@@ -103,7 +105,7 @@ export default function Header() {
                     <li>
                       <Link
                         href="/shop?meat=ente"
-                        className="block hover:text-primary"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                       >
                         Ente
                       </Link>
@@ -111,7 +113,7 @@ export default function Header() {
                     <li>
                       <Link
                         href="/shop?meat=rind"
-                        className="block hover:text-primary"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                       >
                         Rind
                       </Link>
@@ -119,7 +121,7 @@ export default function Header() {
                     <li>
                       <Link
                         href="/shop?meat=kaninchen"
-                        className="block hover:text-primary"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                       >
                         Kaninchen
                       </Link>
@@ -127,7 +129,7 @@ export default function Header() {
                     <li>
                       <Link
                         href="/shop?meat=lamm"
-                        className="block hover:text-primary"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                       >
                         Lamm
                       </Link>
@@ -135,7 +137,7 @@ export default function Header() {
                     <li>
                       <Link
                         href="/shop?meat=pferd"
-                        className="block hover:text-primary"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                       >
                         Pferd
                       </Link>
@@ -143,7 +145,7 @@ export default function Header() {
                     <li>
                       <Link
                         href="/shop?meat=wild"
-                        className="block hover:text-primary"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                       >
                         Wild
                       </Link>
@@ -151,7 +153,7 @@ export default function Header() {
                     <li>
                       <Link
                         href="/shop?meat=lachs"
-                        className="block hover:text-primary"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                       >
                         Lachs
                       </Link>
@@ -166,21 +168,22 @@ export default function Header() {
           <div className="relative group inline-block">
             <Link
               href="/specials"
-              className="inline-flex items-center h-10 px-2 hover:text-primary transition-colors"
+              className="relative inline-flex items-center h-10 px-2 hover:text-primary transition-colors"
             >
               Specials
+              <span className="absolute left-0 -bottom-1 h-0.5 w-full bg-accent origin-left scale-x-0 group-hover:scale-x-100 transform transition-transform duration-300 rounded"></span>
             </Link>
 
             <div
               role="menu"
               aria-label="Specials Menü"
-              className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 top-full mt-1 w-48 pointer-events-auto bg-white/95 dark:bg-slate-900/95 border rounded-lg shadow-lg p-3 z-50"
+              className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 top-full mt-2 w-48 pointer-events-auto bg-white/95 dark:bg-slate-900/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-3 z-50"
             >
               <ul className="space-y-1 text-sm">
                 <li>
                   <Link
                     href="/specials/diat"
-                    className="block hover:text-primary"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                   >
                     Diätfutter
                   </Link>
@@ -188,7 +191,7 @@ export default function Header() {
                 <li>
                   <Link
                     href="/specials/hypoallergen"
-                    className="block hover:text-primary"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                   >
                     Hypoallergen
                   </Link>
@@ -196,7 +199,7 @@ export default function Header() {
                 <li>
                   <Link
                     href="/specials/darmgesundheit"
-                    className="block hover:text-primary"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                   >
                     Darmgesundheit
                   </Link>
@@ -204,7 +207,7 @@ export default function Header() {
                 <li>
                   <Link
                     href="/specials/gelenkfit"
-                    className="block hover:text-primary"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                   >
                     Gelenkfit
                   </Link>
@@ -215,13 +218,14 @@ export default function Header() {
 
           <Link
             href="/beratung"
-            className="inline-flex items-center h-10 px-2 hover:text-primary transition-colors"
+            className="relative inline-flex items-center h-10 px-2 hover:text-primary transition-colors"
           >
             Beratung
+            <span className="absolute left-0 -bottom-1 h-0.5 w-full bg-accent origin-left scale-x-0 hover:scale-x-100 transform transition-transform duration-300 rounded"></span>
           </Link>
 
           <div className="relative group inline-block">
-            <button className="inline-flex items-center h-10 gap-2 hover:text-primary transition-colors px-2 py-2 align-middle">
+            <button className="relative inline-flex items-center h-10 gap-2 hover:text-primary transition-colors px-2 py-2 align-middle">
               <span>Mehr</span>
               <svg
                 className="w-3 h-3 transition-transform duration-150 group-hover:rotate-90"
@@ -238,44 +242,63 @@ export default function Header() {
                   strokeLinejoin="round"
                 />
               </svg>
+              <span className="absolute left-0 -bottom-1 h-0.5 w-full bg-accent origin-left scale-x-0 group-hover:scale-x-100 transform transition-transform duration-300 rounded"></span>
             </button>
 
-            <ul className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 top-full mt-0.5 w-56 pointer-events-auto bg-white/95 dark:bg-slate-900/95 border rounded-lg shadow-lg p-3 z-50">
+            <ul className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 pointer-events-auto bg-white/95 dark:bg-slate-900/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-3 z-50">
               <li className="py-1">
-                <Link href="/contact" className="block hover:text-primary">
+                <Link
+                  href="/contact"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                >
                   Kontakt
                 </Link>
               </li>
               <li className="py-1">
-                <Link href="/about" className="block hover:text-primary">
+                <Link
+                  href="/about"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                >
                   Über Uns
                 </Link>
               </li>
               <li className="py-1">
-                <Link href="/impressum" className="block hover:text-primary">
+                <Link
+                  href="/impressum"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                >
                   Impressum
                 </Link>
               </li>
               <li className="py-1">
-                <Link href="/datenschutz" className="block hover:text-primary">
+                <Link
+                  href="/datenschutz"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                >
                   Datenschutz
                 </Link>
               </li>
               <li className="py-1">
-                <Link href="/agb" className="block hover:text-primary">
+                <Link
+                  href="/agb"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                >
                   AGB
                 </Link>
               </li>
               <li className="py-1">
                 <Link
                   href="/zahlung-versand"
-                  className="block hover:text-primary"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
                 >
                   Zahlung & Versand
                 </Link>
               </li>
               <li className="py-1">
-                <Link href="/widerruf" className="block hover:text-primary">
+                <Link
+                  href="/widerruf"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                >
                   Widerruf
                 </Link>
               </li>
