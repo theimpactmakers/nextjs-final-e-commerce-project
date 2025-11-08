@@ -3,7 +3,7 @@ import { SupabaseLogo } from "./supabase-logo";
 
 export function Hero() {
   return (
-    <div className="flex flex-col gap-16 items-center">
+    <div className="w-full py-12 bg-[hsl(var(--muted-foreground))] text-foreground">
       <div className="flex gap-8 justify-center items-center">
         <a
           href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
