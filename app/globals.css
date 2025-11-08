@@ -1,3 +1,4 @@
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,35 +6,43 @@
 @layer base {
   :root {
     /* Basisfarben */
-    --background: 0 0% 100%; /* Helles Weiß */
-    --foreground: 27 38% 10%; /* Dunkles Braun (Textfarbe) */
+    --background: 0 0% 100%;
+    /* Helles Weiß */
+    --foreground: 27 38% 10%;
+    /* Dunkles Braun (Textfarbe) */
     --radius: 0.75rem;
 
     /* Elite Dog TREATS Farben (Light Mode) */
-    --primary: 27 38% 36%; /* #7F5539 (Dunkelbraun) */
-    --primary-foreground: 0 0% 98%; /* Fast Weiß */
-    
-    --secondary: 26 18% 80%; /* #D6CCC2 (Helles Beige) */
-    --secondary-foreground: 27 38% 36%; /* #7F5539 */
-    
-    --accent: 33 100% 37%; /* #BB6B00 (Gold/Orange) */
-    --accent-foreground: 0 0% 98%; 
-    
+    --primary: 27 38% 36%;
+    /* #7F5539 (Dunkelbraun) */
+    --primary-foreground: 0 0% 98%;
+    /* Fast Weiß */
+
+    --secondary: 26 18% 80%;
+    /* #D6CCC2 (Helles Beige) */
+    --secondary-foreground: 27 38% 36%;
+    /* #7F5539 */
+
+    --accent: 33 100% 37%;
+    /* #BB6B00 (Gold/Orange) */
+    --accent-foreground: 0 0% 98%;
+
     /* Weitere Systemfarben basierend auf den Primärfarben */
     --card: var(--background);
     --card-foreground: var(--foreground);
     --popover: var(--background);
     --popover-foreground: var(--foreground);
-    --muted: 26 18% 90%; /* Etwas dunkler als Secondary */
+    --muted: 26 18% 90%;
+    /* Etwas dunkler als Secondary */
     --muted-foreground: 6, 25%, 25%;
     --border: 26 18% 85%;
     --input: 26 18% 85%;
     --ring: var(--primary);
-    
+
     /* Destructive (Rot für Fehler) */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    
+
     /* Chart-Farben (können beibehalten oder angepasst werden) */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -46,15 +55,87 @@
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
-    
+
   }
 }
 
 @layer base {
+
+  /* Fallbacks for environments that don't recognize Tailwind @apply at-rules in static analysis */
   * {
-    @apply border-border;
+    /* set a sensible border color using the --border token */
+    border-color: hsl(var(--border));
   }
+
   body {
-    @apply bg-background text-foreground;
+    /* use the CSS variables defined above to style background and text color */
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+/* brown hover glow helpers */
+.brown-glow-hover:hover {
+  color: #513431 !important;
+  text-shadow: 0 0 8px rgba(81, 52, 49, 0.55);
+}
+
+/* allow parent hover to trigger child glow */
+.brown-glow {
+  transition: color .15s ease;
+}
+
+.group-brown:hover .brown-glow {
+  color: #513431 !important;
+}
+
+/* color-only hover (no shadow) */
+.brown-color-hover:hover {
+  color: #513431 !important;
+}
+
+/* utility: show/hide specifically between 768px and 915px */
+.show-md-narrow {
+  display: none !important;
+}
+
+.hide-md-narrow {
+  display: inline-flex !important;
+}
+
+@media (min-width: 768px) and (max-width: 915px) {
+  .show-md-narrow {
+    display: inline-flex !important;
+  }
+
+  .hide-md-narrow {
+    display: none !important;
+  }
+}
+
+/* Reduce header search width slightly between 768px and 886px to avoid overlap with center nav items */
+@media (min-width: 768px) and (max-width: 886px) {
+
+  /* target the header search input by id */
+  #header-search {
+    width: 10rem !important;
+    /* ~160px */
+  }
+
+  /* if other elements need smaller spacing, slightly reduce form margin */
+  form[method="get"].header-search-form {
+    margin-right: 0.25rem;
+  }
+}
+
+/* Shrink logo slightly between 768px and 811px to avoid overlap before mobile menu */
+@media (min-width: 768px) and (max-width: 811px) {
+  .logo-md-narrow {
+    min-width: 56px !important;
+  }
+
+  .logo-md-narrow img {
+    width: 72px !important;
+    height: auto !important;
   }
 }
