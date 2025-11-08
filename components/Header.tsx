@@ -39,27 +39,229 @@ export default function Header() {
         </Link>
 
         {/* 2. Hauptmenü Links (zentriert auf md+) */}
-        <nav className="hidden md:flex md:gap-4 font-medium justify-center col-start-2 whitespace-nowrap overflow-hidden">
-          <Link href="/shop" className="hover:text-primary transition-colors">
-            Hundefutter
-          </Link>
+        <nav className="hidden md:flex md:gap-6 lg:gap-8 font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
+          {/* Hundefutter mit Dropdown */}
+          <div className="relative group inline-block">
+            <Link
+              href="/shop"
+              className="inline-flex items-center h-10 px-2 hover:text-primary transition-colors"
+            >
+              Hundefutter
+            </Link>
+
+            <div
+              role="menu"
+              aria-label="Hundefutter Menü"
+              className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 top-full mt-1 w-72 pointer-events-auto bg-white/95 dark:bg-slate-900/95 border rounded-lg shadow-lg p-3 z-50"
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-xs font-semibold mb-2">Alter</h4>
+                  <ul className="space-y-1 text-sm">
+                    <li>
+                      <Link
+                        href="/shop?age=junior"
+                        className="block hover:text-primary"
+                      >
+                        Junior
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/shop?age=adult"
+                        className="block hover:text-primary"
+                      >
+                        Adult
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/shop?age=senior"
+                        className="block hover:text-primary"
+                      >
+                        Senior
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-semibold mb-2">Fleischsorten</h4>
+                  <ul className="space-y-1 text-sm">
+                    <li>
+                      <Link
+                        href="/shop?meat=ente"
+                        className="block hover:text-primary"
+                      >
+                        Ente
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/shop?meat=rind"
+                        className="block hover:text-primary"
+                      >
+                        Rind
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/shop?meat=kaninchen"
+                        className="block hover:text-primary"
+                      >
+                        Kaninchen
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/shop?meat=lamm"
+                        className="block hover:text-primary"
+                      >
+                        Lamm
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/shop?meat=pferd"
+                        className="block hover:text-primary"
+                      >
+                        Pferd
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/shop?meat=wild"
+                        className="block hover:text-primary"
+                      >
+                        Wild
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/shop?meat=lachs"
+                        className="block hover:text-primary"
+                      >
+                        Lachs
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Specials mit Dropdown */}
+          <div className="relative group inline-block">
+            <Link
+              href="/specials"
+              className="inline-flex items-center h-10 px-2 hover:text-primary transition-colors"
+            >
+              Specials
+            </Link>
+
+            <div
+              role="menu"
+              aria-label="Specials Menü"
+              className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 top-full mt-1 w-48 pointer-events-auto bg-white/95 dark:bg-slate-900/95 border rounded-lg shadow-lg p-3 z-50"
+            >
+              <ul className="space-y-1 text-sm">
+                <li>
+                  <Link
+                    href="/specials/diat"
+                    className="block hover:text-primary"
+                  >
+                    Diätfutter
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/specials/hypoallergen"
+                    className="block hover:text-primary"
+                  >
+                    Hypoallergen
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/specials/darmgesundheit"
+                    className="block hover:text-primary"
+                  >
+                    Darmgesundheit
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/specials/gelenkfit"
+                    className="block hover:text-primary"
+                  >
+                    Gelenkfit
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
           <Link
             href="/beratung"
-            className="hover:text-primary transition-colors"
-          >
-            Specials
-          </Link>
-          <Link
-            href="/beratung"
-            className="hover:text-primary transition-colors"
+            className="inline-flex items-center h-10 px-2 hover:text-primary transition-colors"
           >
             Beratung
           </Link>
 
-          <Link href="/blog" className="hover:text-primary transition-colors">
-            Mehr 
-          </Link>
+          <div className="relative group inline-block">
+            <button className="inline-flex items-center h-10 gap-2 hover:text-primary transition-colors px-2 py-2 align-middle">
+              <span>Mehr</span>
+              <svg
+                className="w-3 h-3 transition-transform duration-150 group-hover:rotate-90"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden
+              >
+                <path
+                  d="M8 5l8 7-8 7"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
 
+            <ul className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 absolute left-1/2 -translate-x-1/2 top-full mt-0.5 w-56 pointer-events-auto bg-white/95 dark:bg-slate-900/95 border rounded-lg shadow-lg p-3 z-50">
+              <li className="py-1">
+                <Link href="/impressum" className="block hover:text-primary">
+                  Impressum
+                </Link>
+              </li>
+              <li className="py-1">
+                <Link href="/datenschutz" className="block hover:text-primary">
+                  Datenschutz
+                </Link>
+              </li>
+              <li className="py-1">
+                <Link href="/agb" className="block hover:text-primary">
+                  AGB
+                </Link>
+              </li>
+              <li className="py-1">
+                <Link
+                  href="/zahlung-versand"
+                  className="block hover:text-primary"
+                >
+                  Zahlung & Versand
+                </Link>
+              </li>
+              <li className="py-1">
+                <Link
+                  href="/ruecktrittsrecht"
+                  className="block hover:text-primary"
+                >
+                  Rücktrittsrecht
+                </Link>
+              </li>
+            </ul>
+          </div>
         </nav>
 
         {/* 3. Aktionen */}
