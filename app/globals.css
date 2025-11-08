@@ -19,7 +19,7 @@
     --accent: 33 100% 37%; /* #BB6B00 (Gold/Orange) */
     --accent-foreground: 0 0% 98%; 
     
-    /* Weitere Systemfarben basierend auf deinen Primärfarben */
+    /* Weitere Systemfarben basierend auf den Primärfarben */
     --card: var(--background);
     --card-foreground: var(--foreground);
     --popover: var(--background);
