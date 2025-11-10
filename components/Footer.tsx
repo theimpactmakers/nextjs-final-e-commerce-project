@@ -56,14 +56,6 @@ export default function Footer() {
                 Kontakt
               </Link>
             </li>
-            <li>
-              <Link
-                href="/versand"
-                className="hover:text-primary transition-colors"
-              >
-                Versand
-              </Link>
-            </li>
           </ul>
         </div>
 
