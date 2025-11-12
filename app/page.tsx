@@ -11,8 +11,19 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient(); // <-- Server Client
+  const { data: products, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("erstellt_am", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return <p>Fehler beim Laden der Produkte.</p>;
+  }
   return (
     <div className="w-full">
       {/* 1. Hero / Banner Sektion (Volle Breite) */}
@@ -55,26 +66,38 @@ export default function Home() {
             Bestseller im Sortiment
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Platzhalter für Produktkarten mit modernem, abgerundetem Stil */}
-            {[1, 2, 3, 4].map((item) => (
+            {products?.map((p) => (
               <Card
-                key={item}
+                key={p.id}
                 className="overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300"
               >
-                <div className="h-48 bg-muted flex items-center justify-center">
-                  {/*  */}
+                <div className="h-48 bg-muted flex items-center justify-center overflow-hidden">
+                  <img
+                    src={p.bild_url}
+                    alt={p.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <CardHeader>
-                  <CardTitle>Produktname {item}</CardTitle>
-                  <CardDescription>
-                    Kurze Beschreibung des Futters.
-                  </CardDescription>
+                  <CardTitle>{p.name}</CardTitle>
+                  <CardDescription>{p.beschreibung}</CardDescription>
                 </CardHeader>
-                <CardContent className="flex justify-between items-center pb-4">
-                  <span className="text-lg font-bold text-destructive">
-                    29,99 €
-                  </span>
-                  <Button>Zum Produkt</Button>
+                <CardContent className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-destructive">
+                      {p.preis} €
+                    </span>
+                    <Button>Zum Produkt</Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Fleischsorte: {p.fleischsorte} / Altersgruppe:{" "}
+                    {p.altersgruppe}
+                  </p>
+                  {p.category && (
+                    <p className="text-xs text-primary">
+                      Kategorie: {p.category.name}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             ))}
