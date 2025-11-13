@@ -52,11 +52,11 @@
   }
 
 
-  .dark {
+/*   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
 
-  }
+  } */
 }
 
 @layer base {
