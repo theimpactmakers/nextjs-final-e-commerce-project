@@ -139,3 +139,62 @@
     height: auto !important;
   }
 }
+
+/* Extra small phone tweaks (mobile-first: improve layout on tiny handsets) */
+@media (max-width: 375px) {
+  /* reduce header height so content fits better on very small screens */
+  header > .relative.z-10 {
+    height: 4rem !important; /* 64px */
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* slightly smaller logo on small phones */
+  .logo-md-narrow {
+    min-width: 48px !important;
+  }
+
+  .logo-md-narrow img {
+    width: 64px !important;
+    height: auto !important;
+  }
+
+  /* shrink the desktop search when the viewport is narrow but still shows md layout */
+  #header-search {
+    width: 9rem !important; /* ~144px */
+  }
+
+  /* mobile overlay logo slightly smaller */
+  .fixed .absolute.inset-y-0.right-0 img,
+  .absolute.inset-y-0.right-0 img {
+    width: 64px !important;
+    height: auto !important;
+  }
+}
+
+/* Ultra-small phones (e.g. older 320px devices) */
+@media (max-width: 360px) {
+  header > .relative.z-10 {
+    height: 3.5rem !important; /* 56px */
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+  }
+
+  .logo-md-narrow img {
+    width: 56px !important;
+    height: auto !important;
+  }
+
+  /* ensure mobile overlay header logo remains compact */
+  .absolute.inset-y-0.right-0 img {
+    width: 56px !important;
+    height: auto !important;
+  }
+
+  /* make sure any potential padding/margins on header controls are reduced */
+  .md\:hidden + .logo-md-narrow,
+  .col-start-3 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}

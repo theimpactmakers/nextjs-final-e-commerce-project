@@ -658,6 +658,7 @@ export default function Header() {
                   width={80}
                   height={24}
                   className="h-auto w-20 transition-all duration-150"
+                  style={{ height: "auto" }}
                 />
               </Link>{" "}
               <button
