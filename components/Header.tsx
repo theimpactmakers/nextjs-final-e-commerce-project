@@ -42,7 +42,6 @@ export default function Header() {
           : "bg-transparent"
       }`}
     >
-      {/* decorative gradient band (matches requested brown gradient) */}
       {/* very soft, minimal blurred gradient at bottom (single subtle band) */}
       <div
         aria-hidden
@@ -54,7 +53,7 @@ export default function Header() {
           opacity: 0.95,
         }}
       />{" "}
-      {/* Hauptnavigation & Logo - erhöhte Höhe, weniger horizontales Padding auf großen Bildschirmen */}
+      {/* Hauptnavigation & Logo */}
       <div className="relative z-10 w-full mx-auto px-2 sm:px-3 md:px-4 lg:px-2 max-w-full grid grid-cols-[minmax(44px,auto)_1fr_minmax(44px,auto)] items-center h-20">
         {" "}
         {/* Mobile: search icon on the left */}
@@ -122,7 +121,7 @@ export default function Header() {
             <div
               role="menu"
               aria-label="Hundefutter Menü"
-              className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/95 dark:bg-slate-900/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-4 z-50"
+              className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-4 z-50"
             >
               {" "}
               <div className="grid grid-cols-2 gap-4">
@@ -267,7 +266,7 @@ export default function Header() {
             <div
               role="menu"
               aria-label="Specials Menü"
-              className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/95 dark:bg-slate-900/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-3 z-50"
+              className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-3 z-50"
             >
               {" "}
               <ul className="space-y-1 text-sm">
@@ -357,7 +356,7 @@ export default function Header() {
                 }}
               ></span>{" "}
             </button>{" "}
-            <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/95 dark:bg-slate-900/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-3 z-50">
+            <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-3 z-50">
               {" "}
               <li className="py-1">
                 {" "}
@@ -471,7 +470,7 @@ export default function Header() {
                 name="q"
                 type="search"
                 placeholder="Suche..."
-                className="w-56 bg-white/95 dark:bg-slate-800/95 border border-[hsl(var(--border))] text-sm rounded-full py-1.5 pl-9 pr-3 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
+                className="w-56 bg-white/95 border border-[hsl(var(--border))] text-sm rounded-full py-1.5 pl-9 pr-3 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
               />{" "}
             </div>{" "}
           </form>{" "}
@@ -642,7 +641,7 @@ export default function Header() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setMobileOpen(false)}
           />{" "}
-          <div className="absolute inset-y-0 right-0 w-1/2 bg-white dark:bg-slate-900 p-6 overflow-auto">
+          <div className="absolute inset-y-0 right-0 w-1/2 bg-white p-6 overflow-auto">
             {" "}
             <div className="flex items-center justify-between mb-6">
               {" "}

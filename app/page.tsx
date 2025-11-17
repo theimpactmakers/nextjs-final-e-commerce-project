@@ -2,14 +2,6 @@
 // import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
 // import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
 // import { hasEnvVars } from "@/lib/utils";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
@@ -35,9 +27,12 @@ export default async function Home() {
           <p className="text-lg text-foreground/80">
             Qualität, die man riechen kann!
           </p>
-          <Button asChild className="mt-4" size="lg">
-            <Link href="/shop">Jetzt Shoppen</Link>
-          </Button>
+          <Link
+            href="/shop"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 mt-4"
+          >
+            Jetzt Shoppen
+          </Link>
         </div>
       </section>
 
@@ -51,12 +46,12 @@ export default async function Home() {
             "Expertenberatung",
             "24/7 Support",
           ].map((feature, index) => (
-            <Card
+            <div
               key={index}
-              className="text-center p-4 border-2 hover:shadow-lg transition-shadow"
+              className="bg-card text-card-foreground rounded-xl border-2 shadow-sm text-center p-4 hover:shadow-lg transition-shadow"
             >
-              <CardTitle className="text-sm font-semibold">{feature}</CardTitle>
-            </Card>
+              <h3 className="text-sm font-semibold">{feature}</h3>
+            </div>
           ))}
         </div>
 
@@ -67,9 +62,9 @@ export default async function Home() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products?.map((p) => (
-              <Card
+              <div
                 key={p.id}
-                className="overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300"
+                className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
               >
                 <div className="h-48 bg-muted flex items-center justify-center overflow-hidden">
                   <img
@@ -78,16 +73,22 @@ export default async function Home() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <CardHeader>
-                  <CardTitle>{p.name}</CardTitle>
-                  <CardDescription>{p.beschreibung}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
+                <div className="flex flex-col space-y-1.5 p-6">
+                  <h3 className="text-2xl font-semibold leading-none tracking-tight">
+                    {p.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {p.beschreibung}
+                  </p>
+                </div>
+                <div className="p-6 pt-0 space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-bold text-destructive">
                       {p.preis} €
                     </span>
-                    <Button>Zum Produkt</Button>
+                    <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                      Zum Produkt
+                    </button>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Fleischsorte: {p.fleischsorte} / Altersgruppe:{" "}
@@ -98,8 +99,8 @@ export default async function Home() {
                       Kategorie: {p.category.name}
                     </p>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </section>
@@ -110,20 +111,12 @@ export default async function Home() {
             Werde Teil unserer Community
           </h2>
           <div className="flex justify-center space-x-4 mb-6">
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full h-12 w-12 text-lg"
-            >
+            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-full h-12 w-12 text-lg">
               FB
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full h-12 w-12 text-lg"
-            >
+            </button>
+            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-full h-12 w-12 text-lg">
               IG
-            </Button>
+            </button>
           </div>
           <div className="max-w-md mx-auto flex gap-2">
             <input
@@ -131,7 +124,9 @@ export default async function Home() {
               placeholder="E-Mail für Newsletter"
               className="flex-grow p-3 border rounded-lg focus:ring-primary focus:border-primary"
             />
-            <Button>Anmelden</Button>
+            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+              Anmelden
+            </button>
           </div>
         </section>
       </main>
