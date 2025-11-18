@@ -60,7 +60,7 @@ export default function Header() {
         {/* Mobile: search icon on the left */}
         <button
           aria-label="Suche"
-          className="col-start-1 md:hidden p-1 rounded hover:bg-accent/10"
+          className="col-start-1 md:hidden p-1 rounded hover:bg-accent/10 text-accent"
         >
           {" "}
           <svg
@@ -121,7 +121,7 @@ export default function Header() {
                 className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                 style={{
                   backgroundImage:
-                    "linear-gradient(90deg, #513431 0%, #7a4d3f 50%, #381f1c 100%)",
+                    "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
                 }}
               ></span>{" "}
             </Link>{" "}
@@ -142,7 +142,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?age=junior"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
                         {" "}
                         Junior{" "}
@@ -152,7 +152,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?age=adult"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
                         {" "}
                         Adult{" "}
@@ -162,7 +162,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?age=senior"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
                         {" "}
                         Senior{" "}
@@ -182,7 +182,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=ente"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
                         {" "}
                         Ente{" "}
@@ -192,7 +192,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=rind"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
                         {" "}
                         Rind{" "}
@@ -202,7 +202,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=kaninchen"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
                         {" "}
                         Kaninchen{" "}
@@ -212,7 +212,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=lamm"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
                         {" "}
                         Lamm{" "}
@@ -222,7 +222,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=pferd"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
                         {" "}
                         Pferd{" "}
@@ -232,7 +232,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=wild"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
                         {" "}
                         Wild{" "}
@@ -242,7 +242,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=lachs"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
                         {" "}
                         Lachs{" "}
@@ -266,7 +266,7 @@ export default function Header() {
                 className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                 style={{
                   backgroundImage:
-                    "linear-gradient(90deg, #513431 0%, #7a4d3f 50%, #381f1c 100%)",
+                    "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
                 }}
               ></span>{" "}
             </Link>{" "}
@@ -282,7 +282,7 @@ export default function Header() {
                   {" "}
                   <Link
                     href="/specials/darm"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
                     {" "}
                     Diätfutter{" "}
@@ -292,7 +292,7 @@ export default function Header() {
                   {" "}
                   <Link
                     href="/specials/hypoallergen"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
                     {" "}
                     Hypoallergen{" "}
@@ -302,7 +302,7 @@ export default function Header() {
                   {" "}
                   <Link
                     href="/specials/darmgesundheit"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
                     {" "}
                     Darmgesundheit{" "}
@@ -312,7 +312,7 @@ export default function Header() {
                   {" "}
                   <Link
                     href="/specials/gelenk"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
                     {" "}
                     Gelenkfit{" "}
@@ -331,7 +331,7 @@ export default function Header() {
               className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
               style={{
                 backgroundImage:
-                  "linear-gradient(90deg, #513431 0%, #7a4d3f 50%, #381f1c 100%)",
+                  "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
               }}
             ></span>{" "}
           </Link>{" "}
@@ -341,7 +341,7 @@ export default function Header() {
               {" "}
               <span>Mehr</span>{" "}
               <svg
-                className="w-3 h-3 transition-transform duration-150 group-hover:rotate-90"
+                className="w-3 h-3 transition-transform duration-150 group-hover:rotate-90 text-accent"
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -351,6 +351,7 @@ export default function Header() {
                 <path
                   d="M8 5l8 7-8 7"
                   stroke="currentColor"
+                  strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />{" "}
@@ -359,17 +360,17 @@ export default function Header() {
                 className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                 style={{
                   backgroundImage:
-                    "linear-gradient(90deg, #513431 0%, #7a4d3f 50%, #381f1c 100%)",
+                    "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
                 }}
               ></span>{" "}
             </button>{" "}
-            <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-3 z-50">
+            <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50">
               {" "}
               <li className="py-1">
                 {" "}
                 <Link
                   href="/contact"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
                   {" "}
                   Kontakt{" "}
@@ -379,7 +380,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/about"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
                   {" "}
                   Über Uns{" "}
@@ -389,7 +390,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/impressum"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
                   {" "}
                   Impressum{" "}
@@ -399,7 +400,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/datenschutz"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
                   {" "}
                   Datenschutz{" "}
@@ -409,7 +410,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/agb"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
                   {" "}
                   AGB{" "}
@@ -419,7 +420,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/zahlung-versand"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
                   {" "}
                   Zahlung & Versand{" "}
@@ -429,7 +430,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/widerruf"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
                   {" "}
                   Widerruf{" "}
@@ -465,7 +466,7 @@ export default function Header() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--secondary-foreground))] w-4 h-4"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-accent w-4 h-4"
                 aria-hidden
               >
                 {" "}
@@ -485,7 +486,7 @@ export default function Header() {
           {/* Desktop: show text normally, but swap to icon between 768px-915px */}
           <Link
             href="/auth/login"
-            className="text-[hsl(var(--accent))] hover:opacity-90 transition-colors brown-color-hover hide-md-narrow"
+            className="text-accent hover:opacity-90 transition-colors brown-color-hover hide-md-narrow"
           >
             {" "}
             Anmelden{" "}
@@ -493,7 +494,7 @@ export default function Header() {
           <Link
             href="/auth/login"
             aria-label="Anmelden"
-            className="show-md-narrow p-1 rounded hover:bg-accent/10 text-[hsl(var(--accent))]"
+            className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent"
           >
             {" "}
             <svg
@@ -536,7 +537,7 @@ export default function Header() {
               <circle cx="8" cy="21" r="1" /> <circle cx="19" cy="21" r="1" />{" "}
               <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />{" "}
             </svg>{" "}
-            <span className="text-[hsl(var(--accent))] transition-colors group-hover:text-[hsl(var(--primary))]">
+            <span className="text-accent transition-colors group-hover:text-[hsl(var(--primary))]">
               {" "}
               (0){" "}
             </span>{" "}
@@ -568,7 +569,7 @@ export default function Header() {
               <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />{" "}
             </svg>{" "}
             <span className="ml-2 sr-only">Warenkorb</span>{" "}
-            <span className="absolute -top-1 -right-1 inline-flex items-center justify-center text-[hsl(var(--accent))] text-xs rounded-full px-2 bg-transparent transition-colors group-hover:text-[hsl(var(--primary))]">
+            <span className="absolute -top-1 -right-1 inline-flex items-center justify-center text-accent text-xs rounded-full px-2 bg-transparent transition-colors group-hover:text-[hsl(var(--primary))]">
               {" "}
               0{" "}
             </span>{" "}
@@ -576,7 +577,7 @@ export default function Header() {
           {/* Login icon */}
           <Link
             href="/auth/login"
-            className="p-1 rounded hover:bg-accent/10 text-[hsl(var(--accent))]"
+            className="p-1 rounded hover:bg-accent/10 text-accent"
           >
             {" "}
             <svg

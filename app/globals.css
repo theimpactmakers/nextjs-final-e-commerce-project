@@ -61,6 +61,7 @@
   --color-popover-foreground: hsl(27 38% 10%);
   /* Dunkelbraun - Popover-Text */
 
+  
   /* === BRAND-FARBEN === */
   /* Primary - Dunkelbraun (Elite Dog Treats Hauptfarbe) */
   --color-primary: hsl(27 38% 36%);
@@ -85,6 +86,7 @@
   /* #BB6B00 - Gold/Orange Akzent */
   --color-accent-foreground: hsl(0 0% 98%);
   /* Fast Weiß - Text auf Accent */
+
 
   /* === SYSTEM-FARBEN === */
   /* Destructive - Rot für Fehler */
