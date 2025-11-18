@@ -111,7 +111,7 @@
 /* Brown hover glow helpers */
 @utility brown-glow-hover {
   &:hover {
-    color: #513431 !important;
+    color: #513431;
     text-shadow: 0 0 8px rgba(81, 52, 49, 0.55);
   }
 }
@@ -123,7 +123,7 @@
 
 @utility brown-color-hover {
   &:hover {
-    color: #513431 !important;
+    color: #513431;
   }
 }
 
@@ -132,18 +132,18 @@
 
 /* Show/hide utilities for specific breakpoint range */
 @utility show-md-narrow {
-  display: none !important;
+  display: none;
 
   @media (min-width: 768px) and (max-width: 915px) {
-    display: inline-flex !important;
+    display: inline-flex;
   }
 }
 
 @utility hide-md-narrow {
-  display: inline-flex !important;
+  display: inline-flex;
 
   @media (min-width: 768px) and (max-width: 915px) {
-    display: none !important;
+    display: none;
   }
 }
 
@@ -152,7 +152,7 @@
 
   /* target the header search input by id */
   #header-search {
-    width: 10rem !important;
+    width: 10rem;
     /* ~160px */
   }
 
@@ -165,12 +165,12 @@
 /* Shrink logo slightly between 768px and 811px to avoid overlap before mobile menu */
 @media (min-width: 768px) and (max-width: 811px) {
   .logo-md-narrow {
-    min-width: 56px !important;
+    min-width: 56px;
   }
 
   .logo-md-narrow img {
-    width: 72px !important;
-    height: auto !important;
+    width: 72px;
+    height: auto;
   }
 }
 
@@ -179,60 +179,60 @@
 
   /* reduce header height so content fits better on very small screens */
   header>.relative.z-10 {
-    height: 4rem !important;
+    height: 4rem;
     /* 64px */
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
 
   /* slightly smaller logo on small phones */
   .logo-md-narrow {
-    min-width: 48px !important;
+    min-width: 48px;
   }
 
   .logo-md-narrow img {
-    width: 64px !important;
-    height: auto !important;
+    width: 64px;
+    height: auto;
   }
 
   /* shrink the desktop search when the viewport is narrow but still shows md layout */
   #header-search {
-    width: 9rem !important;
+    width: 9rem;
     /* ~144px */
   }
 
   /* mobile overlay logo slightly smaller */
   .fixed .absolute.inset-y-0.right-0 img,
   .absolute.inset-y-0.right-0 img {
-    width: 64px !important;
-    height: auto !important;
+    width: 64px;
+    height: auto;
   }
 }
 
 /* Ultra-small phones (e.g. older 320px devices) */
 @media (max-width: 360px) {
   header>.relative.z-10 {
-    height: 3.5rem !important;
+    height: 3.5rem;
     /* 56px */
-    padding-left: 0.25rem !important;
-    padding-right: 0.25rem !important;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
   }
 
   .logo-md-narrow img {
-    width: 56px !important;
-    height: auto !important;
+    width: 56px;
+    height: auto;
   }
 
   /* ensure mobile overlay header logo remains compact */
   .absolute.inset-y-0.right-0 img {
-    width: 56px !important;
-    height: auto !important;
+    width: 56px;
+    height: auto;
   }
 
   /* make sure any potential padding/margins on header controls are reduced */
   .md\:hidden+.logo-md-narrow,
   .col-start-3 {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding-left: 0;
+    padding-right: 0;
   }
 }
