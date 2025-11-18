@@ -38,7 +38,7 @@ export default function Header() {
     <header
       className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 ${
         isScrolled
-          ? "backdrop-blur bg-[hsl(var(--muted)/0.6)] shadow-md"
+          ? "backdrop-blur-sm bg-[hsl(var(--muted)/0.6)] shadow-md"
           : "bg-transparent"
       }`}
     >
@@ -79,7 +79,7 @@ export default function Header() {
         </button>
         <Link
           href="/"
-          className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 flex-shrink-0 min-w-[72px] ${
+          className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] ${
             mobileOpen ? "min-w-[48px]" : ""
           } logo-md-narrow`}
         >
@@ -470,7 +470,7 @@ export default function Header() {
                 name="q"
                 type="search"
                 placeholder="Suche..."
-                className="w-56 bg-white/95 border border-[hsl(var(--border))] text-sm rounded-full py-1.5 pl-9 pr-3 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
+                className="w-56 bg-white/95 border border-[hsl(var(--border))] text-sm rounded-full py-1.5 pl-9 pr-3 focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
               />{" "}
             </div>{" "}
           </form>{" "}

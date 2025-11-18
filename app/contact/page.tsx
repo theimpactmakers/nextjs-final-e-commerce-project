@@ -21,7 +21,7 @@ export default function ContactPage() {
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
+                    className="w-full px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
                     required
                   />
                 </div>
@@ -32,7 +32,7 @@ export default function ContactPage() {
                   </label>
                   <input
                     type="email"
-                    className="w-full px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
+                    className="w-full px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
                     required
                   />
                 </div>
@@ -43,7 +43,7 @@ export default function ContactPage() {
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
+                    className="w-full px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
                   />
                 </div>
 
@@ -53,7 +53,7 @@ export default function ContactPage() {
                   </label>
                   <textarea
                     rows={6}
-                    className="w-full px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30 resize-none"
+                    className="w-full px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30 resize-none"
                     required
                   ></textarea>
                 </div>

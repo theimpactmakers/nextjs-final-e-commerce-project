@@ -69,7 +69,7 @@ export default function KontaktPage() {
                       </label>
                       <input
                         type="text"
-                        className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
+                        className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
                         required
                       />
                     </div>
@@ -79,7 +79,7 @@ export default function KontaktPage() {
                       </label>
                       <input
                         type="email"
-                        className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
+                        className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
                         required
                       />
                     </div>
@@ -89,7 +89,7 @@ export default function KontaktPage() {
                     <label className="block text-[hsl(var(--foreground))] font-medium mb-1">
                       Thema
                     </label>
-                    <select className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30">
+                    <select className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30">
                       <option>Bestellung</option>
                       <option>Produkte</option>
                       <option>Beratung</option>
@@ -104,7 +104,7 @@ export default function KontaktPage() {
                     </label>
                     <textarea
                       rows={4}
-                      className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30 resize-none"
+                      className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30 resize-none"
                       required
                     ></textarea>
                   </div>
@@ -187,7 +187,7 @@ export default function KontaktPage() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-[hsl(var(--primary))]/10 to-[hsl(var(--accent))]/10 rounded-lg p-6 border border-[hsl(var(--border))]">
+              <div className="bg-linear-to-br from-[hsl(var(--primary))]/10 to-[hsl(var(--accent))]/10 rounded-lg p-6 border border-[hsl(var(--border))]">
                 <h3 className="font-semibold text-[hsl(var(--primary))] mb-2">
                   Notfall-Hotline
                 </h3>
