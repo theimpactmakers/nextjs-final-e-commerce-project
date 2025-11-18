@@ -114,7 +114,7 @@ export default function BlogsPage() {
                 <input
                   type="email"
                   placeholder="Ihre E-Mail-Adresse"
-                  className="flex-1 px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
+                  className="flex-1 px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
                 />
                 <button className="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] px-6 py-3 rounded-lg hover:bg-[hsl(var(--primary))]/90 transition-colors font-semibold">
                   Abonnieren

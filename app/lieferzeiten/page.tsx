@@ -168,7 +168,7 @@ export default function LieferzeitenPage() {
           </div>
 
           <div className="text-center">
-            <div className="bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] text-white rounded-lg p-8">
+            <div className="bg-linear-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] text-white rounded-lg p-8">
               <h2 className="text-2xl font-bold mb-4">
                 Haben Sie Fragen zu Ihrer Lieferung?
               </h2>

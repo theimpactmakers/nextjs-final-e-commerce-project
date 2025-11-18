@@ -7,7 +7,7 @@ export default function SpecialsPage() {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div className="bg-gradient-to-br from-[hsl(var(--accent))]/10 to-[hsl(var(--primary))]/10 rounded-lg p-6 border border-[hsl(var(--border))]">
+          <div className="bg-linear-to-br from-[hsl(var(--accent))]/10 to-[hsl(var(--primary))]/10 rounded-lg p-6 border border-[hsl(var(--border))]">
             <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-4">
               Sommer-Special
             </h2>
@@ -22,7 +22,7 @@ export default function SpecialsPage() {
             </button>
           </div>
 
-          <div className="bg-gradient-to-br from-[hsl(var(--secondary))] to-[hsl(var(--muted))] rounded-lg p-6 border border-[hsl(var(--border))]">
+          <div className="bg-linear-to-br from-[hsl(var(--secondary))] to-[hsl(var(--muted))] rounded-lg p-6 border border-[hsl(var(--border))]">
             <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-4">
               Neukunden-Rabatt
             </h2>
@@ -37,7 +37,7 @@ export default function SpecialsPage() {
             </button>
           </div>
 
-          <div className="bg-gradient-to-br from-[hsl(var(--primary))]/10 to-[hsl(var(--accent))]/10 rounded-lg p-6 border border-[hsl(var(--border))]">
+          <div className="bg-linear-to-br from-[hsl(var(--primary))]/10 to-[hsl(var(--accent))]/10 rounded-lg p-6 border border-[hsl(var(--border))]">
             <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-4">
               Bundle-Angebot
             </h2>
