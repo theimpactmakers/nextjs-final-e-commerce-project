@@ -5,12 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 
 export default function Header() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
-      setIsScrolled(window.scrollY > 8);
+      // Scroll handler can be used for future features
     };
 
     onScroll();
@@ -36,12 +35,14 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 ${
-        isScrolled
-          ? "backdrop-blur-sm bg-[hsl(var(--muted)/0.6)] shadow-md"
-          : "bg-transparent"
-      }`}
+      className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 $ {
+        isScrolled ? "backdrop-blur-sm bg-[hsl(var(--muted)/0.6)] shadow-md"
+        : "bg-transparent"
+      }
+
+      `}
     >
+      {" "}
       {/* very soft, minimal blurred gradient at bottom (single subtle band) */}
       <div
         aria-hidden
@@ -61,6 +62,7 @@ export default function Header() {
           aria-label="Suche"
           className="col-start-1 md:hidden p-1 rounded hover:bg-accent/10"
         >
+          {" "}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -73,15 +75,18 @@ export default function Header() {
             strokeLinejoin="round"
             className="lucide lucide-search"
           >
-            <circle cx="11" cy="11" r="7" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        </button>
+            {" "}
+            <circle cx="11" cy="11" r="7" />{" "}
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />{" "}
+          </svg>{" "}
+        </button>{" "}
         <Link
           href="/"
-          className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] ${
-            mobileOpen ? "min-w-[48px]" : ""
-          } logo-md-narrow`}
+          className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] $ {
+        mobileOpen ? "min-w-[48px]" : ""
+      }
+
+      logo-md-narrow`}
         >
           {" "}
           <Image
@@ -90,9 +95,11 @@ export default function Header() {
             width={120}
             height={48}
             priority
-            className={`block w-20 sm:w-24 md:w-28 lg:w-32 transition-all duration-150 ${
-              mobileOpen ? "w-12 sm:w-16" : ""
-            }`}
+            className={`block w-20 sm:w-24 md:w-28 lg:w-32 transition-all duration-150 $ {
+        mobileOpen ? "w-12 sm:w-16" : ""
+      }
+
+      `}
             style={{
               height: "auto",
             }}
@@ -121,7 +128,7 @@ export default function Header() {
             <div
               role="menu"
               aria-label="Hundefutter Menü"
-              className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-4 z-50"
+              className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-4 z-50"
             >
               {" "}
               <div className="grid grid-cols-2 gap-4">
@@ -135,7 +142,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?age=junior"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                       >
                         {" "}
                         Junior{" "}
@@ -145,7 +152,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?age=adult"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                       >
                         {" "}
                         Adult{" "}
@@ -155,7 +162,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?age=senior"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                       >
                         {" "}
                         Senior{" "}
@@ -175,7 +182,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=ente"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                       >
                         {" "}
                         Ente{" "}
@@ -185,7 +192,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=rind"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                       >
                         {" "}
                         Rind{" "}
@@ -195,7 +202,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=kaninchen"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                       >
                         {" "}
                         Kaninchen{" "}
@@ -205,7 +212,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=lamm"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                       >
                         {" "}
                         Lamm{" "}
@@ -215,7 +222,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=pferd"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                       >
                         {" "}
                         Pferd{" "}
@@ -225,7 +232,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=wild"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                       >
                         {" "}
                         Wild{" "}
@@ -235,7 +242,7 @@ export default function Header() {
                       {" "}
                       <Link
                         href="/shop?meat=lachs"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                       >
                         {" "}
                         Lachs{" "}
@@ -266,7 +273,7 @@ export default function Header() {
             <div
               role="menu"
               aria-label="Specials Menü"
-              className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/95 text-foreground border border-[hsl(var(--border))] rounded-xl shadow-xl p-3 z-50"
+              className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50"
             >
               {" "}
               <ul className="space-y-1 text-sm">
@@ -274,8 +281,8 @@ export default function Header() {
                 <li>
                   {" "}
                   <Link
-                    href="/specials/diat"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                    href="/specials/darm"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                   >
                     {" "}
                     Diätfutter{" "}
@@ -285,7 +292,7 @@ export default function Header() {
                   {" "}
                   <Link
                     href="/specials/hypoallergen"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                   >
                     {" "}
                     Hypoallergen{" "}
@@ -304,8 +311,8 @@ export default function Header() {
                 <li>
                   {" "}
                   <Link
-                    href="/specials/gelenkfit"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                    href="/specials/gelenk"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                   >
                     {" "}
                     Gelenkfit{" "}
@@ -362,7 +369,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/contact"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                 >
                   {" "}
                   Kontakt{" "}
@@ -372,7 +379,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/about"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                 >
                   {" "}
                   Über Uns{" "}
@@ -382,7 +389,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/impressum"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                 >
                   {" "}
                   Impressum{" "}
@@ -392,7 +399,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/datenschutz"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                 >
                   {" "}
                   Datenschutz{" "}
@@ -402,7 +409,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/agb"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                 >
                   {" "}
                   AGB{" "}
@@ -412,7 +419,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/zahlung-versand"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                 >
                   {" "}
                   Zahlung & Versand{" "}
@@ -422,7 +429,7 @@ export default function Header() {
                 {" "}
                 <Link
                   href="/widerruf"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground transition-colors"
+                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground hover:underline underline-offset-2 transition-all"
                 >
                   {" "}
                   Widerruf{" "}
@@ -657,8 +664,10 @@ export default function Header() {
                   width={80}
                   height={24}
                   className="h-auto w-20 transition-all duration-150"
-                  style={{ height: "auto" }}
-                />
+                  style={{
+                    height: "auto",
+                  }}
+                />{" "}
               </Link>{" "}
               <button
                 aria-label="Schließe Menü"

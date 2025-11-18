@@ -4,8 +4,6 @@
 
 @plugin 'tailwindcss-animate';
 
-@custom-variant dark (&:is(.dark *));
-
 @utility container {
   margin-inline: auto;
   padding-inline: 1rem;
@@ -44,40 +42,76 @@
   --breakpoint-xsm: 375px;
   --breakpoint-xxl: 2000px;
 
-  /* Direct color definitions using HSL (v4 compatible) */
+  /* === HAUPT-FARBEN === */
+  /* Hintergrund & Text */
   --color-background: hsl(0 0% 100%);
+  /* Weiß - Haupthintergrund */
   --color-foreground: hsl(27 38% 10%);
+  /* Dunkelbraun - Haupttext (#1F1310) */
 
+  /* Karten */
   --color-card: hsl(0 0% 100%);
+  /* Weiß - Karten-Hintergrund */
   --color-card-foreground: hsl(27 38% 10%);
+  /* Dunkelbraun - Karten-Text */
 
+  /* Popover/Tooltips */
   --color-popover: hsl(0 0% 100%);
+  /* Weiß - Popover-Hintergrund */
   --color-popover-foreground: hsl(27 38% 10%);
+  /* Dunkelbraun - Popover-Text */
 
+  /* === BRAND-FARBEN === */
+  /* Primary - Dunkelbraun (Elite Dog Treats Hauptfarbe) */
   --color-primary: hsl(27 38% 36%);
+  /* #7F5539 - Dunkelbraun */
   --color-primary-foreground: hsl(0 0% 98%);
+  /* Fast Weiß - Text auf Primary */
 
+  /* Secondary - Helles Beige */
   --color-secondary: hsl(26 18% 80%);
+  /* #D6CCC2 - Helles Beige */
   --color-secondary-foreground: hsl(27 38% 36%);
+  /* #7F5539 - Dunkelbraun auf Secondary */
 
+  /* Muted - Sehr helles Beige */
   --color-muted: hsl(26 18% 90%);
+  /* Sehr helles Beige - gedämpfte Bereiche */
   --color-muted-foreground: hsl(6 25% 25%);
+  /* Dunkles Rotbraun - gedämpfter Text */
 
+  /* Accent - Gold/Orange */
   --color-accent: hsl(33 100% 37%);
+  /* #BB6B00 - Gold/Orange Akzent */
   --color-accent-foreground: hsl(0 0% 98%);
+  /* Fast Weiß - Text auf Accent */
 
+  /* === SYSTEM-FARBEN === */
+  /* Destructive - Rot für Fehler */
   --color-destructive: hsl(0 84.2% 60.2%);
+  /* Rot - Fehler/Warnungen */
   --color-destructive-foreground: hsl(0 0% 98%);
+  /* Weiß - Text auf Destructive */
 
+  /* Borders & Inputs */
   --color-border: hsl(26 18% 85%);
+  /* Helles Beige - Rahmen */
   --color-input: hsl(26 18% 85%);
+  /* Helles Beige - Input-Rahmen */
   --color-ring: hsl(27 38% 36%);
+  /* #7F5539 - Focus-Ring (Dunkelbraun) */
 
+  /* === CHART-FARBEN === */
   --color-chart-1: hsl(12 76% 61%);
+  /* Koralle - Chart 1 */
   --color-chart-2: hsl(173 58% 39%);
+  /* Türkis - Chart 2 */
   --color-chart-3: hsl(197 37% 24%);
+  /* Dunkelblau - Chart 3 */
   --color-chart-4: hsl(43 74% 66%);
+  /* Goldgelb - Chart 4 */
   --color-chart-5: hsl(27 87% 67%);
+  /* Hellorange - Chart 5 */
 
   --radius-lg: 0.75rem;
   --radius-md: calc(0.75rem - 2px);
