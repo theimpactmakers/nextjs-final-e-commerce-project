@@ -94,9 +94,12 @@ export default async function Home() {
                     <span className="text-lg font-bold text-destructive">
                       {p.price} €
                     </span>
-                    <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                    <Link
+                      href={`/products/${p.slug}`}
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    >
                       Zum Produkt
-                    </button>
+                    </Link>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Fleischsorte: {p.meat_type} / Altersgruppe: {p.age_group}
