@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import type { Database } from "@/types/supabase";
+import type { Database } from "@/types";
 
 // Use static generation with ISR for better performance
 export const revalidate = 60;

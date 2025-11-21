@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { Database } from "@/types/supabase";
+import { useCart } from "@/contexts/CartContext";
+import type { Database } from "@/types";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type ProductImage = Database["public"]["Tables"]["product_images"]["Row"];
@@ -21,6 +22,8 @@ export default function ProductCard({
 }: ProductCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const { addToCart } = useCart();
 
   // Sort images by display_order
   const sortedImages = [...images].sort(
@@ -52,6 +55,38 @@ export default function ProductCard({
             100
         )
       : 0;
+
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    if (
+      !selectedVariant.stock_quantity ||
+      selectedVariant.stock_quantity === 0
+    ) {
+      return;
+    }
+
+    setIsAddingToCart(true);
+    try {
+      await addToCart(
+        selectedVariant.id,
+        product.id,
+        product.name || "Product",
+        selectedVariant.name || "Default",
+        Number(selectedVariant.price) || 0,
+        sortedImages[0]?.image_url || null,
+        selectedVariant.stock_quantity || 0,
+        1
+      );
+
+      // Optional: Show success message
+      alert("Produkt wurde zum Warenkorb hinzugefügt!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Fehler beim Hinzufügen zum Warenkorb");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
 
   return (
     <div className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 group">
@@ -258,27 +293,57 @@ export default function ProductCard({
             Details
           </Link>
           <button
+            onClick={handleAddToCart}
             disabled={
               !selectedVariant.stock_quantity ||
-              selectedVariant.stock_quantity === 0
+              selectedVariant.stock_quantity === 0 ||
+              isAddingToCart
             }
             className="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-4 h-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-              />
-            </svg>
-            In den Warenkorb
+            {isAddingToCart ? (
+              <>
+                <svg
+                  className="w-4 h-4 animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Wird hinzugefügt...
+              </>
+            ) : (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                  />
+                </svg>
+                In den Warenkorb
+              </>
+            )}
           </button>
         </div>
       </div>

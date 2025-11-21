@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useCart } from "@/contexts/CartContext";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { itemCount } = useCart();
 
   useEffect(() => {
     const onScroll = () => {
@@ -539,7 +541,7 @@ export default function Header() {
             </svg>{" "}
             <span className="text-accent transition-colors group-hover:text-[hsl(var(--primary))]">
               {" "}
-              (0){" "}
+              ({itemCount}){" "}
             </span>{" "}
           </Link>{" "}
         </div>{" "}
@@ -571,7 +573,7 @@ export default function Header() {
             <span className="ml-2 sr-only">Warenkorb</span>{" "}
             <span className="absolute -top-1 -right-1 inline-flex items-center justify-center text-accent text-xs rounded-full px-2 bg-transparent transition-colors group-hover:text-[hsl(var(--primary))]">
               {" "}
-              0{" "}
+              {itemCount}{" "}
             </span>{" "}
           </Link>{" "}
           {/* Login icon */}
@@ -837,7 +839,7 @@ export default function Header() {
                   className="block text-sm mt-2 hover:text-[hsl(var(--accent))]"
                 >
                   {" "}
-                  Warenkorb (0){" "}
+                  Warenkorb ({itemCount}){" "}
                 </Link>{" "}
               </div>{" "}
             </nav>{" "}
