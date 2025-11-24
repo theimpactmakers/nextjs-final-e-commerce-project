@@ -26,6 +26,7 @@ export default async function Home() {
   }
   return (
     <div className="w-full">
+
       {/* 1. Hero / Banner Sektion (Volle Breite) */}
       <section className="h-96 bg-[hsl(var(--muted-foreground))] flex items-center justify-center mb-12">
         <div className="text-center p-8 bg-background/80 rounded-lg shadow-2xl">
@@ -43,6 +44,7 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+      
 
       {/* 2. Hauptinhalt - Zentriert und begrenzt (Container) */}
       <main className="container max-w-7xl px-4 flex flex-col gap-16">
