@@ -1,9 +1,35 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Footer() {
+  const { user } = useAuth();
+
   return (
     <footer className="w-full border-t bg-muted mt-16 py-12 text-muted-foreground px-6 sm:px-8 lg:px-12">
+      {/* Debug User Info - nur zum Testen */}
+      {user && (
+        <div className="container max-w-7xl mb-6 p-4 bg-primary/10 rounded-lg border border-primary/20">
+          <p className="text-sm font-semibold text-primary mb-1">
+            🟢 Angemeldet als:
+          </p>
+          <p className="text-xs text-foreground">
+            <strong>Email:</strong> {user.email}
+          </p>
+          {user.user_metadata?.first_name && (
+            <p className="text-xs text-foreground">
+              <strong>Name:</strong> {user.user_metadata.first_name}{" "}
+              {user.user_metadata.last_name}
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground mt-1">
+            User ID: {user.id}
+          </p>
+        </div>
+      )}
+
       <div className="container max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-8">
         {/* Spalte 1: Über uns */}
         <div className="text-center md:text-center">

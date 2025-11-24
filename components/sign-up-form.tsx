@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -10,6 +10,8 @@ export function SignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const { signUp } = useAuth();
+
   // User Credentials
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +25,7 @@ export function SignUpForm({
   const [gender, setGender] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
 
-  // Address Info (Optional)
+  // Address Info (Required)
   const [company, setCompany] = useState("");
   const [street, setStreet] = useState("");
   const [houseNumber, setHouseNumber] = useState("");
@@ -40,7 +42,6 @@ export function SignUpForm({
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
@@ -74,27 +75,18 @@ export function SignUpForm({
       if (gender) userMetadata.gender = gender;
       if (dateOfBirth) userMetadata.date_of_birth = dateOfBirth;
 
-      // Add optional address data
-      if (street) {
-        userMetadata.company = company;
-        userMetadata.street = street;
-        userMetadata.house_number = houseNumber;
-        userMetadata.address_line2 = addressLine2;
-        userMetadata.postal_code = postalCode;
-        userMetadata.city = city;
-        userMetadata.state = state;
-        userMetadata.country = country;
-        userMetadata.phone = phone;
-      }
+      // Add address data (all required now)
+      userMetadata.company = company;
+      userMetadata.street = street;
+      userMetadata.house_number = houseNumber;
+      userMetadata.address_line2 = addressLine2;
+      userMetadata.postal_code = postalCode;
+      userMetadata.city = city;
+      userMetadata.state = state;
+      userMetadata.country = country;
+      userMetadata.phone = phone;
 
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: userMetadata,
-          emailRedirectTo: `${window.location.origin}/auth/confirmed`,
-        },
-      });
+      const { error } = await signUp(email, password, userMetadata);
 
       if (error) throw error;
       router.push("/auth/sign-up-success");
