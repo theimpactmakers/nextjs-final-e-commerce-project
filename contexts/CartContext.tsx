@@ -82,7 +82,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           if (cartItems) {
             // Get primary images for each product
             const productIds = (cartItems as DbCartItem[])
-              .map((item) => item.product_variants[0]?.product_id)
+              .map((item) => {
+                // Handle both array and object responses from Supabase
+                const variant = Array.isArray(item.product_variants)
+                  ? item.product_variants[0]
+                  : item.product_variants;
+                return variant?.product_id;
+              })
               .filter((id): id is string => id !== undefined);
 
             const { data: images } = await supabase
@@ -96,14 +102,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             );
 
             const formattedItems: CartItem[] = (cartItems as DbCartItem[])
-              .filter(
-                (item) =>
-                  item.product_variants[0] &&
-                  item.product_variants[0].products[0]
-              )
+              .filter((item) => {
+                // Handle both array and object responses from Supabase
+                const variant = Array.isArray(item.product_variants)
+                  ? item.product_variants[0]
+                  : item.product_variants;
+                const product = variant
+                  ? Array.isArray(variant.products)
+                    ? variant.products[0]
+                    : variant.products
+                  : null;
+                return variant && product;
+              })
               .map((item) => {
-                const variant = item.product_variants[0];
-                const product = variant.products[0];
+                // Handle both array and object responses from Supabase
+                const variant = Array.isArray(item.product_variants)
+                  ? item.product_variants[0]
+                  : item.product_variants;
+                const product = Array.isArray(variant.products)
+                  ? variant.products[0]
+                  : variant.products;
 
                 return {
                   id: item.id,
