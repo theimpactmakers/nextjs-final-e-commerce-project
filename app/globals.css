@@ -43,6 +43,7 @@
   --breakpoint-xxl: 2000px;
 
   /* === HAUPT-FARBEN === */
+
   /* Hintergrund & Text */
   --color-background: hsl(0 0% 100%);
   /* Weiß - Haupthintergrund */
@@ -63,6 +64,7 @@
 
   
   /* === BRAND-FARBEN === */
+  
   /* Primary - Dunkelbraun (Elite Dog Treats Hauptfarbe) */
   --color-primary: hsl(27 38% 36%);
   /* #7F5539 - Dunkelbraun */

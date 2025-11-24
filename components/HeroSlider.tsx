@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { SlideData, HeroSliderProps } from '../app/(data)/slideData'; // Importiere Typen
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+import { SlideData, HeroSliderProps } from "../app/(data)/slideData"; // Importiere Typen
 
 // ==============================================================================
 // HILFS-KOMPONENTEN (Icons)
@@ -7,12 +9,37 @@ import { SlideData, HeroSliderProps } from '../app/(data)/slideData'; // Importi
 
 // Hilfs-Icons (simuliert)
 const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M15 18l-6-6 6-6" />
+  </svg>
 );
 const ChevronRight: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 18l6-6-6-6" />
+  </svg>
 );
-
 
 // ==============================================================================
 // HeroSlider Komponente
@@ -43,10 +70,13 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
   }, [nextSlide, totalSlides]);
 
   // Error-Handling für das Bild
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
     const target = e.target as HTMLImageElement;
-    target.onerror = null; 
-    target.src="https://placehold.co/720x400/CCCCCC/333333?text=Bild+nicht+gefunden";
+    target.onerror = null;
+    target.src =
+      "https://placehold.co/720x400/CCCCCC/333333?text=Bild+nicht+gefunden";
   };
 
   return (
@@ -58,7 +88,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
         {slides.map((slide: SlideData) => (
-          <div key={slide.id} className="w-full flex-shrink-0 relative h-full">
+          <div key={slide.id} className="w-full shrink-0 relative h-full">
             {/* Bild-Element mit Mobile-First-Optimierung */}
             <picture>
               <source media="(min-width: 768px)" srcSet={slide.imageDesktop} />
@@ -70,26 +100,23 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
                 onError={handleImageError}
               />
             </picture>
-            
+
             {/* Overlay-Maske (leicht dunkler) für besseren Textkontrast */}
             <div className="absolute inset-0 bg-black/30"></div>
 
             {/* Content Overlay (Text direkt auf dem Bild) - Mobile First */}
             <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-8 text-center text-white drop-shadow-lg">
-              
               {/* Titel: Größer auf Desktop (md:text-5xl) */}
               <h1 className="text-3xl sm:text-4xl font-extrabold mb-2">
                 {slide.title}
               </h1>
               {/* Beschreibung: Größe passt sich an */}
-              <p className="text-md sm:text-lg mb-4">
-                {slide.description}
-              </p>
+              <p className="text-md sm:text-lg mb-4">{slide.description}</p>
               {/* CTA Button */}
               <a
                 href={slide.ctaLink}
                 className="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium 
-                           bg-indigo-600 text-white hover:bg-indigo-700 
+                           bg-accent text-accent-foreground hover:opacity-90 
                            shadow-xl transition-all duration-300 ease-in-out 
                            h-10 px-6 sm:h-11 sm:px-8 mt-2"
               >
@@ -100,20 +127,20 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
         ))}
       </div>
 
-      {/* Navigationspfeile (Außerhalb der Slides, überlagert) - Nur Desktop */}
+      {/* Navigationspfeile (Außerhalb der Slides, überlagert) - Sichtbar auf allen Geräten */}
       <button
         onClick={prevSlide}
         aria-label="Previous slide"
-        className="absolute top-1/2 left-4 transform -translate-y-1/2 p-3 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors hidden md:block shadow-md"
+        className="absolute top-1/2 left-4 transform -translate-y-1/2 p-3 hover:bg-black/50 text-white rounded-full transition-colors shadow-md cursor-pointer"
       >
-        <ChevronLeft className="w-6 h-6" />
+        <ChevronLeft className="w-10 h-10 md:w-6 md:h-6" />
       </button>
       <button
         onClick={nextSlide}
         aria-label="Next slide"
-        className="absolute top-1/2 right-4 transform -translate-y-1/2 p-3 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors hidden md:block shadow-md"
+        className="absolute top-1/2 right-4 transform -translate-y-1/2 p-3 hover:bg-black/50 text-white rounded-full transition-colors shadow-md cursor-pointer"
       >
-        <ChevronRight className="w-6 h-6" />
+        <ChevronRight className="w-10 h-10 md:w-6 md:h-6" />
       </button>
 
       {/* Navigationspunkte (Dots) - Sichtbar auf allen Geräten */}
@@ -124,7 +151,9 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
             onClick={() => setCurrentSlide(index)}
             aria-label={`Go to slide ${index + 1}`}
             className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-              index === currentSlide ? 'bg-indigo-600 shadow-md' : 'bg-white/70 hover:bg-white'
+              index === currentSlide
+                ? "bg-accent shadow-md"
+                : "bg-white/70 hover:bg-white"
             }`}
           />
         ))}
