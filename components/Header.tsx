@@ -1,18 +1,41 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { User, LogIn, LogOut } from "lucide-react";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const { itemCount } = useCart();
+  const { user, signOut } = useAuth();
   const pathname = usePathname();
-  
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   // Erstelle Login-URL mit aktuellem Pfad als redirect
   const loginUrl = `/auth/login?redirect=${encodeURIComponent(pathname)}`;
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setProfileDropdownOpen(false);
+      }
+    }
+
+    if (profileDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [profileDropdownOpen]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -55,7 +78,7 @@ export default function Header() {
           opacity: 0.95,
         }}
       />
-      
+
       {/* Hauptnavigation & Logo */}
       <div className="relative z-10 w-full mx-auto px-2 sm:px-3 md:px-4 lg:px-2 max-w-full grid grid-cols-[minmax(44px,auto)_1fr_minmax(44px,auto)] items-center h-20">
         {/* Mobile: search icon on the left */}
@@ -79,7 +102,6 @@ export default function Header() {
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </button>
-        
         <Link
           href="/"
           className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] ${
@@ -100,7 +122,6 @@ export default function Header() {
             }}
           />
         </Link>
-        
         {/* 2. Hauptmenü Links (zentriert auf md+) */}
         <nav className="hidden md:flex md:gap-2 lg:gap-4 font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
           {/* Hundefutter mit Dropdown */}
@@ -118,7 +139,7 @@ export default function Header() {
                 }}
               ></span>
             </Link>
-            
+
             <div
               role="menu"
               aria-label="Hundefutter Menü"
@@ -218,7 +239,7 @@ export default function Header() {
               </div>
             </div>
           </div>
-          
+
           {/* Specials mit Dropdown */}
           <div className="relative group inline-block">
             <Link
@@ -234,7 +255,7 @@ export default function Header() {
                 }}
               ></span>
             </Link>
-            
+
             <div
               role="menu"
               aria-label="Specials Menü"
@@ -276,7 +297,7 @@ export default function Header() {
               </ul>
             </div>
           </div>
-          
+
           <Link
             href="/beratung"
             className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
@@ -290,7 +311,7 @@ export default function Header() {
               }}
             ></span>
           </Link>
-          
+
           <div className="relative group inline-block">
             <button className="relative inline-flex items-center h-9 gap-2 group-hover:text-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] transition-colors px-2 py-2 align-middle">
               <span>Mehr</span>
@@ -317,7 +338,7 @@ export default function Header() {
                 }}
               ></span>
             </button>
-            
+
             <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50">
               <li className="py-1">
                 <Link
@@ -378,7 +399,6 @@ export default function Header() {
             </ul>
           </div>
         </nav>
-        
         {/* 3. Aktionen */}
         {/* Desktop: Suche + Anmeldung + Warenkorb */}
         <div className="hidden md:flex items-center space-x-4 text-sm font-medium justify-end col-start-3">
@@ -417,37 +437,102 @@ export default function Header() {
               />
             </div>
           </form>
-          
-          {/* Anmelden / Login - MIT REDIRECT */}
-          <Link
-            href={loginUrl}
-            className="text-accent hover:opacity-90 transition-colors brown-color-hover hide-md-narrow"
-          >
-            Anmelden
-          </Link>
-          
-          <Link
-            href={loginUrl}
-            aria-label="Anmelden"
-            className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
+          {/* Profile Dropdown (Desktop) */}
+          <div className="relative hide-md-narrow" ref={dropdownRef}>
+            <button
+              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+              className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"
+              aria-label="Benutzerprofil"
             >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          </Link>
-          
+              <User className="w-5 h-5" />
+            </button>
+
+            {profileDropdownOpen && (
+              <div className="absolute right-0 top-full mt-2 w-56 bg-white/98 backdrop-blur-sm border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-2 z-50">
+                {user && (
+                  <Link
+                    href="/userProfile"
+                    onClick={() => setProfileDropdownOpen(false)}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
+                  >
+                    <User className="w-4 h-4 text-accent" />
+                    <span>User Profile</span>
+                  </Link>
+                )}
+
+                <div className="border-t border-gray-200/60 my-1"></div>
+
+                {user ? (
+                  <button
+                    onClick={() => {
+                      setProfileDropdownOpen(false);
+                      signOut();
+                    }}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 text-accent" />
+                    <span>Abmelden</span>
+                  </button>
+                ) : (
+                  <Link
+                    href={loginUrl}
+                    onClick={() => setProfileDropdownOpen(false)}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
+                  >
+                    <LogIn className="w-4 h-4 text-accent" />
+                    <span>Anmelden</span>
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
+          {/* Profile Icon - Narrow Screens */}
+          {user ? (
+            <button
+              onClick={signOut}
+              aria-label="Abmelden"
+              className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          ) : (
+            <Link
+              href={loginUrl}
+              aria-label="Anmelden"
+              className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </Link>
+          )}
           {/* Warenkorb */}
           <Link
             href="/cart"
@@ -525,7 +610,6 @@ export default function Header() {
             </svg>
             <span className="sr-only">Anmelden</span>
           </Link>
-          
           {/* Hamburger menu */}
           <button
             aria-label={mobileOpen ? "Schließe Menü" : "Öffne Menü"}
@@ -567,7 +651,7 @@ export default function Header() {
           </button>
         </div>
       </div>
-      
+
       {/* Mobile menu overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
@@ -614,7 +698,6 @@ export default function Header() {
                 </svg>
               </button>
             </div>
-            
             <nav className="space-y-4">
               <Link
                 href="/shop"
@@ -646,7 +729,6 @@ export default function Header() {
                   Senior
                 </Link>
               </div>
-              
               <Link
                 href="/specials"
                 onClick={() => setMobileOpen(false)}
@@ -684,7 +766,6 @@ export default function Header() {
                   Gelenkfit
                 </Link>
               </div>
-              
               <Link
                 href="/beratung"
                 onClick={() => setMobileOpen(false)}
@@ -692,7 +773,6 @@ export default function Header() {
               >
                 Beratung
               </Link>
-              
               <Link
                 href="/impressum"
                 onClick={() => setMobileOpen(false)}
@@ -700,7 +780,6 @@ export default function Header() {
               >
                 Impressum
               </Link>
-              
               <Link
                 href="/datenschutz"
                 onClick={() => setMobileOpen(false)}
@@ -708,7 +787,6 @@ export default function Header() {
               >
                 Datenschutz
               </Link>
-              
               <Link
                 href="/agb"
                 onClick={() => setMobileOpen(false)}
@@ -716,7 +794,6 @@ export default function Header() {
               >
                 AGB
               </Link>
-              
               <Link
                 href="/zahlung-versand"
                 onClick={() => setMobileOpen(false)}
@@ -724,7 +801,6 @@ export default function Header() {
               >
                 Zahlung & Versand
               </Link>
-              
               <Link
                 href="/widerruf"
                 onClick={() => setMobileOpen(false)}
@@ -732,17 +808,27 @@ export default function Header() {
               >
                 Widerruf
               </Link>
-              
               <div className="pt-4 border-t mt-4">
-                {/* Mobile Login Link - MIT REDIRECT */}
-                <Link
-                  href={loginUrl}
-                  onClick={() => setMobileOpen(false)}
-                  className="block text-sm font-medium hover:text-[hsl(var(--accent))]"
-                >
-                  Anmelden
-                </Link>
-                
+                {/* Mobile Login/Logout Link - MIT REDIRECT */}
+                {user ? (
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setMobileOpen(false);
+                    }}
+                    className="block text-sm font-medium hover:text-[hsl(var(--accent))] w-full text-left"
+                  >
+                    Abmelden
+                  </button>
+                ) : (
+                  <Link
+                    href={loginUrl}
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-sm font-medium hover:text-[hsl(var(--accent))]"
+                  >
+                    Anmelden
+                  </Link>
+                )}
                 <Link
                   href="/cart"
                   onClick={() => setMobileOpen(false)}
