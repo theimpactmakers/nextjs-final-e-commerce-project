@@ -105,17 +105,19 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
             <div className="absolute inset-0 bg-black/30"></div>
 
             {/* Content Overlay (Text direkt auf dem Bild) - Mobile First */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-8 text-center text-white drop-shadow-lg">
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-16 sm:px-20 md:px-24 py-4 sm:py-8 text-center text-white drop-shadow-lg">
               {/* Titel: Größer auf Desktop (md:text-5xl) */}
-              <h1 className="text-3xl sm:text-4xl font-extrabold mb-2">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-2">
                 {slide.title}
               </h1>
               {/* Beschreibung: Größe passt sich an */}
-              <p className="text-md sm:text-lg mb-4">{slide.description}</p>
+              <p className="text-md sm:text-lg md:text-xl lg:text-2xl mb-4">
+                {slide.description}
+              </p>
               {/* CTA Button */}
               <a
                 href={slide.ctaLink}
-                className="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium 
+                className="inline-flex items-center justify-center gap-2 rounded-lg text-sm md:text-base font-medium 
                            bg-accent text-accent-foreground hover:opacity-90 
                            shadow-xl transition-all duration-300 ease-in-out 
                            h-10 px-6 sm:h-11 sm:px-8 mt-2"
@@ -131,16 +133,16 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
       <button
         onClick={prevSlide}
         aria-label="Previous slide"
-        className="absolute top-1/2 left-4 transform -translate-y-1/2 p-3 hover:bg-black/50 text-white rounded-full transition-colors shadow-md cursor-pointer"
+        className="absolute top-1/2 left-1 md:left-4 transform -translate-y-1/2 p-3 hover:bg-black/50 hover:backdrop-blur-sm text-white rounded-full transition-all shadow-md cursor-pointer"
       >
-        <ChevronLeft className="w-10 h-10 md:w-6 md:h-6" />
+        <ChevronLeft className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" />
       </button>
       <button
         onClick={nextSlide}
         aria-label="Next slide"
-        className="absolute top-1/2 right-4 transform -translate-y-1/2 p-3 hover:bg-black/50 text-white rounded-full transition-colors shadow-md cursor-pointer"
+        className="absolute top-1/2 right-1 md:right-4 transform -translate-y-1/2 p-3 hover:bg-black/50 hover:backdrop-blur-sm text-white rounded-full transition-all shadow-md cursor-pointer"
       >
-        <ChevronRight className="w-10 h-10 md:w-6 md:h-6" />
+        <ChevronRight className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" />
       </button>
 
       {/* Navigationspunkte (Dots) - Sichtbar auf allen Geräten */}
@@ -150,7 +152,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
             key={index}
             onClick={() => setCurrentSlide(index)}
             aria-label={`Go to slide ${index + 1}`}
-            className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+            className={`w-3 h-3 md:w-2.5 md:h-2.5 lg:w-2 lg:h-2 rounded-full transition-colors duration-300 ${
               index === currentSlide
                 ? "bg-accent shadow-md"
                 : "bg-white/70 hover:bg-white"
