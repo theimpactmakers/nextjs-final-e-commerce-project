@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useCart } from "@/contexts/CartContext";
 
 // Typen für die Produktdaten
 type ProductWithImage = {
@@ -61,6 +62,8 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState<string | null>(null);
+  const { addToCart } = useCart();
 
   // Responsive: Anzahl der sichtbaren Items pro Breakpoint
   useEffect(() => {
@@ -100,7 +103,6 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
 
   return (
     <div className="relative w-full">
-        
       {/* Carousel Container */}
       <div className="overflow-hidden mx-12 md:mx-16">
         <div
@@ -140,11 +142,46 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
                       {p.price} €
                     </span>
                     <button
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.preventDefault();
-                        // Add to cart logic here
+                        if (!p.id || isAddingToCart === p.id) return;
+
+                        setIsAddingToCart(p.id);
+                        try {
+                          // Fetch the default variant for this product
+                          const { createClient } = await import(
+                            "@/lib/supabase/client"
+                          );
+                          const supabase = createClient();
+
+                          const { data: variants } = await supabase
+                            .from("product_variants")
+                            .select("id, name, price, stock_quantity")
+                            .eq("product_id", p.id)
+                            .eq("is_active", true)
+                            .limit(1);
+
+                          if (variants && variants.length > 0) {
+                            const variant = variants[0];
+                            await addToCart(
+                              variant.id,
+                              p.id,
+                              p.name || "Product",
+                              variant.name || "Default",
+                              variant.price || p.price || 0,
+                              p.primary_image_url,
+                              variant.stock_quantity || 0,
+                              1
+                            );
+                          }
+                        } catch (error) {
+                          console.error("Error adding to cart:", error);
+                        } finally {
+                          setIsAddingToCart(null);
+                        }
                       }}
-                      className="relative p-2 bg-accent text-accent-foreground hover:bg-accent/90 rounded-full transition-colors cursor-pointer"
+                      disabled={isAddingToCart === p.id}
+                      className="relative p-2 bg-accent text-accent-foreground hover:bg-accent/90 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label="In den Warenkorb"
                     >
                       <svg
