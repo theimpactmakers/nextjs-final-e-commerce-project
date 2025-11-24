@@ -1,16 +1,24 @@
-// import { Hero } from "@/components/hero";
-// import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
-// import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
-// import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
+import type { Database } from "@/types";
+
+// Use static generation with ISR for better performance
+export const revalidate = 60;
+
+type ProductWithImage =
+  Database["public"]["Views"]["products_with_primary_image"]["Row"];
 
 export default async function Home() {
-  const supabase = await createClient(); // <-- Server Client
-  const { data: products, error } = await supabase
-    .from("products")
+  const supabase = createClient();
+
+  // Use the new view that includes primary image data
+  const { data: products, error } = (await supabase
+    .from("products_with_primary_image")
     .select("*")
-    .order("erstellt_am", { ascending: false });
+    .order("created_at", { ascending: false })) as {
+    data: ProductWithImage[] | null;
+    error: Error | null;
+  };
 
   if (error) {
     console.error(error);
@@ -68,8 +76,8 @@ export default async function Home() {
               >
                 <div className="h-48 bg-muted flex items-center justify-center overflow-hidden">
                   <img
-                    src={p.bild_url}
-                    alt={p.name}
+                    src={p.primary_image_url || "/images/placeholder.jpg"}
+                    alt={p.primary_image_alt || p.name || "Product image"}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -78,27 +86,24 @@ export default async function Home() {
                     {p.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {p.beschreibung}
+                    {p.description}
                   </p>
                 </div>
                 <div className="p-6 pt-0 space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-bold text-destructive">
-                      {p.preis} €
+                      {p.price} €
                     </span>
-                    <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                    <Link
+                      href={`/products/${p.slug}`}
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    >
                       Zum Produkt
-                    </button>
+                    </Link>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Fleischsorte: {p.fleischsorte} / Altersgruppe:{" "}
-                    {p.altersgruppe}
+                    Fleischsorte: {p.meat_type} / Altersgruppe: {p.age_group}
                   </p>
-                  {p.category && (
-                    <p className="text-xs text-primary">
-                      Kategorie: {p.category.name}
-                    </p>
-                  )}
                 </div>
               </div>
             ))}
