@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types";
+// neu imp.
+import { HeroSlider } from "../components/HeroSlider";
+import { SLIDES_DATA } from "./(data)/slideData";
 
 // Use static generation with ISR for better performance
 export const revalidate = 60;
@@ -27,22 +30,7 @@ export default async function Home() {
   return (
     <div className="w-full">
       {/* 1. Hero / Banner Sektion (Volle Breite) */}
-      <section className="h-96 bg-[hsl(var(--muted-foreground))] flex items-center justify-center mb-12">
-        <div className="text-center p-8 bg-background/80 rounded-lg shadow-2xl">
-          <h1 className="text-4xl font-extrabold text-primary mb-2">
-            Die Jagd ist eröffnet
-          </h1>
-          <p className="text-lg text-foreground/80">
-            Qualität, die man riechen kann!
-          </p>
-          <Link
-            href="/shop"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 mt-4"
-          >
-            Jetzt Shoppen
-          </Link>
-        </div>
-      </section>
+      <HeroSlider slides={SLIDES_DATA} />
 
       {/* 2. Hauptinhalt - Zentriert und begrenzt (Container) */}
       <main className="container max-w-7xl px-4 flex flex-col gap-16">
