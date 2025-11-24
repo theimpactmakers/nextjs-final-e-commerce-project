@@ -3,11 +3,16 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { itemCount } = useCart();
+  const pathname = usePathname();
+  
+  // Erstelle Login-URL mit aktuellem Pfad als redirect
+  const loginUrl = `/auth/login?redirect=${encodeURIComponent(pathname)}`;
 
   useEffect(() => {
     const onScroll = () => {
@@ -37,14 +42,8 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 $ {
-        isScrolled ? "backdrop-blur-sm bg-[hsl(var(--muted)/0.6)] shadow-md"
-        : "bg-transparent"
-      }
-
-      `}
+      className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 bg-transparent`}
     >
-      {" "}
       {/* very soft, minimal blurred gradient at bottom (single subtle band) */}
       <div
         aria-hidden
@@ -55,16 +54,15 @@ export default function Header() {
           filter: "blur(12px)",
           opacity: 0.95,
         }}
-      />{" "}
+      />
+      
       {/* Hauptnavigation & Logo */}
       <div className="relative z-10 w-full mx-auto px-2 sm:px-3 md:px-4 lg:px-2 max-w-full grid grid-cols-[minmax(44px,auto)_1fr_minmax(44px,auto)] items-center h-20">
-        {" "}
         {/* Mobile: search icon on the left */}
         <button
           aria-label="Suche"
           className="col-start-1 md:hidden p-1 rounded hover:bg-accent/10 text-accent"
         >
-          {" "}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -77,271 +75,225 @@ export default function Header() {
             strokeLinejoin="round"
             className="lucide lucide-search"
           >
-            {" "}
-            <circle cx="11" cy="11" r="7" />{" "}
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />{" "}
-          </svg>{" "}
-        </button>{" "}
+            <circle cx="11" cy="11" r="7" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </button>
+        
         <Link
           href="/"
-          className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] $ {
-        mobileOpen ? "min-w-[48px]" : ""
-      }
-
-      logo-md-narrow`}
+          className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] ${
+            mobileOpen ? "min-w-[48px]" : ""
+          } logo-md-narrow`}
         >
-          {" "}
           <Image
             src="/images/Logo_example_6.png"
             alt="Elite Tail Treats"
             width={120}
             height={48}
             priority
-            className={`block w-20 sm:w-24 md:w-28 lg:w-32 transition-all duration-150 $ {
-        mobileOpen ? "w-12 sm:w-16" : ""
-      }
-
-      `}
+            className={`block w-20 sm:w-24 md:w-28 lg:w-32 transition-all duration-150 ${
+              mobileOpen ? "w-12 sm:w-16" : ""
+            }`}
             style={{
               height: "auto",
             }}
-          />{" "}
-        </Link>{" "}
+          />
+        </Link>
+        
         {/* 2. Hauptmenü Links (zentriert auf md+) */}
         <nav className="hidden md:flex md:gap-2 lg:gap-4 font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
-          {" "}
           {/* Hundefutter mit Dropdown */}
           <div className="relative group inline-block">
-            {" "}
             <Link
               href="/shop"
               className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
             >
-              {" "}
-              Hundefutter {/* animated underline */}
+              Hundefutter
               <span
                 className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                 style={{
                   backgroundImage:
                     "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
                 }}
-              ></span>{" "}
-            </Link>{" "}
+              ></span>
+            </Link>
+            
             <div
               role="menu"
               aria-label="Hundefutter Menü"
               className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-4 z-50"
             >
-              {" "}
               <div className="grid grid-cols-2 gap-4">
-                {" "}
                 <div>
-                  {" "}
-                  <h4 className="text-xs font-semibold mb-2">Alter</h4>{" "}
+                  <h4 className="text-xs font-semibold mb-2">Alter</h4>
                   <ul className="space-y-1 text-sm">
-                    {" "}
                     <li>
-                      {" "}
                       <Link
                         href="/shop?age=junior"
                         className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
-                        {" "}
-                        Junior{" "}
-                      </Link>{" "}
-                    </li>{" "}
+                        Junior
+                      </Link>
+                    </li>
                     <li>
-                      {" "}
                       <Link
                         href="/shop?age=adult"
                         className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
-                        {" "}
-                        Adult{" "}
-                      </Link>{" "}
-                    </li>{" "}
+                        Adult
+                      </Link>
+                    </li>
                     <li>
-                      {" "}
                       <Link
                         href="/shop?age=senior"
                         className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
-                        {" "}
-                        Senior{" "}
-                      </Link>{" "}
-                    </li>{" "}
-                  </ul>{" "}
-                </div>{" "}
+                        Senior
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
                 <div>
-                  {" "}
-                  <h4 className="text-xs font-semibold mb-2">
-                    {" "}
-                    Fleischsorten{" "}
-                  </h4>{" "}
+                  <h4 className="text-xs font-semibold mb-2">Fleischsorten</h4>
                   <ul className="space-y-1 text-sm">
-                    {" "}
                     <li>
-                      {" "}
                       <Link
                         href="/shop?meat=ente"
                         className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
-                        {" "}
-                        Ente{" "}
-                      </Link>{" "}
-                    </li>{" "}
+                        Ente
+                      </Link>
+                    </li>
                     <li>
-                      {" "}
                       <Link
                         href="/shop?meat=rind"
                         className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
-                        {" "}
-                        Rind{" "}
-                      </Link>{" "}
-                    </li>{" "}
+                        Rind
+                      </Link>
+                    </li>
                     <li>
-                      {" "}
                       <Link
                         href="/shop?meat=kaninchen"
                         className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
-                        {" "}
-                        Kaninchen{" "}
-                      </Link>{" "}
-                    </li>{" "}
+                        Kaninchen
+                      </Link>
+                    </li>
                     <li>
-                      {" "}
                       <Link
                         href="/shop?meat=lamm"
                         className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
-                        {" "}
-                        Lamm{" "}
-                      </Link>{" "}
-                    </li>{" "}
+                        Lamm
+                      </Link>
+                    </li>
                     <li>
-                      {" "}
                       <Link
                         href="/shop?meat=pferd"
                         className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
-                        {" "}
-                        Pferd{" "}
-                      </Link>{" "}
-                    </li>{" "}
+                        Pferd
+                      </Link>
+                    </li>
                     <li>
-                      {" "}
                       <Link
                         href="/shop?meat=wild"
                         className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
-                        {" "}
-                        Wild{" "}
-                      </Link>{" "}
-                    </li>{" "}
+                        Wild
+                      </Link>
+                    </li>
                     <li>
-                      {" "}
                       <Link
                         href="/shop?meat=lachs"
                         className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                       >
-                        {" "}
-                        Lachs{" "}
-                      </Link>{" "}
-                    </li>{" "}
-                  </ul>{" "}
-                </div>{" "}
-              </div>{" "}
-            </div>{" "}
-          </div>{" "}
+                        Lachs
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           {/* Specials mit Dropdown */}
           <div className="relative group inline-block">
-            {" "}
             <Link
               href="/specials"
               className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
             >
-              {" "}
-              Specials{" "}
+              Specials
               <span
                 className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                 style={{
                   backgroundImage:
                     "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
                 }}
-              ></span>{" "}
-            </Link>{" "}
+              ></span>
+            </Link>
+            
             <div
               role="menu"
               aria-label="Specials Menü"
               className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50"
             >
-              {" "}
               <ul className="space-y-1 text-sm">
-                {" "}
                 <li>
-                  {" "}
                   <Link
                     href="/specials/darm"
                     className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
-                    {" "}
-                    Diätfutter{" "}
-                  </Link>{" "}
-                </li>{" "}
+                    Diätfutter
+                  </Link>
+                </li>
                 <li>
-                  {" "}
                   <Link
                     href="/specials/hypoallergen"
                     className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
-                    {" "}
-                    Hypoallergen{" "}
-                  </Link>{" "}
-                </li>{" "}
+                    Hypoallergen
+                  </Link>
+                </li>
                 <li>
-                  {" "}
                   <Link
                     href="/specials/darmgesundheit"
                     className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
-                    {" "}
-                    Darmgesundheit{" "}
-                  </Link>{" "}
-                </li>{" "}
+                    Darmgesundheit
+                  </Link>
+                </li>
                 <li>
-                  {" "}
                   <Link
                     href="/specials/gelenk"
                     className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
-                    {" "}
-                    Gelenkfit{" "}
-                  </Link>{" "}
-                </li>{" "}
-              </ul>{" "}
-            </div>{" "}
-          </div>{" "}
+                    Gelenkfit
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
           <Link
             href="/beratung"
             className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
           >
-            {" "}
-            Beratung{" "}
+            Beratung
             <span
               className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
               style={{
                 backgroundImage:
                   "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
               }}
-            ></span>{" "}
-          </Link>{" "}
+            ></span>
+          </Link>
+          
           <div className="relative group inline-block">
-            {" "}
             <button className="relative inline-flex items-center h-9 gap-2 group-hover:text-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] transition-colors px-2 py-2 align-middle">
-              {" "}
-              <span>Mehr</span>{" "}
+              <span>Mehr</span>
               <svg
                 className="w-3 h-3 transition-transform duration-150 group-hover:rotate-90 text-accent"
                 viewBox="0 0 24 24"
@@ -349,115 +301,97 @@ export default function Header() {
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden
               >
-                {" "}
                 <path
                   d="M8 5l8 7-8 7"
                   stroke="currentColor"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                />{" "}
-              </svg>{" "}
+                />
+              </svg>
               <span
                 className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                 style={{
                   backgroundImage:
                     "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
                 }}
-              ></span>{" "}
-            </button>{" "}
+              ></span>
+            </button>
+            
             <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50">
-              {" "}
               <li className="py-1">
-                {" "}
                 <Link
                   href="/contact"
                   className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
-                  {" "}
-                  Kontakt{" "}
-                </Link>{" "}
-              </li>{" "}
+                  Kontakt
+                </Link>
+              </li>
               <li className="py-1">
-                {" "}
                 <Link
                   href="/about"
                   className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
-                  {" "}
-                  Über Uns{" "}
-                </Link>{" "}
-              </li>{" "}
+                  Über Uns
+                </Link>
+              </li>
               <li className="py-1">
-                {" "}
                 <Link
                   href="/impressum"
                   className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
-                  {" "}
-                  Impressum{" "}
-                </Link>{" "}
-              </li>{" "}
+                  Impressum
+                </Link>
+              </li>
               <li className="py-1">
-                {" "}
                 <Link
                   href="/datenschutz"
                   className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
-                  {" "}
-                  Datenschutz{" "}
-                </Link>{" "}
-              </li>{" "}
+                  Datenschutz
+                </Link>
+              </li>
               <li className="py-1">
-                {" "}
                 <Link
                   href="/agb"
                   className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
-                  {" "}
-                  AGB{" "}
-                </Link>{" "}
-              </li>{" "}
+                  AGB
+                </Link>
+              </li>
               <li className="py-1">
-                {" "}
                 <Link
                   href="/zahlung-versand"
                   className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
-                  {" "}
-                  Zahlung & Versand{" "}
-                </Link>{" "}
-              </li>{" "}
+                  Zahlung & Versand
+                </Link>
+              </li>
               <li className="py-1">
-                {" "}
                 <Link
                   href="/widerruf"
                   className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                 >
-                  {" "}
-                  Widerruf{" "}
-                </Link>{" "}
-              </li>{" "}
-            </ul>{" "}
-          </div>{" "}
-        </nav>{" "}
+                  Widerruf
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        
         {/* 3. Aktionen */}
         {/* Desktop: Suche + Anmeldung + Warenkorb */}
         <div className="hidden md:flex items-center space-x-4 text-sm font-medium justify-end col-start-3">
-          {" "}
           {/* Search (desktop) */}
           <form
             action="/search"
             method="get"
             className="hidden md:flex items-center mr-2 self-end"
           >
-            {" "}
             <label htmlFor="header-search" className="sr-only">
-              {" "}
-              Suche{" "}
-            </label>{" "}
+              Suche
+            </label>
             <div className="relative">
-              {" "}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -471,34 +405,32 @@ export default function Header() {
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-accent w-4 h-4"
                 aria-hidden
               >
-                {" "}
-                <circle cx="11" cy="11" r="7" />{" "}
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />{" "}
-              </svg>{" "}
+                <circle cx="11" cy="11" r="7" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
               <input
                 id="header-search"
                 name="q"
                 type="search"
                 placeholder="Suche..."
                 className="w-56 bg-white/95 border border-[hsl(var(--border))] text-sm rounded-full py-1.5 pl-9 pr-3 focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
-              />{" "}
-            </div>{" "}
-          </form>{" "}
-          {/* Anmelden / Login */}
-          {/* Desktop: show text normally, but swap to icon between 768px-915px */}
+              />
+            </div>
+          </form>
+          
+          {/* Anmelden / Login - MIT REDIRECT */}
           <Link
-            href="/auth/login"
+            href={loginUrl}
             className="text-accent hover:opacity-90 transition-colors brown-color-hover hide-md-narrow"
           >
-            {" "}
-            Anmelden{" "}
-          </Link>{" "}
+            Anmelden
+          </Link>
+          
           <Link
-            href="/auth/login"
+            href={loginUrl}
             aria-label="Anmelden"
             className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent"
           >
-            {" "}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -511,18 +443,16 @@ export default function Header() {
               strokeLinejoin="round"
               aria-hidden
             >
-              {" "}
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />{" "}
-              <circle cx="12" cy="7" r="4" />{" "}
-            </svg>{" "}
-          </Link>{" "}
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </Link>
+          
           {/* Warenkorb */}
           <Link
             href="/cart"
             className="hover:text-[hsl(var(--accent))] transition-colors flex items-center gap-1 group group-brown"
           >
-            {" "}
-            {/* Platzhalter für Warenkorb-Icon */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -535,10 +465,10 @@ export default function Header() {
               strokeLinejoin="round"
               className="lucide lucide-shopping-cart"
             >
-              {" "}
-              <circle cx="8" cy="21" r="1" /> <circle cx="19" cy="21" r="1" />{" "}
-              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />{" "}
-            </svg>{" "}
+              <circle cx="8" cy="21" r="1" />
+              <circle cx="19" cy="21" r="1" />
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
+            </svg>
             <span className="text-accent transition-colors group-hover:text-[hsl(var(--primary))]">
               {" "}
               ({itemCount}){" "}
@@ -547,13 +477,11 @@ export default function Header() {
         </div>{" "}
         {/* Mobile: nur Icon-Warenkorb mit Anzahl, Login-Icon und Hamburger */}
         <div className="flex md:hidden items-center space-x-3 justify-end col-start-3">
-          {" "}
           {/* Cart icon with badge */}
           <Link
             href="/cart"
             className="relative p-1 rounded hover:bg-accent/10 group"
           >
-            {" "}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -566,11 +494,11 @@ export default function Header() {
               strokeLinejoin="round"
               className="lucide lucide-shopping-cart"
             >
-              {" "}
-              <circle cx="8" cy="21" r="1" /> <circle cx="19" cy="21" r="1" />{" "}
-              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />{" "}
-            </svg>{" "}
-            <span className="ml-2 sr-only">Warenkorb</span>{" "}
+              <circle cx="8" cy="21" r="1" />
+              <circle cx="19" cy="21" r="1" />
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
+            </svg>
+            <span className="ml-2 sr-only">Warenkorb</span>
             <span className="absolute -top-1 -right-1 inline-flex items-center justify-center text-accent text-xs rounded-full px-2 bg-transparent transition-colors group-hover:text-[hsl(var(--primary))]">
               {" "}
               {itemCount}{" "}
@@ -578,10 +506,9 @@ export default function Header() {
           </Link>{" "}
           {/* Login icon */}
           <Link
-            href="/auth/login"
+            href={loginUrl}
             className="p-1 rounded hover:bg-accent/10 text-accent"
           >
-            {" "}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -593,20 +520,19 @@ export default function Header() {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              {" "}
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />{" "}
-              <circle cx="12" cy="7" r="4" />{" "}
-            </svg>{" "}
-            <span className="sr-only">Anmelden</span>{" "}
-          </Link>{" "}
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span className="sr-only">Anmelden</span>
+          </Link>
+          
           {/* Hamburger menu */}
           <button
             aria-label={mobileOpen ? "Schließe Menü" : "Öffne Menü"}
             onClick={() => setMobileOpen((s) => !s)}
             className="p-1 rounded hover:bg-accent/10"
           >
-            {" "}
-            {mobileOpen ? ( // X icon
+            {mobileOpen ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="22"
@@ -618,10 +544,9 @@ export default function Header() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                {" "}
-                <line x1="18" y1="6" x2="6" y2="18"></line>{" "}
-                <line x1="6" y1="6" x2="18" y2="18"></line>{" "}
-              </svg> // Hamburger icon
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             ) : (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -634,33 +559,29 @@ export default function Header() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                {" "}
-                <line x1="3" y1="12" x2="21" y2="12"></line>{" "}
-                <line x1="3" y1="6" x2="21" y2="6"></line>{" "}
-                <line x1="3" y1="18" x2="21" y2="18"></line>{" "}
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
               </svg>
             )}
-          </button>{" "}
-        </div>{" "}
-      </div>{" "}
+          </button>
+        </div>
+      </div>
+      
       {/* Mobile menu overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          {" "}
           <div
             className="absolute inset-0 bg-black/40"
             onClick={() => setMobileOpen(false)}
-          />{" "}
+          />
           <div className="absolute inset-y-0 right-0 w-1/2 bg-white p-6 overflow-auto">
-            {" "}
             <div className="flex items-center justify-between mb-6">
-              {" "}
               <Link
                 href="/"
                 onClick={() => setMobileOpen(false)}
                 className="inline-flex items-center"
               >
-                {" "}
                 <Image
                   src="/images/Logo_example_6.png"
                   alt="Elite"
@@ -670,14 +591,13 @@ export default function Header() {
                   style={{
                     height: "auto",
                   }}
-                />{" "}
-              </Link>{" "}
+                />
+              </Link>
               <button
                 aria-label="Schließe Menü"
                 onClick={() => setMobileOpen(false)}
                 className="p-1 rounded hover:bg-accent/10"
               >
-                {" "}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="22"
@@ -689,150 +609,140 @@ export default function Header() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  {" "}
-                  <line x1="18" y1="6" x2="6" y2="18"></line>{" "}
-                  <line x1="6" y1="6" x2="18" y2="18"></line>{" "}
-                </svg>{" "}
-              </button>{" "}
-            </div>{" "}
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            
             <nav className="space-y-4">
-              {" "}
               <Link
                 href="/shop"
                 onClick={() => setMobileOpen(false)}
                 className="block text-lg font-medium hover:text-[hsl(var(--accent))]"
               >
-                {" "}
-                Hundefutter{" "}
-              </Link>{" "}
+                Hundefutter
+              </Link>
               <div className="pl-3">
-                {" "}
                 <Link
                   href="/shop?age=junior"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
-                  {" "}
-                  Junior{" "}
-                </Link>{" "}
+                  Junior
+                </Link>
                 <Link
                   href="/shop?age=adult"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
-                  {" "}
-                  Adult{" "}
-                </Link>{" "}
+                  Adult
+                </Link>
                 <Link
                   href="/shop?age=senior"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
-                  {" "}
-                  Senior{" "}
-                </Link>{" "}
-              </div>{" "}
+                  Senior
+                </Link>
+              </div>
+              
               <Link
                 href="/specials"
                 onClick={() => setMobileOpen(false)}
                 className="block text-lg font-medium hover:text-[hsl(var(--accent))]"
               >
-                {" "}
-                Specials{" "}
-              </Link>{" "}
+                Specials
+              </Link>
               <div className="pl-3">
-                {" "}
                 <Link
                   href="/specials/diat"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
-                  {" "}
-                  Diätfutter{" "}
-                </Link>{" "}
+                  Diätfutter
+                </Link>
                 <Link
                   href="/specials/hypoallergen"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
-                  {" "}
-                  Hypoallergen{" "}
-                </Link>{" "}
+                  Hypoallergen
+                </Link>
                 <Link
                   href="/specials/darmgesundheit"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
-                  {" "}
-                  Darmgesundheit{" "}
-                </Link>{" "}
+                  Darmgesundheit
+                </Link>
                 <Link
                   href="/specials/gelenkfit"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
-                  {" "}
-                  Gelenkfit{" "}
-                </Link>{" "}
-              </div>{" "}
+                  Gelenkfit
+                </Link>
+              </div>
+              
               <Link
                 href="/beratung"
                 onClick={() => setMobileOpen(false)}
                 className="block text-lg font-medium hover:text-[hsl(var(--accent))]"
               >
-                {" "}
-                Beratung{" "}
-              </Link>{" "}
+                Beratung
+              </Link>
+              
               <Link
                 href="/impressum"
                 onClick={() => setMobileOpen(false)}
                 className="block text-sm hover:text-[hsl(var(--accent))]"
               >
-                {" "}
-                Impressum{" "}
-              </Link>{" "}
+                Impressum
+              </Link>
+              
               <Link
                 href="/datenschutz"
                 onClick={() => setMobileOpen(false)}
                 className="block text-sm hover:text-[hsl(var(--accent))]"
               >
-                {" "}
-                Datenschutz{" "}
-              </Link>{" "}
+                Datenschutz
+              </Link>
+              
               <Link
                 href="/agb"
                 onClick={() => setMobileOpen(false)}
                 className="block text-sm hover:text-[hsl(var(--accent))]"
               >
-                {" "}
-                AGB{" "}
-              </Link>{" "}
+                AGB
+              </Link>
+              
               <Link
                 href="/zahlung-versand"
                 onClick={() => setMobileOpen(false)}
                 className="block text-sm hover:text-[hsl(var(--accent))]"
               >
-                {" "}
-                Zahlung & Versand{" "}
-              </Link>{" "}
+                Zahlung & Versand
+              </Link>
+              
               <Link
                 href="/widerruf"
                 onClick={() => setMobileOpen(false)}
                 className="block text-sm hover:text-[hsl(var(--accent))]"
               >
-                {" "}
-                Widerruf{" "}
-              </Link>{" "}
+                Widerruf
+              </Link>
+              
               <div className="pt-4 border-t mt-4">
-                {" "}
+                {/* Mobile Login Link - MIT REDIRECT */}
                 <Link
-                  href="/auth/login"
+                  href={loginUrl}
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm font-medium hover:text-[hsl(var(--accent))]"
                 >
-                  {" "}
-                  Anmelden{" "}
-                </Link>{" "}
+                  Anmelden
+                </Link>
+                
                 <Link
                   href="/cart"
                   onClick={() => setMobileOpen(false)}
