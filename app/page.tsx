@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types";
 // neu imp.
 import { HeroSlider } from "../components/HeroSlider";
 import { SLIDES_DATA } from "./(data)/slideData";
+import { BestsellerCarousel } from "../components/BestsellerCarousel";
 
 // Use static generation with ISR for better performance
 export const revalidate = 60;
@@ -53,49 +53,10 @@ export default async function Home() {
 
         {/* 4. Produktauswahl/Kategorie-Bereich */}
         <section>
-          <h2 className="text-3xl font-bold mb-6 text-foreground">
+          <h2 className="text-3xl font-bold mb-6 text-foreground px-12 md:px-16">
             Bestseller im Sortiment
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {products?.map((p) => (
-              <div
-                key={p.id}
-                className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
-              >
-                <div className="h-48 bg-muted flex items-center justify-center overflow-hidden">
-                  <img
-                    src={p.primary_image_url || "/images/placeholder.jpg"}
-                    alt={p.primary_image_alt || p.name || "Product image"}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex flex-col space-y-1.5 p-6">
-                  <h3 className="text-2xl font-semibold leading-none tracking-tight">
-                    {p.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {p.description}
-                  </p>
-                </div>
-                <div className="p-6 pt-0 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-destructive">
-                      {p.price} €
-                    </span>
-                    <Link
-                      href={`/products/${p.slug}`}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                    >
-                      Zum Produkt
-                    </Link>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Fleischsorte: {p.meat_type} / Altersgruppe: {p.age_group}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <BestsellerCarousel products={products || []} />
         </section>
 
         {/* 5. Community / Newsletter Sektion (mit abgerundeten Ecken) */}
