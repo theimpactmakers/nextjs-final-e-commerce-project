@@ -15,9 +15,24 @@ export default function Header() {
   const { user, signOut } = useAuth();
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Erstelle Login-URL mit aktuellem Pfad als redirect
   const loginUrl = `/auth/login?redirect=${encodeURIComponent(pathname)}`;
+
+  // Handler für Hover mit Delay
+  const handleMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    setProfileDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setProfileDropdownOpen(false);
+    }, 300);
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -65,7 +80,7 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 bg-transparent`}
+      className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 bg-muted/80 backdrop-blur-md`}
     >
       {/* very soft, minimal blurred gradient at bottom (single subtle band) */}
       <div
@@ -80,7 +95,7 @@ export default function Header() {
       />
 
       {/* Hauptnavigation & Logo */}
-      <div className="relative z-10 w-full mx-auto px-2 sm:px-3 md:px-4 lg:px-2 max-w-full grid grid-cols-[minmax(44px,auto)_1fr_minmax(44px,auto)] items-center h-20">
+      <div className="relative z-10 w-full mx-auto px-2 sm:px-3 md:px-6 lg:px-8 max-w-full grid grid-cols-[minmax(44px,auto)_1fr_minmax(44px,auto)] items-center h-20">
         {/* Mobile: search icon on the left */}
         <button
           aria-label="Suche"
@@ -105,7 +120,7 @@ export default function Header() {
         <Link
           href="/"
           className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] ${
-            mobileOpen ? "min-w-[48px]" : ""
+            mobileOpen ? "min-w-12" : ""
           } logo-md-narrow`}
         >
           <Image
@@ -114,8 +129,8 @@ export default function Header() {
             width={120}
             height={48}
             priority
-            className={`block w-20 sm:w-24 md:w-28 lg:w-32 transition-all duration-150 ${
-              mobileOpen ? "w-12 sm:w-16" : ""
+            className={`block w-16 sm:w-20 md:w-24 lg:w-28 transition-all duration-150 ${
+              mobileOpen ? "w-12 sm:w-14" : ""
             }`}
             style={{
               height: "auto",
@@ -401,12 +416,12 @@ export default function Header() {
         </nav>
         {/* 3. Aktionen */}
         {/* Desktop: Suche + Anmeldung + Warenkorb */}
-        <div className="hidden md:flex items-center space-x-4 text-sm font-medium justify-end col-start-3">
+        <div className="hidden md:flex items-center space-x-2 text-sm font-medium justify-end col-start-3">
           {/* Search (desktop) */}
           <form
             action="/search"
             method="get"
-            className="hidden md:flex items-center mr-2 self-end"
+            className="hidden md:flex items-center mr-2 self-end group"
           >
             <label htmlFor="header-search" className="sr-only">
               Suche
@@ -422,7 +437,7 @@ export default function Header() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-accent w-4 h-4"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-accent hover:text-primary hover:scale-90 active:text-foreground active:scale-100 w-4 h-4 transition-all cursor-pointer"
                 aria-hidden
               >
                 <circle cx="11" cy="11" r="7" />
@@ -433,22 +448,27 @@ export default function Header() {
                 name="q"
                 type="search"
                 placeholder="Suche..."
-                className="w-56 bg-white/95 border border-[hsl(var(--border))] text-sm rounded-full py-1.5 pl-9 pr-3 focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
+                className="w-56 bg-white/95 border border-primary text-sm rounded-full py-1.5 pl-9 pr-3 focus:outline-hidden focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </form>
           {/* Profile Dropdown (Desktop) */}
-          <div className="relative hide-md-narrow" ref={dropdownRef}>
+          <div
+            className="relative hide-md-narrow"
+            ref={dropdownRef}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
             <button
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="p-2 rounded-full hover:bg-accent/10 text-accent transition-colors"
+              className="p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer"
               aria-label="Benutzerprofil"
             >
               <User className="w-5 h-5" />
             </button>
 
             {profileDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-white/98 backdrop-blur-sm border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-2 z-50">
+              <div className="absolute right-0 top-full mt-1 w-56 bg-white/98 backdrop-blur-sm border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-2 z-50">
                 {user && (
                   <Link
                     href="/userProfile"
@@ -514,7 +534,7 @@ export default function Header() {
             <Link
               href={loginUrl}
               aria-label="Anmelden"
-              className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent"
+              className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent active:text-foreground transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -536,7 +556,7 @@ export default function Header() {
           {/* Warenkorb */}
           <Link
             href="/cart"
-            className="hover:text-[hsl(var(--accent))] transition-colors flex items-center gap-1 group group-brown"
+            className="hover:text-[hsl(var(--accent))] transition-colors flex items-center gap-1 group group-brown p-1 rounded hover:bg-accent/10"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -548,13 +568,13 @@ export default function Header() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="lucide lucide-shopping-cart"
+              className="lucide lucide-shopping-cart text-accent active:text-foreground transition-colors"
             >
               <circle cx="8" cy="21" r="1" />
               <circle cx="19" cy="21" r="1" />
               <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
             </svg>
-            <span className="text-accent transition-colors group-hover:text-[hsl(var(--primary))]">
+            <span className="text-foreground transition-colors group-hover:text-[hsl(var(--primary))]">
               {" "}
               ({itemCount}){" "}
             </span>{" "}
@@ -577,7 +597,7 @@ export default function Header() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="lucide lucide-shopping-cart"
+              className="lucide lucide-shopping-cart text-accent group-active:text-foreground transition-colors"
             >
               <circle cx="8" cy="21" r="1" />
               <circle cx="19" cy="21" r="1" />
@@ -592,7 +612,7 @@ export default function Header() {
           {/* Login icon */}
           <Link
             href={loginUrl}
-            className="p-1 rounded hover:bg-accent/10 text-accent"
+            className="p-1 rounded hover:bg-accent/10 text-accent active:text-foreground transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
