@@ -111,7 +111,7 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
   return (
     <div className="relative w-full px-12 md:px-16">
       {/* Carousel Container */}
-      <div className="py-4 overflow-hidden">
+      <div className="py-4 pb-8 overflow-hidden">
         <div
           className="flex transition-transform duration-500 ease-in-out"
           style={{
