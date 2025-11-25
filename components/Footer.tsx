@@ -30,7 +30,7 @@ export default function Footer() {
         </div>
       )}
 
-      <div className="container max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div className="container max-w-7xl grid grid-cols-2 md:grid-cols-3 gap-8">
         {/* Spalte 1: Über uns */}
         <div className="text-center md:text-center">
           <h4 className="font-bold text-foreground mb-3">Über Uns</h4>
@@ -85,38 +85,7 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Spalte 3: Rechtliches */}
-        <div className="text-center md:text-center">
-          <h4 className="font-bold text-foreground mb-3">Rechtliches</h4>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link
-                href="/impressum"
-                className="hover:text-primary transition-colors"
-              >
-                Impressum
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/datenschutz"
-                className="hover:text-primary transition-colors"
-              >
-                Datenschutz
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/agb"
-                className="hover:text-primary transition-colors"
-              >
-                AGB
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Spalte 4: Logo/Zahlung */}
+        {/* Spalte 3: Zahlung */}
         <div className="flex flex-col items-center text-center">
           <h4 className="font-bold text-foreground mb-3">Zahlung</h4>
           <ul className="space-y-2 text-sm">
@@ -156,17 +125,50 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="mt-8 flex justify-center">
+      {/* Trennlinie */}
+      <div className="container max-w-7xl mt-8 mb-6">
+        <div className="border-t border-muted-foreground/20"></div>
+      </div>
+
+      {/* Rechtliche Links horizontal über dem Logo */}
+      <div className="flex justify-center items-center gap-4 md:gap-6 text-sm mb-6 flex-wrap">
+        <Link
+          href="/impressum"
+          className="hover:text-primary transition-colors"
+        >
+          Impressum
+        </Link>
+        <span className="text-muted-foreground/40">|</span>
+        <Link
+          href="/datenschutz"
+          className="hover:text-primary transition-colors"
+        >
+          Datenschutz
+        </Link>
+        <span className="text-muted-foreground/40">|</span>
+        <Link href="/agb" className="hover:text-primary transition-colors">
+          AGB`s
+        </Link>
+        <span className="text-muted-foreground/40">|</span>
+        <Link
+          href="/cookieeinstellungen"
+          className="hover:text-primary transition-colors"
+        >
+          Cookie-Einstellungen
+        </Link>
+      </div>
+
+      <div className="flex justify-center">
         <Image
           src="/images/Logo_example_6.png"
           alt="Elite Dog Treats"
-          width={140}
-          height={44}
+          width={120}
+          height={24}
           className="h-auto w-auto"
           priority={false}
         />
       </div>
-      <div className="mt-4 text-center text-xs text-gray-500">
+      <div className="mt-4 text-center text-xs text-foreground">
         Alle Rechte vorbehalten. &copy; {new Date().getFullYear()} Elite Dog
         Treats Shop.
       </div>
