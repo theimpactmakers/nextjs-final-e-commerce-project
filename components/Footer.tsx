@@ -3,9 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 
 export default function Footer() {
   const { user } = useAuth();
+  const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
 
   return (
     <footer className="w-full border-t bg-muted mt-16 py-12 text-muted-foreground px-6 sm:px-8 lg:px-12">
@@ -126,36 +128,87 @@ export default function Footer() {
       </div>
 
       {/* Trennlinie */}
-      <div className="container max-w-7xl mt-8 mb-8">
+      <div className="container max-w-7xl mt-12 mb-4">
         <div className="border-t border-muted-foreground/20"></div>
       </div>
 
-      {/* Rechtliche Links horizontal über dem Logo */}
-      <div className="flex justify-center items-center gap-4 md:gap-6 text-sm mb-8 flex-wrap">
-        <Link
-          href="/impressum"
-          className="hover:text-primary transition-colors"
-        >
-          Impressum
-        </Link>
-        <span className="text-muted-foreground/40">|</span>
-        <Link
-          href="/datenschutz"
-          className="hover:text-primary transition-colors"
-        >
-          Datenschutz
-        </Link>
-        <span className="text-muted-foreground/40">|</span>
-        <Link href="/agb" className="hover:text-primary transition-colors">
-          AGB`s
-        </Link>
-        <span className="text-muted-foreground/40">|</span>
-        <Link
-          href="/cookieeinstellungen"
-          className="hover:text-primary transition-colors"
-        >
-          Cookie-Einstellungen
-        </Link>
+      {/* Footer Bottom: Sprache links, Rechtliche Links rechts */}
+      <div className="container max-w-7xl mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          {/* Sprachwahl Links */}
+          <div className="relative flex items-center gap-3">
+            <button
+              onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
+              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted transition-colors cursor-pointer"
+              aria-label="Sprache ändern"
+            >
+              <span className="text-xl">🇩🇪</span>
+              <span className="text-sm">Deutsch</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`transition-transform cursor-pointer text-accent ${
+                  languageDropdownOpen ? "rotate-180" : ""
+                }`}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+
+            {/* Language Dropdown */}
+            {languageDropdownOpen && (
+              <div className="absolute top-full left-0 mt-2 w-40 bg-white/98 backdrop-blur-sm border border-gray-200/60 rounded-lg shadow-lg p-2 z-50">
+                <button
+                  onClick={() => setLanguageDropdownOpen(false)}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm cursor-pointer"
+                >
+                  🇩🇪 Deutsch
+                </button>
+                <button
+                  onClick={() => setLanguageDropdownOpen(false)}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm cursor-pointer"
+                >
+                  🇬🇧 English
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Rechtliche Links Rechts */}
+          <div className="flex items-center gap- md:gap-6 text-sm flex-wrap justify-center md:justify-end">
+            <Link
+              href="/impressum"
+              className="hover:text-primary transition-colors"
+            >
+              Impressum
+            </Link>
+            <span className="text-muted-foreground/40">|</span>
+            <Link
+              href="/datenschutz"
+              className="hover:text-primary transition-colors"
+            >
+              Datenschutz
+            </Link>
+            <span className="text-muted-foreground/40">|</span>
+            <Link href="/agb" className="hover:text-primary transition-colors">
+              AGB`s
+            </Link>
+            <span className="text-muted-foreground/40">|</span>
+            <Link
+              href="/cookieeinstellungen"
+              className="hover:text-primary transition-colors"
+            >
+              Cookie-Einstellungen
+            </Link>
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-center">
@@ -168,9 +221,9 @@ export default function Footer() {
           priority={false}
         />
       </div>
-      <div className="mt-4 text-center text-xs text-foreground">
-        Alle Rechte vorbehalten. &copy; {new Date().getFullYear()} Elite Dog
-        Treats Shop.
+      <div className="mt-4 text-center text-xs text-foreground font-light">
+        &copy; {new Date().getFullYear()} EliteDogTreats-Shop. Alle Rechte
+        vorbehalten.
       </div>
     </footer>
   );
