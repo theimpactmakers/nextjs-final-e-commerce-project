@@ -171,7 +171,7 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-border/50">
                     <div className="flex flex-col gap-1">
-                      <span className="text-lg font-bold text-foreground">
+                      <span className="text-base font-bold text-foreground">
                         {p.price} €
                       </span>
                       <span className="text-xs text-accent opacity-0 group-hover:opacity-100 transition-all flex items-center gap-0.5 underline hover:no-underline hover:text-foreground active:text-foreground active:underline cursor-pointer">
@@ -203,13 +203,13 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
                               [p.id!]: Math.max(1, (prev[p.id!] || 1) - 1),
                             }));
                           }}
-                          className="p-1.5 rounded-md bg-muted text-accent hover:bg-accent/90 hover:text-white cursor-pointer transition-colors"
+                          className="p-1 rounded-md bg-muted text-accent hover:bg-accent/90 hover:text-white cursor-pointer transition-colors"
                           aria-label="Menge verringern"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
+                            width="12"
+                            height="12"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -236,13 +236,13 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
                               [p.id!]: Math.min(99, (prev[p.id!] || 1) + 1),
                             }));
                           }}
-                          className="p-1.5 rounded-md bg-muted text-accent hover:bg-accent/90 hover:text-white cursor-pointer transition-colors"
+                          className="p-1 rounded-md bg-muted text-accent hover:bg-accent/90 hover:text-white cursor-pointer transition-colors"
                           aria-label="Menge erhöhen"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
+                            width="12"
+                            height="12"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -303,7 +303,7 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
                           }
                         }}
                         disabled={isAddingToCart === p.id}
-                        className={`relative p-2.5 rounded-lg transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group/cartbtn ${
+                        className={`relative p-2 rounded-lg transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group/cartbtn ${
                           isAddingToCart === p.id
                             ? "bg-accent/20 text-accent animate-pulse"
                             : "bg-accent text-accent-foreground hover:bg-accent/90 hover:shadow-md active:scale-95"
@@ -312,8 +312,8 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
+                          width="14"
+                          height="14"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -329,15 +329,15 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
                         {/* Plus icon - visible on hover */}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="12"
-                          height="12"
+                          width="10"
+                          height="10"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="3"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="absolute -top-1 -right-1 opacity-0 group-hover/cartbtn:opacity-100 transition-all bg-accent rounded-full p-0.5"
+                          className="absolute -top-0.5 -right-0.5 opacity-0 group-hover/cartbtn:opacity-100 transition-all bg-foreground text-white rounded-full p-0.5"
                         >
                           <line x1="12" y1="5" x2="12" y2="19" />
                           <line x1="5" y1="12" x2="19" y2="12" />
