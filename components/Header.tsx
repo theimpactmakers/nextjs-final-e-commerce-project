@@ -11,6 +11,7 @@ import { User, LogIn, LogOut } from "lucide-react";
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
   const pathname = usePathname();
@@ -447,8 +448,12 @@ export default function Header() {
                 id="header-search"
                 name="q"
                 type="search"
-                placeholder="Suche..."
-                className="w-56 bg-white/95 border border-primary text-sm rounded-full py-1.5 pl-9 pr-3 focus:outline-hidden focus:ring-2 focus:ring-primary/30"
+                placeholder={searchFocused ? "Wonach suchst Du?" : "Suche..."}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                className={`w-56 bg-white/95 border border-primary rounded-full py-1.5 pl-9 pr-3 focus:outline-hidden focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground/50 transition-all ${
+                  searchFocused ? "text-xs" : "text-sm"
+                }`}
               />
             </div>
           </form>
