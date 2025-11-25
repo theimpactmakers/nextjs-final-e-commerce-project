@@ -127,7 +127,7 @@ export default function Header() {
           </button>
           <Link
             href="/"
-            className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] mt-1 md:mt-0 ${
+            className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] mt-1 md:mt-2 ${
               mobileOpen ? "min-w-12" : ""
             } logo-md-narrow`}
           >
@@ -146,7 +146,41 @@ export default function Header() {
             />
           </Link>
           {/* 2. Hauptmenü Links (zentriert auf md+) */}
-          <nav className="hidden md:flex md:gap-2 lg:gap-4 font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
+          <nav className="hidden md:flex md:gap-1 lg:gap-2 text-sm font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
+            {/* Home Link */}
+            <div className="relative group inline-block">
+              <Link
+                href="/"
+                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+              >
+                Home
+                <span
+                  className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
+                  }}
+                ></span>
+              </Link>
+            </div>
+
+            {/* Shop Link */}
+            <div className="relative group inline-block">
+              <Link
+                href="/shop"
+                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+              >
+                Shop
+                <span
+                  className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
+                  }}
+                ></span>
+              </Link>
+            </div>
+
             {/* Hundefutter mit Dropdown */}
             <div className="relative group inline-block">
               <Link
