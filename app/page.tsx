@@ -79,9 +79,17 @@ export default async function Home() {
                 </div>
                 <div className="p-6 pt-0 space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-destructive">
-                      {p.price} €
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-lg font-bold text-destructive">
+                        ab{" "}
+                        {p.min_price ? Number(p.min_price).toFixed(2) : "N/A"} €
+                      </span>
+                      {p.starting_variant_name && (
+                        <span className="text-xs text-muted-foreground">
+                          {p.starting_variant_name}
+                        </span>
+                      )}
+                    </div>
                     <Link
                       href={`/products/${p.slug}`}
                       className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
