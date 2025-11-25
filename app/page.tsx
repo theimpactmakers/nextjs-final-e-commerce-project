@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types";
 // neu imp.
 import { HeroSlider } from "../components/HeroSlider";
 import { SLIDES_DATA } from "./(data)/slideData";
+import { BestsellerCarousel } from "../components/BestsellerCarousel";
 
 // Use static generation with ISR for better performance
 export const revalidate = 60;
@@ -103,7 +103,16 @@ export default async function Home() {
                 </div>
               </div>
             ))}
+          <div className="px-12 md:px-16 mb-6">
+            <h2 className="text-3xl font-bold text-foreground mb-2">
+              Bestseller im Sortiment
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              Entdecken Sie unsere beliebtesten Futtersorten, die bei Vierbeinern
+              am besten ankommen!
+            </p>
           </div>
+          <BestsellerCarousel products={products || []} />
         </section>
 
         {/* 5. Community / Newsletter Sektion (mit abgerundeten Ecken) */}
