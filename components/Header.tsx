@@ -647,40 +647,25 @@ export default function Header() {
             <button
               aria-label={mobileOpen ? "Schließe Menü" : "Öffne Menü"}
               onClick={() => setMobileOpen((s) => !s)}
-              className="p-1 rounded hover:bg-accent/10 cursor-pointer text-foreground active:text-accent transition-colors"
+              className="p-1 rounded hover:bg-accent/10 cursor-pointer text-foreground active:text-accent transition-colors relative w-[34px] h-[34px] flex items-center justify-center"
             >
-              {mobileOpen ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="22"
-                  height="22"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="22"
-                  height="22"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="3" y1="12" x2="21" y2="12"></line>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-              )}
+              <div className="relative w-5 h-4 flex flex-col justify-center">
+                <span
+                  className={`absolute h-0.5 w-full bg-current rounded-full transition-all duration-300 ease-in-out ${
+                    mobileOpen ? "rotate-45 translate-y-0" : "-translate-y-1.5"
+                  }`}
+                />
+                <span
+                  className={`absolute h-0.5 w-full bg-current rounded-full transition-all duration-300 ease-in-out ${
+                    mobileOpen ? "opacity-0 scale-0" : "opacity-100 scale-100"
+                  }`}
+                />
+                <span
+                  className={`absolute h-0.5 w-full bg-current rounded-full transition-all duration-300 ease-in-out ${
+                    mobileOpen ? "-rotate-45 translate-y-0" : "translate-y-1.5"
+                  }`}
+                />
+              </div>
             </button>
           </div>
         </div>
@@ -693,7 +678,7 @@ export default function Header() {
             className="absolute inset-0 bg-black/40 z-100"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="absolute inset-y-0 right-0 w-1/2 bg-white p-6 overflow-auto shadow-2xl z-101">
+          <div className="absolute inset-y-0 right-0 w-1/2 bg-muted p-6 overflow-auto shadow-2xl z-101">
             <div className="flex items-center justify-between mb-6">
               <Link
                 href="/"
@@ -703,9 +688,9 @@ export default function Header() {
                 <Image
                   src="/images/Logo_example_6.png"
                   alt="Elite"
-                  width={80}
-                  height={24}
-                  className="h-auto w-20 transition-all duration-150"
+                  width={60}
+                  height={18}
+                  className="h-auto w-14 transition-all duration-150"
                   style={{
                     height: "auto",
                   }}
