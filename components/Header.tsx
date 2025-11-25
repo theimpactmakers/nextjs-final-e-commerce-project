@@ -147,7 +147,6 @@ export default function Header() {
           </Link>
           {/* 2. Hauptmenü Links (zentriert auf md+) */}
           <nav className="hidden md:flex md:gap-1 lg:gap-2 text-sm font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
-            
             {/* Home Link */}
             <div className="relative group inline-block">
               <Link
@@ -201,7 +200,7 @@ export default function Header() {
               <div
                 role="menu"
                 aria-label="Hundefutter Menü"
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-4 z-50"
+                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-4 z-50"
               >
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -319,7 +318,7 @@ export default function Header() {
               <div
                 role="menu"
                 aria-label="Specials Menü"
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50"
+                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50"
               >
                 <ul className="space-y-1 text-sm">
                   <li>
@@ -399,7 +398,7 @@ export default function Header() {
                 ></span>
               </button>
 
-              <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50">
+              <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50">
                 <li className="py-1">
                   <Link
                     href="/contact"
@@ -517,19 +516,19 @@ export default function Header() {
               </button>
 
               {profileDropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 w-56 bg-white/98 backdrop-blur-sm border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-2 z-50">
+                <div className="absolute right-0 top-full mt-1 w-56 bg-white/98 backdrop-blur-sm border border-gray-200/30 rounded-md shadow-sm p-2 z-50">
                   {user && (
                     <Link
                       href="/userProfile"
                       onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
+                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors"
                     >
                       <User className="w-4 h-4 text-accent" />
                       <span>User Profile</span>
                     </Link>
                   )}
 
-                  <div className="border-t border-gray-200/60 my-1"></div>
+                  <div className="border-t border-gray-200/30 my-1"></div>
 
                   {user ? (
                     <button
@@ -537,20 +536,37 @@ export default function Header() {
                         setProfileDropdownOpen(false);
                         signOut();
                       }}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
+                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors"
                     >
                       <LogOut className="w-4 h-4 text-accent" />
                       <span>Abmelden</span>
                     </button>
                   ) : (
-                    <Link
-                      href={loginUrl}
-                      onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
-                    >
-                      <LogIn className="w-4 h-4 text-accent" />
-                      <span>Anmelden</span>
-                    </Link>
+                    <>
+                      <Link
+                        href={loginUrl}
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors"
+                      >
+                        <LogIn className="w-4 h-4 text-accent" />
+                        <span>Anmelden</span>
+                      </Link>
+
+                      <div className="border-t border-gray-200/30 my-1"></div>
+
+                      <div className="px-4 py-2 text-xs text-center">
+                        <span className="text-muted-foreground">
+                          Noch kein Konto?{" "}
+                        </span>
+                        <Link
+                          href="/auth/sign-up"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="text-accent hover:underline font-medium"
+                        >
+                          Registrieren
+                        </Link>
+                      </div>
+                    </>
                   )}
                 </div>
               )}
