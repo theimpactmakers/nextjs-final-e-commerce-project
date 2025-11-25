@@ -126,12 +126,12 @@ export default function Footer() {
       </div>
 
       {/* Trennlinie */}
-      <div className="container max-w-7xl mt-8 mb-6">
+      <div className="container max-w-7xl mt-8 mb-8">
         <div className="border-t border-muted-foreground/20"></div>
       </div>
 
       {/* Rechtliche Links horizontal über dem Logo */}
-      <div className="flex justify-center items-center gap-4 md:gap-6 text-sm mb-6 flex-wrap">
+      <div className="flex justify-center items-center gap-4 md:gap-6 text-sm mb-8 flex-wrap">
         <Link
           href="/impressum"
           className="hover:text-primary transition-colors"
