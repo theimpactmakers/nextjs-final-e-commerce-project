@@ -9,7 +9,8 @@ type ProductWithImage = {
   id: string | null;
   name: string | null;
   description: string | null;
-  price: number | null;
+  min_price: number | null;
+  starting_variant_name: string | null;
   slug: string | null;
   meat_type: string | null;
   age_group: string | null;
@@ -161,9 +162,16 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
                     {p.name}
                   </h3>
                   <div className="flex items-center justify-between">
-                    <span className="text-base font-bold text-foreground">
-                      {p.price} €
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-base font-bold text-foreground">
+                        ab {p.min_price ? Number(p.min_price).toFixed(2) : "N/A"} €
+                      </span>
+                      {p.starting_variant_name && (
+                        <span className="text-[10px] text-muted-foreground">
+                          {p.starting_variant_name}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xs text-accent flex items-center gap-0.5 underline hover:no-underline group-hover:translate-x-1 transition-transform">
                       Produktdetails
                       <svg
