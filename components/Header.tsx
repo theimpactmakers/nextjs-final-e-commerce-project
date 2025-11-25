@@ -147,6 +147,7 @@ export default function Header() {
           </Link>
           {/* 2. Hauptmenü Links (zentriert auf md+) */}
           <nav className="hidden md:flex md:gap-1 lg:gap-2 text-sm font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
+            
             {/* Home Link */}
             <div className="relative group inline-block">
               <Link
