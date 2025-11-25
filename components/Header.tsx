@@ -21,18 +21,24 @@ export default function Header() {
   // Erstelle Login-URL mit aktuellem Pfad als redirect
   const loginUrl = `/auth/login?redirect=${encodeURIComponent(pathname)}`;
 
-  // Handler für Hover mit Delay
+  // Handler für Hover mit Delay (nur für Desktop)
   const handleMouseEnter = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
+    // Nur auf Desktop (Bildschirmbreite > 768px) Hover aktivieren
+    if (window.innerWidth >= 768) {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      setProfileDropdownOpen(true);
     }
-    setProfileDropdownOpen(true);
   };
 
   const handleMouseLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setProfileDropdownOpen(false);
-    }, 300);
+    // Nur auf Desktop (Bildschirmbreite > 768px) Hover aktivieren
+    if (window.innerWidth >= 768) {
+      hoverTimeoutRef.current = setTimeout(() => {
+        setProfileDropdownOpen(false);
+      }, 300);
+    }
   };
 
   // Close dropdown when clicking outside
@@ -80,191 +86,250 @@ export default function Header() {
   }, [mobileOpen]);
 
   return (
-    <header
-      className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 bg-muted/80 backdrop-blur-md`}
-    >
-      {/* very soft, minimal blurred gradient at bottom (single subtle band) */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 h-4 md:h-4 lg:h-6 pointer-events-none transition-opacity duration-300"
-        style={{
-          backgroundImage:
-            "linear-gradient(90deg, rgba(81,52,49,0.06) 0%, rgba(122,77,63,0.04) 50%, rgba(56,31,28,0.06) 100%)",
-          filter: "blur(12px)",
-          opacity: 0.95,
-        }}
-      />
+    <>
+      <header
+        className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 bg-muted/80 backdrop-blur-md`}
+      >
+        {/* very soft, minimal blurred gradient at bottom (single subtle band) */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-4 md:h-4 lg:h-6 pointer-events-none transition-opacity duration-300"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, rgba(81,52,49,0.06) 0%, rgba(122,77,63,0.04) 50%, rgba(56,31,28,0.06) 100%)",
+            filter: "blur(12px)",
+            opacity: 0.95,
+          }}
+        />
 
-      {/* Hauptnavigation & Logo */}
-      <div className="relative z-10 w-full mx-auto px-2 sm:px-3 md:px-6 lg:px-8 max-w-full grid grid-cols-[minmax(44px,auto)_1fr_minmax(44px,auto)] items-center h-20">
-        {/* Mobile: search icon on the left */}
-        <button
-          aria-label="Suche"
-          className="col-start-1 md:hidden p-1 rounded hover:bg-accent/10 text-accent"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="lucide lucide-search"
+        {/* Hauptnavigation & Logo */}
+        <div className="relative z-10 w-full mx-auto px-2 sm:px-3 md:px-6 lg:px-8 max-w-full grid grid-cols-[minmax(44px,auto)_1fr_minmax(44px,auto)] items-center h-16 md:h-20">
+          {/* Mobile: search icon on the left */}
+          <button
+            aria-label="Suche"
+            className="col-start-1 md:hidden p-1 rounded hover:bg-accent/10 text-accent cursor-pointer"
           >
-            <circle cx="11" cy="11" r="7" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        </button>
-        <Link
-          href="/"
-          className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] ${
-            mobileOpen ? "min-w-12" : ""
-          } logo-md-narrow`}
-        >
-          <Image
-            src="/images/Logo_example_6.png"
-            alt="Elite Tail Treats"
-            width={120}
-            height={48}
-            priority
-            className={`block w-16 sm:w-20 md:w-24 lg:w-28 transition-all duration-150 ${
-              mobileOpen ? "w-12 sm:w-14" : ""
-            }`}
-            style={{
-              height: "auto",
-            }}
-          />
-        </Link>
-        {/* 2. Hauptmenü Links (zentriert auf md+) */}
-        <nav className="hidden md:flex md:gap-2 lg:gap-4 font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
-          {/* Hundefutter mit Dropdown */}
-          <div className="relative group inline-block">
-            <Link
-              href="/shop"
-              className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-search"
             >
-              Hundefutter
-              <span
-                className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
-                }}
-              ></span>
-            </Link>
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+          <Link
+            href="/"
+            className={`col-start-2 justify-center md:col-start-1 md:justify-start flex items-center gap-3 z-30 shrink-0 min-w-[72px] mt-1 md:mt-0 ${
+              mobileOpen ? "min-w-12" : ""
+            } logo-md-narrow`}
+          >
+            <Image
+              src="/images/Logo_example_6.png"
+              alt="Elite Tail Treats"
+              width={120}
+              height={48}
+              priority
+              className={`block w-24 sm:w-24 md:w-24 lg:w-28 transition-all duration-150 ${
+                mobileOpen ? "w-12 sm:w-14" : ""
+              }`}
+              style={{
+                height: "auto",
+              }}
+            />
+          </Link>
+          {/* 2. Hauptmenü Links (zentriert auf md+) */}
+          <nav className="hidden md:flex md:gap-2 lg:gap-4 font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
+            {/* Hundefutter mit Dropdown */}
+            <div className="relative group inline-block">
+              <Link
+                href="/shop"
+                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+              >
+                Hundefutter
+                <span
+                  className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
+                  }}
+                ></span>
+              </Link>
 
-            <div
-              role="menu"
-              aria-label="Hundefutter Menü"
-              className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-4 z-50"
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="text-xs font-semibold mb-2">Alter</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li>
-                      <Link
-                        href="/shop?age=junior"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Junior
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/shop?age=adult"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Adult
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/shop?age=senior"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Senior
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-xs font-semibold mb-2">Fleischsorten</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li>
-                      <Link
-                        href="/shop?meat=ente"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Ente
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/shop?meat=rind"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Rind
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/shop?meat=kaninchen"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Kaninchen
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/shop?meat=lamm"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Lamm
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/shop?meat=pferd"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Pferd
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/shop?meat=wild"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Wild
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/shop?meat=lachs"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Lachs
-                      </Link>
-                    </li>
-                  </ul>
+              <div
+                role="menu"
+                aria-label="Hundefutter Menü"
+                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-4 z-50"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-xs font-semibold mb-2">Alter</h4>
+                    <ul className="space-y-1 text-sm">
+                      <li>
+                        <Link
+                          href="/shop?age=junior"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Junior
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?age=adult"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Adult
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?age=senior"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Senior
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-semibold mb-2">
+                      Fleischsorten
+                    </h4>
+                    <ul className="space-y-1 text-sm">
+                      <li>
+                        <Link
+                          href="/shop?meat=ente"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Ente
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?meat=rind"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Rind
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?meat=kaninchen"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Kaninchen
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?meat=lamm"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Lamm
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?meat=pferd"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Pferd
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?meat=wild"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Wild
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?meat=lachs"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Lachs
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Specials mit Dropdown */}
-          <div className="relative group inline-block">
+            {/* Specials mit Dropdown */}
+            <div className="relative group inline-block">
+              <Link
+                href="/specials"
+                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+              >
+                Specials
+                <span
+                  className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
+                  }}
+                ></span>
+              </Link>
+
+              <div
+                role="menu"
+                aria-label="Specials Menü"
+                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50"
+              >
+                <ul className="space-y-1 text-sm">
+                  <li>
+                    <Link
+                      href="/specials/darm"
+                      className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                    >
+                      Diätfutter
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/specials/hypoallergen"
+                      className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                    >
+                      Hypoallergen
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/specials/darmgesundheit"
+                      className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                    >
+                      Darmgesundheit
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/specials/gelenk"
+                      className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                    >
+                      Gelenkfit
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
             <Link
-              href="/specials"
+              href="/beratung"
               className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
             >
-              Specials
+              Beratung
               <span
-                className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
+                className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                 style={{
                   backgroundImage:
                     "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
@@ -272,251 +337,240 @@ export default function Header() {
               ></span>
             </Link>
 
-            <div
-              role="menu"
-              aria-label="Specials Menü"
-              className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50"
-            >
-              <ul className="space-y-1 text-sm">
-                <li>
+            <div className="relative group inline-block">
+              <button className="relative inline-flex items-center h-9 gap-2 group-hover:text-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] transition-colors px-2 py-2 align-middle">
+                <span>Mehr</span>
+                <svg
+                  className="w-3 h-3 transition-transform duration-150 group-hover:rotate-90 text-accent"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden
+                >
+                  <path
+                    d="M8 5l8 7-8 7"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span
+                  className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
+                  }}
+                ></span>
+              </button>
+
+              <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50">
+                <li className="py-1">
                   <Link
-                    href="/specials/darm"
+                    href="/contact"
                     className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
-                    Diätfutter
+                    Kontakt
                   </Link>
                 </li>
-                <li>
+                <li className="py-1">
                   <Link
-                    href="/specials/hypoallergen"
+                    href="/about"
                     className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
-                    Hypoallergen
+                    Über Uns
                   </Link>
                 </li>
-                <li>
+                <li className="py-1">
                   <Link
-                    href="/specials/darmgesundheit"
+                    href="/impressum"
                     className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
-                    Darmgesundheit
+                    Impressum
                   </Link>
                 </li>
-                <li>
+                <li className="py-1">
                   <Link
-                    href="/specials/gelenk"
+                    href="/datenschutz"
                     className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                   >
-                    Gelenkfit
+                    Datenschutz
+                  </Link>
+                </li>
+                <li className="py-1">
+                  <Link
+                    href="/agb"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                  >
+                    AGB
+                  </Link>
+                </li>
+                <li className="py-1">
+                  <Link
+                    href="/zahlung-versand"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                  >
+                    Zahlung & Versand
+                  </Link>
+                </li>
+                <li className="py-1">
+                  <Link
+                    href="/widerruf"
+                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                  >
+                    Widerruf
                   </Link>
                 </li>
               </ul>
             </div>
-          </div>
-
-          <Link
-            href="/beratung"
-            className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
-          >
-            Beratung
-            <span
-              className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
-              style={{
-                backgroundImage:
-                  "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
-              }}
-            ></span>
-          </Link>
-
-          <div className="relative group inline-block">
-            <button className="relative inline-flex items-center h-9 gap-2 group-hover:text-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] transition-colors px-2 py-2 align-middle">
-              <span>Mehr</span>
-              <svg
-                className="w-3 h-3 transition-transform duration-150 group-hover:rotate-90 text-accent"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden
-              >
-                <path
-                  d="M8 5l8 7-8 7"
+          </nav>
+          {/* 3. Aktionen */}
+          {/* Desktop: Suche + Anmeldung + Warenkorb */}
+          <div className="hidden md:flex items-center space-x-2 text-sm font-medium justify-end col-start-3">
+            {/* Search (desktop) */}
+            <form
+              action="/search"
+              method="get"
+              className="hidden md:flex items-center mr-2 self-end group"
+            >
+              <label htmlFor="header-search" className="sr-only">
+                Suche
+              </label>
+              <div className="relative">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
                   stroke="currentColor"
-                  strokeWidth="2.5"
+                  strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-accent hover:text-primary hover:scale-90 active:text-foreground active:scale-100 w-4 h-4 transition-all cursor-pointer"
+                  aria-hidden
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  id="header-search"
+                  name="q"
+                  type="search"
+                  placeholder={searchFocused ? "Wonach suchst Du?" : "Suche..."}
+                  onFocus={() => setSearchFocused(true)}
+                  onBlur={() => setSearchFocused(false)}
+                  className={`w-56 bg-white/95 border border-primary rounded-full py-1.5 pl-9 pr-3 focus:outline-hidden focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground/50 transition-all ${
+                    searchFocused ? "text-xs" : "text-sm"
+                  }`}
                 />
-              </svg>
-              <span
-                className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
-                }}
-              ></span>
-            </button>
-
-            <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-3 z-50">
-              <li className="py-1">
-                <Link
-                  href="/contact"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                >
-                  Kontakt
-                </Link>
-              </li>
-              <li className="py-1">
-                <Link
-                  href="/about"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                >
-                  Über Uns
-                </Link>
-              </li>
-              <li className="py-1">
-                <Link
-                  href="/impressum"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                >
-                  Impressum
-                </Link>
-              </li>
-              <li className="py-1">
-                <Link
-                  href="/datenschutz"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                >
-                  Datenschutz
-                </Link>
-              </li>
-              <li className="py-1">
-                <Link
-                  href="/agb"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                >
-                  AGB
-                </Link>
-              </li>
-              <li className="py-1">
-                <Link
-                  href="/zahlung-versand"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                >
-                  Zahlung & Versand
-                </Link>
-              </li>
-              <li className="py-1">
-                <Link
-                  href="/widerruf"
-                  className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                >
-                  Widerruf
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </nav>
-        {/* 3. Aktionen */}
-        {/* Desktop: Suche + Anmeldung + Warenkorb */}
-        <div className="hidden md:flex items-center space-x-2 text-sm font-medium justify-end col-start-3">
-          {/* Search (desktop) */}
-          <form
-            action="/search"
-            method="get"
-            className="hidden md:flex items-center mr-2 self-end group"
-          >
-            <label htmlFor="header-search" className="sr-only">
-              Suche
-            </label>
-            <div className="relative">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-accent hover:text-primary hover:scale-90 active:text-foreground active:scale-100 w-4 h-4 transition-all cursor-pointer"
-                aria-hidden
-              >
-                <circle cx="11" cy="11" r="7" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input
-                id="header-search"
-                name="q"
-                type="search"
-                placeholder={searchFocused ? "Wonach suchst Du?" : "Suche..."}
-                onFocus={() => setSearchFocused(true)}
-                onBlur={() => setSearchFocused(false)}
-                className={`w-56 bg-white/95 border border-primary rounded-full py-1.5 pl-9 pr-3 focus:outline-hidden focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground/50 transition-all ${
-                  searchFocused ? "text-xs" : "text-sm"
-                }`}
-              />
-            </div>
-          </form>
-          {/* Profile Dropdown (Desktop) */}
-          <div
-            className="relative hide-md-narrow"
-            ref={dropdownRef}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            <button
-              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer"
-              aria-label="Benutzerprofil"
-            >
-              <User className="w-5 h-5" />
-            </button>
-
-            {profileDropdownOpen && (
-              <div className="absolute right-0 top-full mt-1 w-56 bg-white/98 backdrop-blur-sm border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-2 z-50">
-                {user && (
-                  <Link
-                    href="/userProfile"
-                    onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
-                  >
-                    <User className="w-4 h-4 text-accent" />
-                    <span>User Profile</span>
-                  </Link>
-                )}
-
-                <div className="border-t border-gray-200/60 my-1"></div>
-
-                {user ? (
-                  <button
-                    onClick={() => {
-                      setProfileDropdownOpen(false);
-                      signOut();
-                    }}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
-                  >
-                    <LogOut className="w-4 h-4 text-accent" />
-                    <span>Abmelden</span>
-                  </button>
-                ) : (
-                  <Link
-                    href={loginUrl}
-                    onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
-                  >
-                    <LogIn className="w-4 h-4 text-accent" />
-                    <span>Anmelden</span>
-                  </Link>
-                )}
               </div>
+            </form>
+            {/* Profile Dropdown (Desktop) */}
+            <div
+              className="relative hide-md-narrow"
+              ref={dropdownRef}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <button
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer"
+                aria-label="Benutzerprofil"
+              >
+                <User className="w-5 h-5" />
+              </button>
+
+              {profileDropdownOpen && (
+                <div className="absolute right-0 top-full mt-1 w-56 bg-white/98 backdrop-blur-sm border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-2 z-50">
+                  {user && (
+                    <Link
+                      href="/userProfile"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
+                    >
+                      <User className="w-4 h-4 text-accent" />
+                      <span>User Profile</span>
+                    </Link>
+                  )}
+
+                  <div className="border-t border-gray-200/60 my-1"></div>
+
+                  {user ? (
+                    <button
+                      onClick={() => {
+                        setProfileDropdownOpen(false);
+                        signOut();
+                      }}
+                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
+                    >
+                      <LogOut className="w-4 h-4 text-accent" />
+                      <span>Abmelden</span>
+                    </button>
+                  ) : (
+                    <Link
+                      href={loginUrl}
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-secondary text-foreground transition-colors"
+                    >
+                      <LogIn className="w-4 h-4 text-accent" />
+                      <span>Anmelden</span>
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+            {/* Profile Icon - Narrow Screens */}
+            {user ? (
+              <button
+                onClick={signOut}
+                aria-label="Abmelden"
+                className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </button>
+            ) : (
+              <Link
+                href={loginUrl}
+                aria-label="Anmelden"
+                className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent active:text-foreground transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </Link>
             )}
-          </div>
-          {/* Profile Icon - Narrow Screens */}
-          {user ? (
-            <button
-              onClick={signOut}
-              aria-label="Abmelden"
-              className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent"
+            {/* Warenkorb */}
+            <Link
+              href="/cart"
+              className="hover:text-[hsl(var(--accent))] transition-colors flex items-center gap-1 group group-brown p-1 rounded hover:bg-accent/10"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -528,18 +582,50 @@ export default function Header() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                aria-hidden
+                className="lucide lucide-shopping-cart text-accent active:text-foreground transition-colors"
               >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
+                <circle cx="8" cy="21" r="1" />
+                <circle cx="19" cy="21" r="1" />
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
               </svg>
-            </button>
-          ) : (
+              <span className="text-foreground transition-colors group-hover:text-[hsl(var(--primary))]">
+                {" "}
+                ({itemCount}){" "}
+              </span>{" "}
+            </Link>{" "}
+          </div>{" "}
+          {/* Mobile: nur Icon-Warenkorb mit Anzahl, Login-Icon und Hamburger */}
+          <div className="flex md:hidden items-center space-x-2 justify-end col-start-3">
+            {/* Cart icon with badge */}
+            <Link
+              href="/cart"
+              className="relative p-1 rounded hover:bg-accent/10 group"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-shopping-cart text-accent group-active:text-foreground transition-colors"
+              >
+                <circle cx="8" cy="21" r="1" />
+                <circle cx="19" cy="21" r="1" />
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
+              </svg>
+              <span className="ml-2 sr-only">Warenkorb</span>
+              <span className="absolute -top-1.5 -right-0.5 inline-flex items-center justify-center text-foreground text-[9px] rounded-full px-1 bg-transparent transition-colors">
+                ({itemCount})
+              </span>{" "}
+            </Link>{" "}
+            {/* Login icon */}
             <Link
               href={loginUrl}
-              aria-label="Anmelden"
-              className="show-md-narrow p-1 rounded hover:bg-accent/10 text-accent active:text-foreground transition-colors"
+              className="p-1 rounded hover:bg-accent/10 text-accent active:text-foreground transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -551,140 +637,63 @@ export default function Header() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                aria-hidden
               >
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
+              <span className="sr-only">Anmelden</span>
             </Link>
-          )}
-          {/* Warenkorb */}
-          <Link
-            href="/cart"
-            className="hover:text-[hsl(var(--accent))] transition-colors flex items-center gap-1 group group-brown p-1 rounded hover:bg-accent/10"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-shopping-cart text-accent active:text-foreground transition-colors"
+            {/* Hamburger menu */}
+            <button
+              aria-label={mobileOpen ? "Schließe Menü" : "Öffne Menü"}
+              onClick={() => setMobileOpen((s) => !s)}
+              className="p-1 rounded hover:bg-accent/10 cursor-pointer text-foreground active:text-accent transition-colors"
             >
-              <circle cx="8" cy="21" r="1" />
-              <circle cx="19" cy="21" r="1" />
-              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
-            </svg>
-            <span className="text-foreground transition-colors group-hover:text-[hsl(var(--primary))]">
-              {" "}
-              ({itemCount}){" "}
-            </span>{" "}
-          </Link>{" "}
-        </div>{" "}
-        {/* Mobile: nur Icon-Warenkorb mit Anzahl, Login-Icon und Hamburger */}
-        <div className="flex md:hidden items-center space-x-3 justify-end col-start-3">
-          {/* Cart icon with badge */}
-          <Link
-            href="/cart"
-            className="relative p-1 rounded hover:bg-accent/10 group"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-shopping-cart text-accent group-active:text-foreground transition-colors"
-            >
-              <circle cx="8" cy="21" r="1" />
-              <circle cx="19" cy="21" r="1" />
-              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
-            </svg>
-            <span className="ml-2 sr-only">Warenkorb</span>
-            <span className="absolute -top-1 -right-1 inline-flex items-center justify-center text-accent text-xs rounded-full px-2 bg-transparent transition-colors group-hover:text-[hsl(var(--primary))]">
-              {" "}
-              {itemCount}{" "}
-            </span>{" "}
-          </Link>{" "}
-          {/* Login icon */}
-          <Link
-            href={loginUrl}
-            className="p-1 rounded hover:bg-accent/10 text-accent active:text-foreground transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            <span className="sr-only">Anmelden</span>
-          </Link>
-          {/* Hamburger menu */}
-          <button
-            aria-label={mobileOpen ? "Schließe Menü" : "Öffne Menü"}
-            onClick={() => setMobileOpen((s) => !s)}
-            className="p-1 rounded hover:bg-accent/10"
-          >
-            {mobileOpen ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
-            )}
-          </button>
+              {mobileOpen ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
       {/* Mobile menu overlay */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-100 md:hidden">
           <div
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-black/40 z-100"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="absolute inset-y-0 right-0 w-1/2 bg-white p-6 overflow-auto">
+          <div className="absolute inset-y-0 right-0 w-1/2 bg-white p-6 overflow-auto shadow-2xl z-101">
             <div className="flex items-center justify-between mb-6">
               <Link
                 href="/"
@@ -705,7 +714,7 @@ export default function Header() {
               <button
                 aria-label="Schließe Menü"
                 onClick={() => setMobileOpen(false)}
-                className="p-1 rounded hover:bg-accent/10"
+                className="p-1 rounded hover:bg-accent/10 text-accent active:text-foreground transition-all duration-300 hover:rotate-90 active:rotate-180 cursor-pointer"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -717,13 +726,14 @@ export default function Header() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  className="transition-transform duration-300"
                 >
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               </button>
             </div>
-            <nav className="space-y-4">
+            <nav className="space-y-2">
               <Link
                 href="/shop"
                 onClick={() => setMobileOpen(false)}
@@ -731,7 +741,7 @@ export default function Header() {
               >
                 Hundefutter
               </Link>
-              <div className="pl-3">
+              <div className="pl-3 space-y-1">
                 <Link
                   href="/shop?age=junior"
                   onClick={() => setMobileOpen(false)}
@@ -761,7 +771,7 @@ export default function Header() {
               >
                 Specials
               </Link>
-              <div className="pl-3">
+              <div className="pl-3 space-y-1">
                 <Link
                   href="/specials/diat"
                   onClick={() => setMobileOpen(false)}
@@ -791,13 +801,15 @@ export default function Header() {
                   Gelenkfit
                 </Link>
               </div>
-              <Link
-                href="/beratung"
-                onClick={() => setMobileOpen(false)}
-                className="block text-lg font-medium hover:text-[hsl(var(--accent))]"
-              >
-                Beratung
-              </Link>
+              <div>
+                <Link
+                  href="/beratung"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-lg font-medium hover:text-[hsl(var(--accent))]"
+                >
+                  Beratung
+                </Link>
+              </div>
               <Link
                 href="/impressum"
                 onClick={() => setMobileOpen(false)}
@@ -867,6 +879,6 @@ export default function Header() {
           </div>{" "}
         </div>
       )}
-    </header>
+    </>
   );
 }
