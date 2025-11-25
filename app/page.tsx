@@ -1,33 +1,18 @@
-import { createClient } from "@/lib/supabase/client";
-import type { Database } from "@/types";
-// neu imp.
 import { HeroSlider } from "../components/HeroSlider";
 import { SLIDES_DATA } from "./(data)/slideData";
-import { BestsellerCarousel } from "../components/BestsellerCarousel";
+import { BestsellerCarousel } from "../components/BestsellerCarouselWrapper";
 
-// Use static generation with ISR for better performance
-export const revalidate = 60;
+// Choose your rendering strategy:
+// Option 1: ISR (Incremental Static Regeneration) - RECOMMENDED
+export const revalidate = 60; // Rebuild every 60 seconds
 
-type ProductWithImage =
-  Database["public"]["Views"]["products_with_primary_image"]["Row"];
+// Option 2: Dynamic (Always fresh, but slower)
+// export const dynamic = 'force-dynamic';
+
+// Option 3: Static (Only rebuild on deployment)
+// Remove both lines above
 
 export default async function Home() {
-  const supabase = createClient();
-
-  // Use the new view that includes primary image data
-  const { data: products, error } = (await supabase
-    .from("products_with_primary_image")
-    .select("*")
-    .order("created_at", { ascending: false })) as {
-    data: ProductWithImage[] | null;
-    error: Error | null;
-  };
-
-  if (error) {
-    console.error(error);
-    return <p>Fehler beim Laden der Produkte.</p>;
-  }
-
   return (
     <div className="w-full">
       {/* 1. Hero / Banner Sektion (Volle Breite) */}
@@ -64,8 +49,8 @@ export default async function Home() {
             </p>
           </div>
 
-          {/* NEUER CAROUSEL */}
-          <BestsellerCarousel products={products || []} />
+          {/* Carousel fetches its own bestseller data */}
+          <BestsellerCarousel />
         </section>
 
         {/* 5. Community / Newsletter */}
