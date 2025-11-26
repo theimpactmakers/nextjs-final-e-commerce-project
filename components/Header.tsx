@@ -164,7 +164,7 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Shop Link */}
+            {/* Shop Link mit Dropdown */}
             <div className="relative group inline-block">
               <Link
                 href="/shop"
@@ -179,58 +179,41 @@ export default function Header() {
                   }}
                 ></span>
               </Link>
-            </div>
-
-            {/* Hundefutter mit Dropdown */}
-            <div className="relative group inline-block">
-              <Link
-                href="/shop"
-                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
-              >
-                Hundefutter
-                <span
-                  className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
-                  }}
-                ></span>
-              </Link>
 
               <div
                 role="menu"
-                aria-label="Hundefutter Menü"
+                aria-label="Shop Menü"
                 className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-4 z-50"
               >
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h4 className="text-xs font-semibold mb-2">Alter</h4>
                     <ul className="space-y-1 text-sm">
-                    <li>
-                      <Link
-                        href="/junior"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Junior
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/adult"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Adult
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/senior"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Senior
-                      </Link>
-                    </li>
-                  </ul>
+                      <li>
+                        <Link
+                          href="/junior"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Junior
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/adult"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Adult
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/senior"
+                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Senior
+                        </Link>
+                      </li>
+                    </ul>
                   </div>
                   <div>
                     <h4 className="text-xs font-semibold mb-2">
