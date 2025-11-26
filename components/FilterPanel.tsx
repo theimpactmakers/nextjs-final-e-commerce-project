@@ -15,49 +15,66 @@ interface FilterGroup {
   options: FilterOption[];
 }
 
-const FILTER_GROUPS: FilterGroup[] = [
-  {
-    id: 'age',
-    label: 'Altersgruppe',
-    options: [
-      { label: 'Junior', value: 'junior' },
-      { label: 'Adult', value: 'adult' },
-      { label: 'Senior', value: 'senior' },
-    ],
-  },
-  {
-    id: 'meat',
-    label: 'Fleischsorte',
-    options: [
-      { label: 'Ente', value: 'ente' },
-      { label: 'Rind', value: 'rind' },
-      { label: 'Kaninchen', value: 'kaninchen' },
-      { label: 'Lamm', value: 'lamm' },
-      { label: 'Pferd', value: 'pferd' },
-      { label: 'Wild', value: 'wild' },
-      { label: 'Lachs', value: 'lachs' },
-    ],
-  },
+interface FilterPanelProps {
+  currentAge?: 'junior' | 'adult' | 'senior';
+}
+
+const MEAT_OPTIONS: FilterOption[] = [
+  { label: 'Ente', value: 'ente' },
+  { label: 'Rind', value: 'rind' },
+  { label: 'Kaninchen', value: 'kaninchen' },
+  { label: 'Lamm', value: 'lamm' },
+  { label: 'Pferd', value: 'pferd' },
+  { label: 'Wild', value: 'wild' },
+  { label: 'Lachs', value: 'lachs' },
 ];
 
-export function FilterPanel() {
+const AGE_OPTIONS: FilterOption[] = [
+  { label: 'Junior', value: 'junior' },
+  { label: 'Adult', value: 'adult' },
+  { label: 'Senior', value: 'senior' },
+];
+
+export function FilterPanel({ currentAge }: FilterPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+  // Bestimme welche Filter angezeigt werden
+  const filterGroups: FilterGroup[] = currentAge
+    ? [
+        {
+          id: 'meat',
+          label: 'Fleischsorte',
+          options: MEAT_OPTIONS,
+        },
+      ]
+    : [
+        {
+          id: 'age',
+          label: 'Altersgruppe',
+          options: AGE_OPTIONS,
+        },
+        {
+          id: 'meat',
+          label: 'Fleischsorte',
+          options: MEAT_OPTIONS,
+        },
+      ];
+
   // Initialize filters from URL
   useEffect(() => {
     const filters: Record<string, string[]> = {};
-    FILTER_GROUPS.forEach((group) => {
-      const param = searchParams.get(group.id === 'age' ? 'age' : 'meat');
-      if (param) {
-        filters[group.id] = [param];
-      }
-    });
+    if (searchParams.get('meat')) {
+      filters['meat'] = [searchParams.get('meat')!];
+    }
+    if (!currentAge && searchParams.get('age')) {
+      filters['age'] = [searchParams.get('age')!];
+    }
     setSelectedFilters(filters);
-  }, [searchParams]);
+  }, [searchParams, currentAge]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -118,20 +135,33 @@ export function FilterPanel() {
   const applyFilters = (filters: Record<string, string[]>) => {
     const params = new URLSearchParams();
 
-    if (filters['age']?.length > 0) {
-      params.set('age', filters['age'][0]);
+    if (currentAge) {
+      // On age-specific pages, navigate within that page
+      if (filters['meat']?.length > 0) {
+        params.set('meat', filters['meat'][0]);
+      }
+      const queryString = params.toString();
+      router.push(queryString ? `/${currentAge}?${queryString}` : `/${currentAge}`);
+    } else {
+      // On shop page, apply both filters
+      if (filters['age']?.length > 0) {
+        params.set('age', filters['age'][0]);
+      }
+      if (filters['meat']?.length > 0) {
+        params.set('meat', filters['meat'][0]);
+      }
+      const queryString = params.toString();
+      router.push(queryString ? `/shop?${queryString}` : '/shop');
     }
-    if (filters['meat']?.length > 0) {
-      params.set('meat', filters['meat'][0]);
-    }
-
-    const queryString = params.toString();
-    router.push(queryString ? `/shop?${queryString}` : '/shop');
   };
 
   const resetFilters = () => {
     setSelectedFilters({});
-    router.push('/shop');
+    if (currentAge) {
+      router.push(`/${currentAge}`);
+    } else {
+      router.push('/shop');
+    }
   };
 
   const hasActiveFilters = Object.values(selectedFilters).some((v) => v.length > 0);
@@ -140,7 +170,7 @@ export function FilterPanel() {
     <div className="w-full mb-8">
       {/* Filter Dropdowns */}
       <div className="flex flex-wrap gap-3 mb-6">
-        {FILTER_GROUPS.map((group) => (
+        {filterGroups.map((group) => (
           <div
             key={group.id}
             ref={(el) => {
@@ -205,7 +235,7 @@ export function FilterPanel() {
       {/* Active Filters Display */}
       {hasActiveFilters && (
         <div className="flex flex-wrap gap-2">
-          {FILTER_GROUPS.map((group) =>
+          {filterGroups.map((group) =>
             (selectedFilters[group.id] || []).map((value) => {
               const option = group.options.find((o) => o.value === value);
               return (
