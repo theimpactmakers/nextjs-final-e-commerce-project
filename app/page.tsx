@@ -1,7 +1,6 @@
 import { HeroSlider } from "../components/HeroSlider";
 import { SLIDES_DATA } from "./(data)/slideData";
 import { BestsellerCarousel } from "../components/BestsellerCarouselWrapper";
-import { BestsellerCarousel } from "../components/BestsellerCarousel";
 import Button from "@/components/Button";
 
 // Choose your rendering strategy:
