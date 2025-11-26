@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import type { Database } from "@/types";
 import { FilterPanel } from "@/components/FilterPanel";
-import { BestsellerCarousel } from "@/components/BestsellerCarousel";
+import { BestsellerCarousel } from "@/components/BestsellerCarouselWrapper";
 
 export const revalidate = 60;
 
@@ -66,7 +66,8 @@ async function AdultContent({
           Hundefutter für Adult
         </h1>
         <p className="text-lg text-green-800 max-w-2xl">
-          Premium-Ernährung für deinen erwachsenen Hund. Energie, Vitalität und Gesundheit in jedem Bissen.
+          Premium-Ernährung für deinen erwachsenen Hund. Energie, Vitalität und
+          Gesundheit in jedem Bissen.
         </p>
       </div>
 

@@ -191,7 +191,7 @@ export const BestsellerCarouselClient: React.FC<
           ))}
         </div>
       </div>
-      {/* blabla */}
+
       {/* Navigation Arrows */}
       <>
         <button
