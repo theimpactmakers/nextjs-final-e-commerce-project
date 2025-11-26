@@ -109,7 +109,7 @@ export default function Header() {
           <button
             aria-label="Suche"
             onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-            className="col-start-1 md:hidden p-1 rounded hover:bg-accent/10 text-accent cursor-pointer"
+            className="col-start-1 md:hidden p-1 rounded text-accent cursor-pointer group"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -121,7 +121,7 @@ export default function Header() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="lucide lucide-search"
+              className="lucide lucide-search transition-all duration-200 group-hover:scale-90 group-hover:stroke-black group-active:scale-85"
             >
               <circle cx="11" cy="11" r="7" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -811,13 +811,24 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile Search Bar - Slide Down */}
+        {/* Mobile Search Bar - Slide Down with Overlay */}
         {mobileSearchOpen && (
-          <div className="md:hidden bg-muted/95 backdrop-blur-sm border-t border-gray-200/30 px-4 py-3 animate-in slide-in-from-top duration-200">
-            <div className="relative max-w-full">
-              <SearchBar isMobile onClose={() => setMobileSearchOpen(false)} />
+          <>
+            {/* Overlay */}
+            <div
+              className="fixed inset-0 bg-black/20 z-40 md:hidden"
+              onClick={() => setMobileSearchOpen(false)}
+            />
+            {/* Search Bar */}
+            <div className="relative md:hidden bg-muted/95 backdrop-blur-sm border-t border-gray-200/30 px-4 py-3 animate-in slide-in-from-top duration-200 z-50">
+              <div className="relative max-w-full">
+                <SearchBar
+                  isMobile
+                  onClose={() => setMobileSearchOpen(false)}
+                />
+              </div>
             </div>
-          </div>
+          </>
         )}
       </header>
 
