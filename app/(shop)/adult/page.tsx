@@ -35,10 +35,13 @@ async function AdultContent({
     .order("created_at", { ascending: false });
 
   if (meat) {
-    const normalizedMeat = meat.toLowerCase();
-    const dbValue = meatEnumValues[normalizedMeat];
-    if (dbValue) {
-      query = query.eq("meat_type", dbValue);
+    const meatArray = meat.split(',').filter(Boolean);
+    const dbValues = meatArray
+      .map((m) => meatEnumValues[m.toLowerCase()])
+      .filter(Boolean);
+    
+    if (dbValues.length > 0) {
+      query = query.in("meat_type", dbValues);
     }
   }
 
