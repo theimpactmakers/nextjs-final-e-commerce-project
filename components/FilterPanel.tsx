@@ -27,6 +27,7 @@ const MEAT_OPTIONS: FilterOption[] = [
   { label: 'Pferd', value: 'pferd' },
   { label: 'Wild', value: 'wild' },
   { label: 'Lachs', value: 'lachs' },
+  { label: 'Huhn', value: 'huhn' },
 ];
 
 const AGE_OPTIONS: FilterOption[] = [
@@ -68,10 +69,10 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
   useEffect(() => {
     const filters: Record<string, string[]> = {};
     if (searchParams.get('meat')) {
-      filters['meat'] = [searchParams.get('meat')!];
+      filters['meat'] = searchParams.get('meat')!.split(',').filter(Boolean);
     }
     if (!currentAge && searchParams.get('age')) {
-      filters['age'] = [searchParams.get('age')!];
+      filters['age'] = searchParams.get('age')!.split(',').filter(Boolean);
     }
     setSelectedFilters(filters);
   }, [searchParams, currentAge]);
@@ -138,29 +139,29 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
     if (currentAge) {
       // On age-specific pages, navigate within that page
       if (filters['meat']?.length > 0) {
-        params.set('meat', filters['meat'][0]);
+        params.set('meat', filters['meat'].join(','));
       }
       const queryString = params.toString();
-      router.push(queryString ? `/${currentAge}?${queryString}` : `/${currentAge}`);
+      router.push(queryString ? `/${currentAge}?${queryString}` : `/${currentAge}`, { scroll: false });
     } else {
       // On shop page, apply both filters
       if (filters['age']?.length > 0) {
-        params.set('age', filters['age'][0]);
+        params.set('age', filters['age'].join(','));
       }
       if (filters['meat']?.length > 0) {
-        params.set('meat', filters['meat'][0]);
+        params.set('meat', filters['meat'].join(','));
       }
       const queryString = params.toString();
-      router.push(queryString ? `/shop?${queryString}` : '/shop');
+      router.push(queryString ? `/shop?${queryString}` : '/shop', { scroll: false });
     }
   };
 
   const resetFilters = () => {
     setSelectedFilters({});
     if (currentAge) {
-      router.push(`/${currentAge}`);
+      router.push(`/${currentAge}`, { scroll: false });
     } else {
-      router.push('/shop');
+      router.push('/shop', { scroll: false });
     }
   };
 
