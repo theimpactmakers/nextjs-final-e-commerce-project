@@ -23,21 +23,23 @@ export function UpdatePasswordForm({
 
     // Check if user session exists
     if (!user) {
-      setError("Auth session missing! Please request a new password reset.");
+      setError(
+        "Sitzung abgelaufen! Bitte fordern Sie ein neues Passwort-Zurücksetzen an."
+      );
       setIsLoading(false);
       return;
     }
 
     // Validate password match
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passwörter stimmen nicht überein");
       setIsLoading(false);
       return;
     }
 
     // Validate password length
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError("Passwort muss mindestens 6 Zeichen lang sein");
       setIsLoading(false);
       return;
     }
@@ -50,7 +52,7 @@ export function UpdatePasswordForm({
     } else {
       // Redirect to login page with success message
       router.push(
-        "/auth/login?message=Password updated successfully. Please log in."
+        "/auth/login?message=Passwort erfolgreich aktualisiert. Bitte melden Sie sich an."
       );
     }
   };
@@ -60,10 +62,10 @@ export function UpdatePasswordForm({
       <div className="bg-card text-card-foreground rounded-xl border shadow-xs">
         <div className="flex flex-col space-y-1.5 p-6">
           <h3 className="text-2xl font-semibold leading-none tracking-tight">
-            Reset Your Password
+            Passwort zurücksetzen
           </h3>
           <p className="text-sm text-muted-foreground">
-            Please enter your new password below.
+            Bitte geben Sie Ihr neues Passwort ein.
           </p>
         </div>
         <div className="p-6 pt-0">
@@ -74,12 +76,12 @@ export function UpdatePasswordForm({
                   htmlFor="password"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  New password
+                  Neues Passwort
                 </label>
                 <input
                   id="password"
                   type="password"
-                  placeholder="New password"
+                  placeholder="Neues Passwort"
                   required
                   minLength={6}
                   value={password}
@@ -92,12 +94,12 @@ export function UpdatePasswordForm({
                   htmlFor="confirmPassword"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  Confirm new password
+                  Neues Passwort bestätigen
                 </label>
                 <input
                   id="confirmPassword"
                   type="password"
-                  placeholder="Confirm new password"
+                  placeholder="Neues Passwort bestätigen"
                   required
                   minLength={6}
                   value={confirmPassword}
@@ -111,7 +113,7 @@ export function UpdatePasswordForm({
                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
                 disabled={isLoading}
               >
-                {isLoading ? "Saving..." : "Save new password"}
+                {isLoading ? "Wird gespeichert..." : "Neues Passwort speichern"}
               </button>
             </div>
           </form>

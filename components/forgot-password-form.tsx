@@ -37,28 +37,39 @@ export function ForgotPasswordForm({
         <div className="bg-card text-card-foreground rounded-xl border shadow-xs">
           <div className="flex flex-col space-y-1.5 p-6">
             <h3 className="text-2xl font-semibold leading-none tracking-tight">
-              Check Your Email
+              Überprüfen Sie Ihre E-Mails
             </h3>
             <p className="text-sm text-muted-foreground">
-              Password reset instructions sent
+              Anweisungen zum Zurücksetzen des Passworts gesendet
             </p>
           </div>
-          <div className="p-6 pt-0">
+          <div className="p-6 pt-0 space-y-4">
             <p className="text-sm text-muted-foreground">
-              If you registered using your email and password, you will receive
-              a password reset email.
+              Falls Sie sich mit Ihrer E-Mail-Adresse und Passwort registriert
+              haben, erhalten Sie eine E-Mail zum Zurücksetzen des Passworts.
             </p>
+            <div className="pt-4 border-t">
+              <p className="text-sm text-muted-foreground mb-3">
+                Keine E-Mail erhalten oder benötigen Sie einen neuen Link?
+              </p>
+              <button
+                onClick={() => setSuccess(false)}
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full border border-input bg-background"
+              >
+                Erneut Link anfordern
+              </button>
+            </div>
           </div>
         </div>
       ) : (
         <div className="bg-card text-card-foreground rounded-xl border shadow-xs">
           <div className="flex flex-col space-y-1.5 p-6">
             <h3 className="text-2xl font-semibold leading-none tracking-tight">
-              Reset Your Password
+              Passwort zurücksetzen
             </h3>
             <p className="text-sm text-muted-foreground">
-              Type in your email and we&apos;ll send you a link to reset your
-              password
+              Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link
+              zum Zurücksetzen Ihres Passworts
             </p>
           </div>
           <div className="p-6 pt-0">
@@ -87,16 +98,18 @@ export function ForgotPasswordForm({
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Sending..." : "Send reset email"}
+                  {isLoading
+                    ? "Wird gesendet..."
+                    : "Link zum Zurücksetzen senden"}
                 </button>
               </div>
               <div className="mt-4 text-center text-sm">
-                Already have an account?{" "}
+                Haben Sie bereits ein Konto?{" "}
                 <Link
                   href="/auth/login"
                   className="underline underline-offset-4"
                 >
-                  Login
+                  Anmelden
                 </Link>
               </div>
             </form>
