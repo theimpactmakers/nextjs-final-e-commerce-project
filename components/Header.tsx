@@ -7,11 +7,12 @@ import { usePathname } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, LogIn, LogOut } from "lucide-react";
+import SearchBar from "@/components/SearchBar";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [searchFocused, setSearchFocused] = useState(false);
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
   const pathname = usePathname();
@@ -107,6 +108,7 @@ export default function Header() {
           {/* Mobile: search icon on the left */}
           <button
             aria-label="Suche"
+            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
             className="col-start-1 md:hidden p-1 rounded hover:bg-accent/10 text-accent cursor-pointer"
           >
             <svg
@@ -587,44 +589,7 @@ export default function Header() {
           {/* Desktop: Suche + Anmeldung + Warenkorb */}
           <div className="hidden md:flex items-center space-x-2 text-sm font-medium justify-end col-start-3">
             {/* Search (desktop) */}
-            <form
-              action="/search"
-              method="get"
-              className="hidden md:flex items-center mr-2 self-end group"
-            >
-              <label htmlFor="header-search" className="sr-only">
-                Suche
-              </label>
-              <div className="relative">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-accent hover:text-primary hover:scale-90 active:text-foreground active:scale-100 w-4 h-4 transition-all cursor-pointer"
-                  aria-hidden
-                >
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input
-                  id="header-search"
-                  name="q"
-                  type="search"
-                  placeholder={searchFocused ? "Wonach suchst Du?" : "Suche..."}
-                  onFocus={() => setSearchFocused(true)}
-                  onBlur={() => setSearchFocused(false)}
-                  className={`w-56 bg-white/95 border border-primary rounded-full py-1.5 pl-9 pr-3 focus:outline-hidden focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground/50 transition-all ${
-                    searchFocused ? "text-xs" : "text-sm"
-                  }`}
-                />
-              </div>
-            </form>
+            <SearchBar />
             {/* Profile Dropdown (Desktop) */}
             <div
               className="relative hide-md-narrow"
@@ -845,6 +810,15 @@ export default function Header() {
             </button>
           </div>
         </div>
+
+        {/* Mobile Search Bar - Slide Down */}
+        {mobileSearchOpen && (
+          <div className="md:hidden bg-muted/95 backdrop-blur-sm border-t border-gray-200/30 px-4 py-3 animate-in slide-in-from-top duration-200">
+            <div className="relative max-w-full">
+              <SearchBar isMobile onClose={() => setMobileSearchOpen(false)} />
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Mobile menu overlay */}
