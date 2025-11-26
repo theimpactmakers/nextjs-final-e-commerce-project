@@ -206,31 +206,31 @@ export default function Header() {
                   <div>
                     <h4 className="text-xs font-semibold mb-2">Alter</h4>
                     <ul className="space-y-1 text-sm">
-                      <li>
-                        <Link
-                          href="/shop?age=junior"
-                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                        >
-                          Junior
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href="/shop?age=adult"
-                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                        >
-                          Adult
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href="/shop?age=senior"
-                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                        >
-                          Senior
-                        </Link>
-                      </li>
-                    </ul>
+                    <li>
+                      <Link
+                        href="/junior"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                      >
+                        Junior
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/adult"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                      >
+                        Adult
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/senior"
+                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                      >
+                        Senior
+                      </Link>
+                    </li>
+                  </ul>
                   </div>
                   <div>
                     <h4 className="text-xs font-semibold mb-2">
@@ -777,23 +777,23 @@ export default function Header() {
               >
                 Hundefutter
               </Link>
-              <div className="pl-3 space-y-1">
+              <div className="pl-3">
                 <Link
-                  href="/shop?age=junior"
+                  href="/junior"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
                   Junior
                 </Link>
                 <Link
-                  href="/shop?age=adult"
+                  href="/adult"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
                   Adult
                 </Link>
                 <Link
-                  href="/shop?age=senior"
+                  href="/senior"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
