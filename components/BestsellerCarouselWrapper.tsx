@@ -1,26 +1,39 @@
 import { createClient } from "@supabase/supabase-js";
 import { BestsellerCarouselClient } from "./BestsellerCarousel";
 
+interface BestsellerCarouselProps {
+  ageGroup?: "JUNIOR" | "ADULT" | "SENIOR";
+}
+
 /**
  * Server Component that fetches bestseller data
  * Uses anonymous Supabase client for better performance:
  * - Allows static/ISR rendering (not forced to dynamic)
  * - No cookies needed for public data
  * - Faster edge caching
+ * - Supports filtering by age group
  */
-export async function BestsellerCarousel() {
+export async function BestsellerCarousel({
+  ageGroup,
+}: BestsellerCarouselProps = {}) {
   // Use anonymous client for public data (allows ISR)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
   );
 
-  const { data: products, error } = await supabase
+  // Build query with optional age group filter
+  let query = supabase
     .from("products_with_primary_image")
     .select("*")
-    .eq("bestseller", true)
     .order("created_at", { ascending: false })
-    .limit(10);
+    .limit(12);
+
+  if (ageGroup) {
+    query = query.eq("age_group", ageGroup);
+  }
+
+  const { data: products, error } = await query;
 
   if (error) {
     console.error("Error fetching bestsellers:", error);

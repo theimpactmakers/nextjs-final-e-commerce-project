@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import type { Database } from "@/types";
 import { FilterPanel } from "@/components/FilterPanel";
-import { BestsellerCarousel } from "@/components/BestsellerCarousel";
+import { BestsellerCarousel } from "@/components/BestsellerCarouselWrapper";
 
 export const revalidate = 60;
 
@@ -66,7 +66,8 @@ async function SeniorContent({
           Hundefutter für Senior
         </h1>
         <p className="text-lg text-amber-800 max-w-2xl">
-          Spezielle Pflege für ältere Hunde. Gelenkunterstützung und optimale Verdauung im Fokus.
+          Spezielle Pflege für ältere Hunde. Gelenkunterstützung und optimale
+          Verdauung im Fokus.
         </p>
       </div>
 

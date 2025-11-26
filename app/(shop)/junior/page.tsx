@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import type { Database } from "@/types";
 import { FilterPanel } from "@/components/FilterPanel";
-import { BestsellerCarousel } from "@/components/BestsellerCarousel";
+import { BestsellerCarousel } from "@/components/BestsellerCarouselWrapper";
 
 export const revalidate = 60;
 
@@ -66,7 +66,8 @@ async function JuniorContent({
           Hundefutter für Junior
         </h1>
         <p className="text-lg text-blue-800 max-w-2xl">
-          Speziell entwickelt für wachsende Welpen. Alles, was dein Junior für eine gesunde Entwicklung braucht.
+          Speziell entwickelt für wachsende Welpen. Alles, was dein Junior für
+          eine gesunde Entwicklung braucht.
         </p>
       </div>
 
@@ -79,7 +80,9 @@ async function JuniorContent({
       {/* Info Section */}
       <div className="mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-lg border shadow-md hover:shadow-lg transition-shadow">
-          <h3 className="text-xl font-semibold mb-2">👶 Optimale Zusammensetzung</h3>
+          <h3 className="text-xl font-semibold mb-2">
+            👶 Optimale Zusammensetzung
+          </h3>
           <p className="text-gray-600">
             Hochwertige Proteine und Vitamine für optimales Wachstum
           </p>
