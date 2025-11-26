@@ -95,12 +95,8 @@ export default function FAQPage() {
               jederzeit.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] px-6 py-3 rounded-lg hover:bg-[hsl(var(--primary))]/90 transition-colors font-semibold">
-                Kontakt aufnehmen
-              </button>
-              <button className="border border-[hsl(var(--primary))] text-[hsl(var(--primary))] px-6 py-3 rounded-lg hover:bg-[hsl(var(--primary))]/10 transition-colors font-semibold">
-                Live Chat starten
-              </button>
+              <Button variant="secondary">Kontakt aufnehmen</Button>
+              <Button variant="outline">Live Chat starten</Button>
             </div>
           </div>
         </div>

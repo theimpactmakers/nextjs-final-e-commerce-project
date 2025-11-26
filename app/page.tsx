@@ -1,6 +1,8 @@
 import { HeroSlider } from "../components/HeroSlider";
 import { SLIDES_DATA } from "./(data)/slideData";
 import { BestsellerCarousel } from "../components/BestsellerCarouselWrapper";
+import { BestsellerCarousel } from "../components/BestsellerCarousel";
+import Button from "@/components/Button";
 
 // Choose your rendering strategy:
 // Option 1: ISR (Incremental Static Regeneration) - RECOMMENDED
@@ -74,9 +76,7 @@ export default async function Home() {
               placeholder="E-Mail für Newsletter"
               className="grow p-3 border rounded-lg focus:ring-primary focus:border-primary"
             />
-            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-              Anmelden
-            </button>
+            <Button variant="secondary">Anmelden</Button>
           </div>
         </section>
       </main>

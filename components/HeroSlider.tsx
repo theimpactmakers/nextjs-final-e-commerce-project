@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { SlideData, HeroSliderProps } from "../app/(data)/slideData"; // Importiere Typen
+import Button from "@/components/Button";
 
 // ==============================================================================
 // HILFS-KOMPONENTEN (Icons)
@@ -115,15 +116,12 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
                 {slide.description}
               </p>
               {/* CTA Button */}
-              <a
+              <Button
                 href={slide.ctaLink}
-                className="inline-flex items-center justify-center gap-2 rounded-lg text-sm md:text-base font-medium 
-                           bg-accent text-accent-foreground hover:opacity-90 
-                           shadow-xl transition-all duration-300 ease-in-out 
-                           h-10 px-6 sm:h-11 sm:px-8 mt-2"
+                className="shadow-xl mt-2 text-sm md:text-base"
               >
                 {slide.cta}
-              </a>
+              </Button>
             </div>
           </div>
         ))}
@@ -152,7 +150,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
             key={index}
             onClick={() => setCurrentSlide(index)}
             aria-label={`Go to slide ${index + 1}`}
-            className={`w-3 h-3 md:w-2.5 md:h-2.5 lg:w-2 lg:h-2 rounded-full transition-colors duration-300 ${
+            className={`w-3 h-3 md:w-2.5 md:h-2.5 lg:w-2 lg:h-2 rounded-full transition-colors duration-300 cursor-pointer ${
               index === currentSlide
                 ? "bg-accent shadow-md"
                 : "bg-white/70 hover:bg-white"
