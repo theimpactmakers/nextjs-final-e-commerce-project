@@ -32,7 +32,7 @@ export default function Footer() {
         </div>
       )}
 
-      <div className="container max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div className="container max-w-7xl grid grid-cols-2 md:grid-cols-5 gap-8">
         {/* Spalte 1: Shop */}
         <div className="text-center md:text-left">
           <Link
@@ -155,7 +155,7 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Spalte 4: Über Uns & Rechtliches */}
+        {/* Spalte 4: Über Uns */}
         <div className="text-center md:text-left">
           <h4 className="font-bold text-foreground mb-3">Über Uns</h4>
           <ul className="space-y-2 text-sm">
@@ -176,8 +176,11 @@ export default function Footer() {
               </Link>
             </li>
           </ul>
+        </div>
 
-          <h4 className="font-bold text-foreground mb-3 mt-6">Rechtliches</h4>
+        {/* Spalte 5: Rechtliches */}
+        <div className="text-center md:text-left">
+          <h4 className="font-bold text-foreground mb-3">Rechtliches</h4>
           <ul className="space-y-2 text-sm">
             <li>
               <Link
