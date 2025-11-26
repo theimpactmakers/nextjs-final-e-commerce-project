@@ -153,7 +153,7 @@ export default function Header() {
             <div className="relative group inline-block">
               <Link
                 href="/"
-                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 Home
                 <span
@@ -170,7 +170,7 @@ export default function Header() {
             <div className="relative group inline-block">
               <Link
                 href="/shop"
-                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 Shop
                 <span
@@ -185,7 +185,7 @@ export default function Header() {
               <div
                 role="menu"
                 aria-label="Shop Menü"
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-4 z-50"
+                className="absolute left-0 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-4 z-50"
               >
                 {/* Alle Produkte Link */}
                 <div className="mb-3">
@@ -231,14 +231,15 @@ export default function Header() {
                       </li>
                     </ul>
 
-                    <h4 className="text-xs font-semibold mb-2 px-3 mt-4">
+                    <div className="border-t border-gray-300 my-3"></div>
+                    <h4 className="text-xs font-semibold mb-2 px-3">
                       Specials
                     </h4>
                     <div className="border-t border-gray-300 mb-2"></div>
                     <ul className="space-y-1 text-sm">
                       <li>
                         <Link
-                          href="/specials/darm"
+                          href="/shop?specials=diat"
                           className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Diätfutter
@@ -246,7 +247,7 @@ export default function Header() {
                       </li>
                       <li>
                         <Link
-                          href="/specials/hypoallergen"
+                          href="/shop?specials=hypoallergen"
                           className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Hypoallergen
@@ -254,7 +255,7 @@ export default function Header() {
                       </li>
                       <li>
                         <Link
-                          href="/specials/darmgesundheit"
+                          href="/shop?specials=darm"
                           className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Darmgesundheit
@@ -262,7 +263,7 @@ export default function Header() {
                       </li>
                       <li>
                         <Link
-                          href="/specials/gelenk"
+                          href="/shop?specials=gelenk"
                           className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Gelenkfit
@@ -342,7 +343,7 @@ export default function Header() {
             <div className="relative group inline-block">
               <Link
                 href="/specials"
-                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 Spezialfutter
                 <span
@@ -357,7 +358,7 @@ export default function Header() {
               <div
                 role="menu"
                 aria-label="Specials Menü"
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50"
+                className="absolute left-0 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50"
               >
                 <ul className="space-y-1 text-sm">
                   <li>
@@ -400,7 +401,7 @@ export default function Header() {
             <div className="relative group inline-block">
               <Link
                 href="/beratung"
-                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 Beratung
                 <span
@@ -415,7 +416,7 @@ export default function Header() {
               <div
                 role="menu"
                 aria-label="Beratung Menü"
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50"
+                className="absolute left-0 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50"
               >
                 <ul className="space-y-1 text-sm">
                   <li>
@@ -439,7 +440,7 @@ export default function Header() {
             </div>
 
             <div className="relative group inline-block">
-              <button className="relative inline-flex items-center h-9 gap-2 group-hover:text-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] transition-colors px-2 py-2 align-middle">
+              <button className="relative inline-flex items-center h-9 gap-2 transition-colors px-2 py-2 align-middle text-foreground hover:text-[hsl(33,100%,37%)]!">
                 <span>Mehr</span>
                 <svg
                   className="w-3 h-3 transition-transform duration-150 group-hover:rotate-90 text-accent"
@@ -465,7 +466,7 @@ export default function Header() {
                 ></span>
               </button>
 
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-80 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-4 z-50">
+              <div className="absolute left-0 top-full mt-0 w-80 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-4 z-50">
                 <div className="grid grid-cols-2 gap-4">
                   {/* Linke Spalte: Kundenservice */}
                   <div>
@@ -534,7 +535,8 @@ export default function Header() {
                       </li>
                     </ul>
 
-                    <h4 className="text-xs font-semibold mb-2 px-3 mt-4">
+                    <div className="border-t border-gray-300 my-3"></div>
+                    <h4 className="text-xs font-semibold mb-2 px-3">
                       Rechtliches
                     </h4>
                     <div className="border-t border-gray-300 mb-2"></div>
@@ -642,7 +644,7 @@ export default function Header() {
                         <span>Anmelden</span>
                       </Link>
 
-                      <div className="border-t border-gray-200/30 my-1"></div>
+                      <div className="border-t border-gray-300 my-2"></div>
 
                       <div className="px-4 py-2 text-xs text-center">
                         <span className="text-muted-foreground">

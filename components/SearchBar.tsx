@@ -59,12 +59,16 @@ export default function SearchBar({
             id,
             name,
             slug,
-            description,
+            age_group,
+            meat_type,
+            specials,
             product_variants!inner(price),
             product_images(image_url, is_primary)
           `
           )
-          .or(`name.ilike.${searchPattern},description.ilike.${searchPattern}`)
+          .or(
+            `name.ilike.${searchPattern},age_group.ilike.${searchPattern},meat_type.ilike.${searchPattern},specials.ilike.${searchPattern}`
+          )
           .limit(8);
 
         if (error) {
