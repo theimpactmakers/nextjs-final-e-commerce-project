@@ -7,11 +7,12 @@ import { usePathname } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, LogIn, LogOut } from "lucide-react";
+import SearchBar from "@/components/SearchBar";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [searchFocused, setSearchFocused] = useState(false);
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
   const pathname = usePathname();
@@ -107,7 +108,8 @@ export default function Header() {
           {/* Mobile: search icon on the left */}
           <button
             aria-label="Suche"
-            className="col-start-1 md:hidden p-1 rounded hover:bg-accent/10 text-accent cursor-pointer"
+            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+            className="col-start-1 md:hidden p-1 rounded text-accent cursor-pointer group"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -119,7 +121,7 @@ export default function Header() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="lucide lucide-search"
+              className="lucide lucide-search transition-all duration-200 group-hover:scale-90 group-hover:stroke-black group-active:scale-85"
             >
               <circle cx="11" cy="11" r="7" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -151,7 +153,7 @@ export default function Header() {
             <div className="relative group inline-block">
               <Link
                 href="/"
-                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 Home
                 <span
@@ -164,30 +166,13 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Shop Link */}
+            {/* Shop Link mit Dropdown */}
             <div className="relative group inline-block">
               <Link
                 href="/shop"
-                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 Shop
-                <span
-                  className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
-                  }}
-                ></span>
-              </Link>
-            </div>
-
-            {/* Hundefutter mit Dropdown */}
-            <div className="relative group inline-block">
-              <Link
-                href="/shop"
-                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
-              >
-                Hundefutter
                 <span
                   className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                   style={{
@@ -199,48 +184,103 @@ export default function Header() {
 
               <div
                 role="menu"
-                aria-label="Hundefutter Menü"
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-4 z-50"
+                aria-label="Shop Menü"
+                className="absolute left-0 top-full mt-0 w-72 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-4 z-50"
               >
+                {/* Alle Produkte Link */}
+                <div className="mb-3">
+                  <Link
+                    href="/shop"
+                    className="block rounded-md px-3 pt-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors text-sm font-medium"
+                  >
+                    Alle Produkte
+                  </Link>
+                </div>
+
+                {/* Trennlinie */}
+                <div className="border-t border-gray-300 mb-3"></div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h4 className="text-xs font-semibold mb-2">Alter</h4>
+                    <h4 className="text-xs font-semibold mb-2 px-3">Alter</h4>
+                    <div className="border-t border-gray-300 mb-2"></div>
                     <ul className="space-y-1 text-sm">
-                    <li>
-                      <Link
-                        href="/junior"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Junior
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/adult"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Adult
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/senior"
-                        className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                      >
-                        Senior
-                      </Link>
-                    </li>
-                  </ul>
+                      <li>
+                        <Link
+                          href="/junior"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Junior
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/adult"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Adult
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/senior"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Senior
+                        </Link>
+                      </li>
+                    </ul>
+
+                    <div className="border-t border-gray-300 my-3"></div>
+                    <h4 className="text-xs font-semibold mb-2 px-3">
+                      Specials
+                    </h4>
+                    <div className="border-t border-gray-300 mb-2"></div>
+                    <ul className="space-y-1 text-sm">
+                      <li>
+                        <Link
+                          href="/shop?specials=diat"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Diätfutter
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?specials=hypoallergen"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Hypoallergen
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?specials=darm"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Darmgesundheit
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/shop?specials=gelenk"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Gelenkfit
+                        </Link>
+                      </li>
+                    </ul>
                   </div>
                   <div>
-                    <h4 className="text-xs font-semibold mb-2">
+                    <h4 className="text-xs font-semibold mb-2 px-3">
                       Fleischsorten
                     </h4>
+                    <div className="border-t border-gray-300 mb-2"></div>
                     <ul className="space-y-1 text-sm">
                       <li>
                         <Link
                           href="/shop?meat=ente"
-                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Ente
                         </Link>
@@ -248,7 +288,7 @@ export default function Header() {
                       <li>
                         <Link
                           href="/shop?meat=rind"
-                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Rind
                         </Link>
@@ -256,7 +296,7 @@ export default function Header() {
                       <li>
                         <Link
                           href="/shop?meat=kaninchen"
-                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Kaninchen
                         </Link>
@@ -264,7 +304,7 @@ export default function Header() {
                       <li>
                         <Link
                           href="/shop?meat=lamm"
-                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Lamm
                         </Link>
@@ -272,7 +312,7 @@ export default function Header() {
                       <li>
                         <Link
                           href="/shop?meat=pferd"
-                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Pferd
                         </Link>
@@ -280,7 +320,7 @@ export default function Header() {
                       <li>
                         <Link
                           href="/shop?meat=wild"
-                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Wild
                         </Link>
@@ -288,7 +328,7 @@ export default function Header() {
                       <li>
                         <Link
                           href="/shop?meat=lachs"
-                          className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Lachs
                         </Link>
@@ -303,9 +343,9 @@ export default function Header() {
             <div className="relative group inline-block">
               <Link
                 href="/specials"
-                className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
+                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
-                Specials
+                Spezialfutter
                 <span
                   className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                   style={{
@@ -318,13 +358,13 @@ export default function Header() {
               <div
                 role="menu"
                 aria-label="Specials Menü"
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50"
+                className="absolute left-0 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50"
               >
                 <ul className="space-y-1 text-sm">
                   <li>
                     <Link
                       href="/specials/darm"
-                      className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                      className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Diätfutter
                     </Link>
@@ -332,7 +372,7 @@ export default function Header() {
                   <li>
                     <Link
                       href="/specials/hypoallergen"
-                      className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                      className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Hypoallergen
                     </Link>
@@ -340,7 +380,7 @@ export default function Header() {
                   <li>
                     <Link
                       href="/specials/darmgesundheit"
-                      className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                      className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Darmgesundheit
                     </Link>
@@ -348,7 +388,7 @@ export default function Header() {
                   <li>
                     <Link
                       href="/specials/gelenk"
-                      className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                      className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Gelenkfit
                     </Link>
@@ -357,22 +397,50 @@ export default function Header() {
               </div>
             </div>
 
-            <Link
-              href="/beratung"
-              className="relative inline-flex items-center h-9 px-2 hover:text-[hsl(var(--accent))] transition-colors"
-            >
-              Beratung
-              <span
-                className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
-                }}
-              ></span>
-            </Link>
+            {/* Beratung mit Dropdown */}
+            <div className="relative group inline-block">
+              <Link
+                href="/beratung"
+                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
+              >
+                Beratung
+                <span
+                  className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, hsl(33 100% 37%) 0%, hsl(38 100% 50%) 50%, hsl(33 100% 37%) 100%)",
+                  }}
+                ></span>
+              </Link>
+
+              <div
+                role="menu"
+                aria-label="Beratung Menü"
+                className="absolute left-0 top-full mt-0 w-48 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50"
+              >
+                <ul className="space-y-1 text-sm">
+                  <li>
+                    <Link
+                      href="/faq"
+                      className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                    >
+                      FAQ
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/blogs"
+                      className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                    >
+                      Blog
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
 
             <div className="relative group inline-block">
-              <button className="relative inline-flex items-center h-9 gap-2 group-hover:text-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] transition-colors px-2 py-2 align-middle">
+              <button className="relative inline-flex items-center h-9 gap-2 transition-colors px-2 py-2 align-middle text-foreground hover:text-[hsl(33,100%,37%)]!">
                 <span>Mehr</span>
                 <svg
                   className="w-3 h-3 transition-transform duration-150 group-hover:rotate-90 text-accent"
@@ -398,108 +466,132 @@ export default function Header() {
                 ></span>
               </button>
 
-              <ul className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-56 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50">
-                <li className="py-1">
-                  <Link
-                    href="/contact"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                  >
-                    Kontakt
-                  </Link>
-                </li>
-                <li className="py-1">
-                  <Link
-                    href="/about"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                  >
-                    Über Uns
-                  </Link>
-                </li>
-                <li className="py-1">
-                  <Link
-                    href="/impressum"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                  >
-                    Impressum
-                  </Link>
-                </li>
-                <li className="py-1">
-                  <Link
-                    href="/datenschutz"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                  >
-                    Datenschutz
-                  </Link>
-                </li>
-                <li className="py-1">
-                  <Link
-                    href="/agb"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                  >
-                    AGB
-                  </Link>
-                </li>
-                <li className="py-1">
-                  <Link
-                    href="/zahlung-versand"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                  >
-                    Zahlung & Versand
-                  </Link>
-                </li>
-                <li className="py-1">
-                  <Link
-                    href="/widerruf"
-                    className="block rounded-md px-3 py-2 hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
-                  >
-                    Widerruf
-                  </Link>
-                </li>
-              </ul>
+              <div className="absolute left-0 top-full mt-0 w-80 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-4 z-50">
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Linke Spalte: Kundenservice */}
+                  <div>
+                    <h4 className="text-xs font-semibold mb-2 px-3">
+                      Kundenservice
+                    </h4>
+                    <div className="border-t border-gray-300 mb-2"></div>
+                    <ul className="space-y-1 text-sm">
+                      <li>
+                        <Link
+                          href="/contact"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Kontakt
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/lieferzeiten"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Lieferzeiten
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/retouren"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Retouren
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/zahlung-versand"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Zahlung & Versand
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Rechte Spalte: Über Uns & Rechtliches */}
+                  <div>
+                    <h4 className="text-xs font-semibold mb-2 px-3">
+                      Über Uns
+                    </h4>
+                    <div className="border-t border-gray-300 mb-2"></div>
+                    <ul className="space-y-1 text-sm">
+                      <li>
+                        <Link
+                          href="/about"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Über Uns
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/story"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Unsere Story
+                        </Link>
+                      </li>
+                    </ul>
+
+                    <div className="border-t border-gray-300 my-3"></div>
+                    <h4 className="text-xs font-semibold mb-2 px-3">
+                      Rechtliches
+                    </h4>
+                    <div className="border-t border-gray-300 mb-2"></div>
+                    <ul className="space-y-1 text-sm">
+                      <li>
+                        <Link
+                          href="/impressum"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Impressum
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/datenschutz"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Datenschutz
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/agb"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          AGB
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/widerruf"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Widerruf
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/cookieeinstellungen"
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          Cookies
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           </nav>
           {/* 3. Aktionen */}
           {/* Desktop: Suche + Anmeldung + Warenkorb */}
           <div className="hidden md:flex items-center space-x-2 text-sm font-medium justify-end col-start-3">
             {/* Search (desktop) */}
-            <form
-              action="/search"
-              method="get"
-              className="hidden md:flex items-center mr-2 self-end group"
-            >
-              <label htmlFor="header-search" className="sr-only">
-                Suche
-              </label>
-              <div className="relative">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-accent hover:text-primary hover:scale-90 active:text-foreground active:scale-100 w-4 h-4 transition-all cursor-pointer"
-                  aria-hidden
-                >
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input
-                  id="header-search"
-                  name="q"
-                  type="search"
-                  placeholder={searchFocused ? "Wonach suchst Du?" : "Suche..."}
-                  onFocus={() => setSearchFocused(true)}
-                  onBlur={() => setSearchFocused(false)}
-                  className={`w-56 bg-white/95 border border-primary rounded-full py-1.5 pl-9 pr-3 focus:outline-hidden focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground/50 transition-all ${
-                    searchFocused ? "text-xs" : "text-sm"
-                  }`}
-                />
-              </div>
-            </form>
+            <SearchBar />
             {/* Profile Dropdown (Desktop) */}
             <div
               className="relative hide-md-narrow"
@@ -552,7 +644,7 @@ export default function Header() {
                         <span>Anmelden</span>
                       </Link>
 
-                      <div className="border-t border-gray-200/30 my-1"></div>
+                      <div className="border-t border-gray-300 my-2"></div>
 
                       <div className="px-4 py-2 text-xs text-center">
                         <span className="text-muted-foreground">
@@ -720,6 +812,26 @@ export default function Header() {
             </button>
           </div>
         </div>
+
+        {/* Mobile Search Bar - Slide Down with Overlay */}
+        {mobileSearchOpen && (
+          <>
+            {/* Overlay */}
+            <div
+              className="fixed inset-0 bg-black/20 z-40 md:hidden"
+              onClick={() => setMobileSearchOpen(false)}
+            />
+            {/* Search Bar */}
+            <div className="relative md:hidden bg-muted/95 backdrop-blur-sm border-t border-gray-200/30 px-4 py-3 animate-in slide-in-from-top duration-200 z-50">
+              <div className="relative max-w-full">
+                <SearchBar
+                  isMobile
+                  onClose={() => setMobileSearchOpen(false)}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </header>
 
       {/* Mobile menu overlay */}
@@ -805,7 +917,7 @@ export default function Header() {
                 onClick={() => setMobileOpen(false)}
                 className="block text-lg font-medium hover:text-[hsl(var(--accent))]"
               >
-                Specials
+                Spezialfutter
               </Link>
               <div className="pl-3 space-y-1">
                 <Link

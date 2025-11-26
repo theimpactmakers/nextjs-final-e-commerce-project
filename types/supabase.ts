@@ -198,10 +198,11 @@ export type Database = {
         | "ENTE"
         | "RIND"
         | "KANINCHEN"
-        | "LAHM"
+        | "LAMM"
         | "PFERD"
         | "WILD"
-        | "LACHS";
+        | "LACHS"
+        | "HUHN";
       specials: "DIAT" | "HYPOALLERGEN" | "DARM" | "GELENK";
     };
   };

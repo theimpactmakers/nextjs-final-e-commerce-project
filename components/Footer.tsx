@@ -32,95 +32,186 @@ export default function Footer() {
         </div>
       )}
 
-      <div className="container max-w-7xl grid grid-cols-2 md:grid-cols-3 gap-8">
-        {/* Spalte 1: Über uns */}
-        <div className="text-center md:text-center">
-          <h4 className="font-bold text-foreground mb-3">Über Uns</h4>
+      <div className="container max-w-7xl grid grid-cols-2 md:grid-cols-5 gap-8">
+        {/* Spalte 1: Shop */}
+        <div className="text-center md:text-left">
+          <Link
+            href="/shop"
+            className="hover:text-primary hover:underline transition-colors"
+          >
+            <h4 className="font-bold text-foreground mb-3">Shop</h4>
+          </Link>
           <ul className="space-y-2 text-sm">
             <li>
               <Link
-                href="/story"
-                className="hover:text-primary transition-colors"
+                href="/shop"
+                className="hover:text-primary hover:underline transition-colors"
               >
-                Unsere Story
+                Alle Produkte
               </Link>
             </li>
             <li>
               <Link
-                href="/contact"
-                className="hover:text-primary transition-colors"
+                href="/specials"
+                className="hover:text-primary hover:underline transition-colors"
               >
-                Kontakt
+                Spezialfutter
               </Link>
             </li>
             <li>
               <Link
-                href="/blogs"
-                className="hover:text-primary transition-colors"
+                href="/junior"
+                className="hover:text-primary hover:underline transition-colors"
               >
-                Blogs
+                Junior
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/adult"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                Adult
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/senior"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                Senior
               </Link>
             </li>
           </ul>
         </div>
 
-        {/* Spalte 2: Service */}
-        <div className="text-center md:text-center">
-          <h4 className="font-bold text-foreground mb-3">Kundenservice</h4>
+        {/* Spalte 2: Beratung */}
+        <div className="text-center md:text-left">
+          <h4 className="font-bold text-foreground mb-3">Futterberatung</h4>
           <ul className="space-y-2 text-sm">
             <li>
               <Link
                 href="/faq"
-                className="hover:text-primary transition-colors"
+                className="hover:text-primary hover:underline transition-colors"
               >
                 FAQ
               </Link>
             </li>
             <li>
               <Link
-                href="/kontakt"
-                className="hover:text-primary transition-colors"
+                href="/beratung"
+                className="hover:text-primary hover:underline transition-colors"
               >
-                Kontakt
+                Beratung
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/blogs"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                Blog
               </Link>
             </li>
           </ul>
         </div>
 
-        {/* Spalte 3: Zahlung */}
-        <div className="flex flex-col items-center text-center">
-          <h4 className="font-bold text-foreground mb-3">Zahlung</h4>
+        {/* Spalte 3: Kundenservice */}
+        <div className="text-center md:text-left">
+          <h4 className="font-bold text-foreground mb-3">Kundenservice</h4>
           <ul className="space-y-2 text-sm">
             <li>
               <Link
-                href="/zahlung-versand"
-                className="hover:text-primary transition-colors"
+                href="/contact"
+                className="hover:text-primary hover:underline transition-colors"
               >
-                Zahlung & Versand
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/retouren"
-                className="hover:text-primary transition-colors"
-              >
-                Retouren & Rückgabe
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/zahlungsarten"
-                className="hover:text-primary transition-colors"
-              >
-                Zahlungsmethoden
+                Kontakt
               </Link>
             </li>
             <li>
               <Link
                 href="/lieferzeiten"
-                className="hover:text-primary transition-colors"
+                className="hover:text-primary hover:underline transition-colors"
               >
                 Lieferzeiten
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/retouren"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                Retouren
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/zahlung-versand"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                Zahlung & Versand
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {/* Spalte 4: Über Uns */}
+        <div className="text-center md:text-left">
+          <h4 className="font-bold text-foreground mb-3">Über Uns</h4>
+          <ul className="space-y-2 text-sm">
+            <li>
+              <Link
+                href="/about"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                Über Uns
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/story"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                Unsere Story
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {/* Spalte 5: Rechtliches */}
+        <div className="text-center md:text-left">
+          <h4 className="font-bold text-foreground mb-3">Rechtliches</h4>
+          <ul className="space-y-2 text-sm">
+            <li>
+              <Link
+                href="/impressum"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                Impressum
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/datenschutz"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                Datenschutz
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/agb"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                AGB
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/widerruf"
+                className="hover:text-primary hover:underline transition-colors"
+              >
+                Widerruf
               </Link>
             </li>
           </ul>
@@ -182,30 +273,40 @@ export default function Footer() {
           </div>
 
           {/* Rechtliche Links Rechts */}
-          <div className="flex items-center gap- md:gap-6 text-sm flex-wrap justify-center md:justify-end">
+          <div className="flex items-center gap-4 md:gap-6 text-sm flex-wrap justify-center md:justify-end">
             <Link
               href="/impressum"
-              className="hover:text-primary transition-colors"
+              className="hover:text-primary hover:underline transition-colors"
             >
               Impressum
             </Link>
             <span className="text-muted-foreground/40">|</span>
             <Link
               href="/datenschutz"
-              className="hover:text-primary transition-colors"
+              className="hover:text-primary hover:underline transition-colors"
             >
               Datenschutz
             </Link>
             <span className="text-muted-foreground/40">|</span>
-            <Link href="/agb" className="hover:text-primary transition-colors">
-              AGB`s
+            <Link
+              href="/agb"
+              className="hover:text-primary hover:underline transition-colors"
+            >
+              AGB
+            </Link>
+            <span className="text-muted-foreground/40">|</span>
+            <Link
+              href="/widerruf"
+              className="hover:text-primary hover:underline transition-colors"
+            >
+              Widerruf
             </Link>
             <span className="text-muted-foreground/40">|</span>
             <Link
               href="/cookieeinstellungen"
-              className="hover:text-primary transition-colors"
+              className="hover:text-primary hover:underline transition-colors"
             >
-              Cookie-Einstellungen
+              Cookies
             </Link>
           </div>
         </div>
@@ -228,4 +329,3 @@ export default function Footer() {
     </footer>
   );
 }
-
