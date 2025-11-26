@@ -22,10 +22,11 @@ async function SeniorContent({
     ente: "ENTE",
     rind: "RIND",
     kaninchen: "KANINCHEN",
-    lamm: "LAHM",
+    lamm: "LAMM",
     pferd: "PFERD",
     wild: "WILD",
     lachs: "LACHS",
+    huhn: "HUHN",
   };
 
   let query = supabase

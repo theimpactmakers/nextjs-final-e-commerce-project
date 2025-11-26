@@ -27,6 +27,7 @@ const MEAT_OPTIONS: FilterOption[] = [
   { label: 'Pferd', value: 'pferd' },
   { label: 'Wild', value: 'wild' },
   { label: 'Lachs', value: 'lachs' },
+  { label: 'Huhn', value: 'huhn' },
 ];
 
 const AGE_OPTIONS: FilterOption[] = [
@@ -141,7 +142,7 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
         params.set('meat', filters['meat'].join(','));
       }
       const queryString = params.toString();
-      router.push(queryString ? `/${currentAge}?${queryString}` : `/${currentAge}`);
+      router.push(queryString ? `/${currentAge}?${queryString}` : `/${currentAge}`, { scroll: false });
     } else {
       // On shop page, apply both filters
       if (filters['age']?.length > 0) {
@@ -151,16 +152,16 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
         params.set('meat', filters['meat'].join(','));
       }
       const queryString = params.toString();
-      router.push(queryString ? `/shop?${queryString}` : '/shop');
+      router.push(queryString ? `/shop?${queryString}` : '/shop', { scroll: false });
     }
   };
 
   const resetFilters = () => {
     setSelectedFilters({});
     if (currentAge) {
-      router.push(`/${currentAge}`);
+      router.push(`/${currentAge}`, { scroll: false });
     } else {
-      router.push('/shop');
+      router.push('/shop', { scroll: false });
     }
   };
 
