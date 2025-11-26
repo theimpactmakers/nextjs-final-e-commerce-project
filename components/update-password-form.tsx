@@ -9,8 +9,9 @@ export function UpdatePasswordForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const { updatePassword } = useAuth();
+  const { updatePassword, user } = useAuth();
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -20,14 +21,39 @@ export function UpdatePasswordForm({
     setIsLoading(true);
     setError(null);
 
+    // Check if user session exists
+    if (!user) {
+      setError(
+        "Sitzung abgelaufen! Bitte fordern Sie ein neues Passwort-Zurücksetzen an."
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate password match
+    if (password !== confirmPassword) {
+      setError("Passwörter stimmen nicht überein");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      setError("Passwort muss mindestens 6 Zeichen lang sein");
+      setIsLoading(false);
+      return;
+    }
+
     const { error: updateError } = await updatePassword(password);
 
     if (updateError) {
       setError(updateError.message);
       setIsLoading(false);
     } else {
-      // Redirect to home page after successful password update
-      router.push("/");
+      // Redirect to login page with success message
+      router.push(
+        "/auth/login?message=Passwort erfolgreich aktualisiert. Bitte melden Sie sich an."
+      );
     }
   };
 
@@ -36,10 +62,10 @@ export function UpdatePasswordForm({
       <div className="bg-card text-card-foreground rounded-xl border shadow-xs">
         <div className="flex flex-col space-y-1.5 p-6">
           <h3 className="text-2xl font-semibold leading-none tracking-tight">
-            Reset Your Password
+            Passwort zurücksetzen
           </h3>
           <p className="text-sm text-muted-foreground">
-            Please enter your new password below.
+            Bitte geben Sie Ihr neues Passwort ein.
           </p>
         </div>
         <div className="p-6 pt-0">
@@ -50,15 +76,34 @@ export function UpdatePasswordForm({
                   htmlFor="password"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  New password
+                  Neues Passwort
                 </label>
                 <input
                   id="password"
                   type="password"
-                  placeholder="New password"
+                  placeholder="Neues Passwort"
                   required
+                  minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <div className="grid gap-2">
+                <label
+                  htmlFor="confirmPassword"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Neues Passwort bestätigen
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Neues Passwort bestätigen"
+                  required
+                  minLength={6}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </div>
@@ -68,7 +113,7 @@ export function UpdatePasswordForm({
                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
                 disabled={isLoading}
               >
-                {isLoading ? "Saving..." : "Save new password"}
+                {isLoading ? "Wird gespeichert..." : "Neues Passwort speichern"}
               </button>
             </div>
           </form>
