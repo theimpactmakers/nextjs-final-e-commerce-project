@@ -3,23 +3,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import type { Database } from "@/types";
 
-// Typen für die Produktdaten
-type ProductWithImage = {
-  id: string | null;
-  name: string | null;
-  description: string | null;
-  min_price: number | null;
-  starting_variant_name: string | null;
-  slug: string | null;
-  meat_type: string | null;
-  age_group: string | null;
-  primary_image_url: string | null;
-  primary_image_alt: string | null;
-  [key: string]: unknown; // Allow additional properties from the view
-};
+// Typen für die Produktdaten aus der View
+type ProductWithImage =
+  Database["public"]["Views"]["products_with_primary_image"]["Row"];
 
-type BestsellerCarouselProps = {
+type BestsellerCarouselClientProps = {
   products: ProductWithImage[];
 };
 
@@ -58,9 +48,13 @@ const ChevronRight: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
-  products,
-}) => {
+/**
+ * Client Component - Handles carousel interactivity
+ * Receives pre-fetched data from Server Component wrapper
+ */
+export const BestsellerCarouselClient: React.FC<
+  BestsellerCarouselClientProps
+> = ({ products }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
 
@@ -164,7 +158,8 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
                       <span className="text-base font-bold text-foreground">
-                        ab {p.min_price ? Number(p.min_price).toFixed(2) : "N/A"} €
+                        ab{" "}
+                        {p.min_price ? Number(p.min_price).toFixed(2) : "N/A"} €
                       </span>
                       {p.starting_variant_name && (
                         <span className="text-[10px] text-muted-foreground">
@@ -196,7 +191,7 @@ export const BestsellerCarousel: React.FC<BestsellerCarouselProps> = ({
           ))}
         </div>
       </div>
-
+      {/* blabla */}
       {/* Navigation Arrows */}
       <>
         <button
