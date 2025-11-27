@@ -93,14 +93,16 @@ export default function Footer() {
           >
             <h4 className="font-bold text-foreground mb-3">Alle Produkte</h4>
           </Link>
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-1 text-sm">
             <li>
               <button
                 onClick={() => setSpezialfutterOpen(!spezialfutterOpen)}
-                className="flex items-center gap-2 hover:text-primary transition-colors w-full text-left cursor-pointer"
+                className="inline-flex items-center hover:text-primary transition-colors w-full text-left cursor-pointer"
               >
                 <span>Spezialfutter</span>
-                <span className="text-lg">{spezialfutterOpen ? "−" : "+"}</span>
+                <span className="text-lg ml-2">
+                  {spezialfutterOpen ? "−" : "+"}
+                </span>
               </button>
               {spezialfutterOpen && (
                 <ul className="mt-2 ml-6 space-y-1">
@@ -146,10 +148,10 @@ export default function Footer() {
             <li>
               <button
                 onClick={() => setAlterOpen(!alterOpen)}
-                className="flex items-center gap-2 hover:text-primary transition-colors w-full text-left cursor-pointer"
+                className="inline-flex items-center hover:text-primary transition-colors w-full text-left cursor-pointer"
               >
                 <span>Alter</span>
-                <span className="text-lg">{alterOpen ? "−" : "+"}</span>
+                <span className="text-lg ml-2">{alterOpen ? "−" : "+"}</span>
               </button>
               {alterOpen && (
                 <ul className="mt-2 ml-6 space-y-1">
@@ -186,10 +188,10 @@ export default function Footer() {
             <li>
               <button
                 onClick={() => setFleischsortenOpen(!fleischsortenOpen)}
-                className="flex items-center gap-2 hover:text-primary transition-colors w-full text-left cursor-pointer"
+                className="inline-flex items-center hover:text-primary transition-colors w-full text-left cursor-pointer"
               >
                 <span>Fleischsorten</span>
-                <span className="text-lg">{fleischsortenOpen ? "−" : "+"}</span>
+                <span className="text-lg ml-2">{fleischsortenOpen ? "−" : "+"}</span>
               </button>
               {fleischsortenOpen && (
                 <ul className="mt-2 ml-6 space-y-1">
