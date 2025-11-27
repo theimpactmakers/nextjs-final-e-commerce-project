@@ -168,6 +168,29 @@ export type Database = {
           updated_at?: string | null;
         };
       };
+      related_products: {
+        Row: {
+          id: string;
+          product_id: string;
+          related_product_id: string;
+          display_order: number;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          related_product_id: string;
+          display_order?: number;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          related_product_id?: string;
+          display_order?: number;
+          created_at?: string | null;
+        };
+      };
     };
     Views: {
       products_with_primary_image: {
