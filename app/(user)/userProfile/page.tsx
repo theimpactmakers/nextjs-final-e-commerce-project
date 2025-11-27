@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ProfileSection } from "@/components/profile/ProfileSection";
 import { AddressesSection } from "@/components/profile/AddressesSection";
@@ -10,9 +10,18 @@ import { WishlistSection } from "@/components/profile/WishlistSection";
 export default function UserProfile() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<
     "profile" | "addresses" | "wishlist"
   >("profile");
+
+  // Read tab from URL parameter on mount
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "wishlist" || tabParam === "addresses" || tabParam === "profile") {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!isLoading && !user) {

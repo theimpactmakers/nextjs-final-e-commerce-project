@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, LogIn, LogOut } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
@@ -14,6 +15,7 @@ export default function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const { itemCount } = useCart();
+  const { wishlistCount } = useWishlist();
   const { user, signOut } = useAuth();
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -710,10 +712,11 @@ export default function Header() {
                 </svg>
               </Link>
             )}
-            {/* Warenkorb */}
+            {/* Wishlist Icon */}
             <Link
-              href="/cart"
-              className="hover:text-[hsl(var(--accent))] transition-colors flex items-center gap-1 group group-brown p-1 rounded hover:bg-accent/10"
+              href="/userProfile?tab=wishlist"
+              className="relative p-1 rounded hover:bg-accent/10 group"
+              aria-label="Wunschliste"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -725,24 +728,77 @@ export default function Header() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="lucide lucide-shopping-cart text-accent active:text-foreground transition-colors"
+                className="text-accent group-hover:text-red-500 transition-colors"
+              >
+                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 min-w-[16px] flex items-center justify-center px-1">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+            {/* Warenkorb */}
+            <Link
+              href="/cart"
+              className="relative p-1 rounded hover:bg-accent/10 group"
+              aria-label="Warenkorb"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-shopping-cart text-accent group-hover:text-primary transition-colors"
               >
                 <circle cx="8" cy="21" r="1" />
                 <circle cx="19" cy="21" r="1" />
                 <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
               </svg>
-              <span className="text-foreground transition-colors group-hover:text-[hsl(var(--primary))]">
-                {" "}
-                ({itemCount}){" "}
-              </span>{" "}
-            </Link>{" "}
-          </div>{" "}
-          {/* Mobile: nur Icon-Warenkorb mit Anzahl, Login-Icon und Hamburger */}
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1">
+                  {itemCount}
+                </span>
+              )}
+            </Link>
+          </div>
           <div className="flex md:hidden items-center space-x-2 justify-end col-start-3">
+            {/* Wishlist icon with badge */}
+            <Link
+              href="/userProfile?tab=wishlist"
+              className="relative p-1 rounded hover:bg-accent/10 group"
+              aria-label="Wunschliste"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-accent group-active:text-red-500 transition-colors"
+              >
+                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1.5 -right-0.5 inline-flex items-center justify-center text-foreground text-[9px] rounded-full px-1 bg-transparent transition-colors">
+                  ({wishlistCount})
+                </span>
+              )}
+            </Link>
             {/* Cart icon with badge */}
             <Link
               href="/cart"
               className="relative p-1 rounded hover:bg-accent/10 group"
+              aria-label="Warenkorb"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -754,17 +810,18 @@ export default function Header() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="lucide lucide-shopping-cart text-accent group-active:text-foreground transition-colors"
+                className="lucide lucide-shopping-cart text-accent group-active:text-primary transition-colors"
               >
                 <circle cx="8" cy="21" r="1" />
                 <circle cx="19" cy="21" r="1" />
                 <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
               </svg>
-              <span className="ml-2 sr-only">Warenkorb</span>
-              <span className="absolute -top-1.5 -right-0.5 inline-flex items-center justify-center text-foreground text-[9px] rounded-full px-1 bg-transparent transition-colors">
-                ({itemCount})
-              </span>{" "}
-            </Link>{" "}
+              {itemCount > 0 && (
+                <span className="absolute -top-1.5 -right-0.5 inline-flex items-center justify-center text-foreground text-[9px] rounded-full px-1 bg-transparent transition-colors">
+                  ({itemCount})
+                </span>
+              )}
+            </Link>
             {/* Login icon */}
             <Link
               href={loginUrl}
