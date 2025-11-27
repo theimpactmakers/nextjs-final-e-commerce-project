@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ProfileSection } from "@/components/profile/ProfileSection";
 import { AddressesSection } from "@/components/profile/AddressesSection";
+import { WishlistSection } from "@/components/profile/WishlistSection";
 
 export default function UserProfile() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"profile" | "addresses">(
-    "profile"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "addresses" | "wishlist"
+  >("profile");
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -68,6 +69,16 @@ export default function UserProfile() {
           >
             Adressen
           </button>
+          <button
+            onClick={() => setActiveTab("wishlist")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === "wishlist"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+            }`}
+          >
+            Wunschliste
+          </button>
         </nav>
       </div>
 
@@ -75,6 +86,7 @@ export default function UserProfile() {
       <div className="mt-6">
         {activeTab === "profile" && <ProfileSection />}
         {activeTab === "addresses" && <AddressesSection />}
+        {activeTab === "wishlist" && <WishlistSection />}
       </div>
     </div>
   );

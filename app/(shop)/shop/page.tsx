@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import type { Database } from "@/types";
 import { FilterPanel } from "@/components/FilterPanel";
+import ShopProductCard from "@/components/ShopProductCard";
 
 // Revalidate alle 60 Sekunden für frische Daten
 export const revalidate = 60;
@@ -102,7 +103,9 @@ async function ShopContent({
         wild: "Wild",
         lachs: "Lachs",
       };
-      parts.push(meatLabels[meatFilter.toLowerCase()] || meatFilter.toUpperCase());
+      parts.push(
+        meatLabels[meatFilter.toLowerCase()] || meatFilter.toUpperCase()
+      );
     }
 
     if (parts.length > 0) {
@@ -134,55 +137,7 @@ async function ShopContent({
         {products && products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((p) => (
-              <div
-                key={p.id}
-                className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
-              >
-                <div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
-                  <img
-                    src={p.primary_image_url || "/images/placeholder.jpg"}
-                    alt={p.primary_image_alt || p.name || "Product image"}
-                    className="w-full h-full object-cover"
-                  />
-
-                  {/* Badges für Kategorien */}
-                  <div className="absolute top-2 left-2 flex flex-col gap-1">
-                    {p.age_group && (
-                      <span className="bg-accent/90 text-white text-xs px-2 py-1 rounded-full">
-                        {p.age_group}
-                      </span>
-                    )}
-                    {p.meat_type && (
-                      <span className="bg-primary/90 text-white text-xs px-2 py-1 rounded-full">
-                        {p.meat_type}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col space-y-1.5 p-6">
-                  <h3 className="text-2xl font-semibold leading-none tracking-tight">
-                    {p.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {p.description}
-                  </p>
-                </div>
-
-                <div className="p-6 pt-0 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Link
-                      href={`/products/${p.slug}`}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                    >
-                      Zum Produkt
-                    </Link>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Fleischsorte: {p.meat_type} / Altersgruppe: {p.age_group}
-                  </p>
-                </div>
-              </div>
+              <ShopProductCard key={p.id} product={p} />
             ))}
           </div>
         ) : (
