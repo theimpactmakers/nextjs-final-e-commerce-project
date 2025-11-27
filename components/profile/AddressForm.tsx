@@ -21,6 +21,7 @@ export function AddressForm({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sameAsBilling, setSameAsBilling] = useState(false);
+  const [countryCode, setCountryCode] = useState("+49");
 
   const [formData, setFormData] = useState<AddressFormData>({
     address_type: (initialType || "shipping") as AddressType,
@@ -43,6 +44,33 @@ export function AddressForm({
     if (addressId) {
       const address = addresses.find((a) => a.id === addressId);
       if (address) {
+        // Parse phone number to separate country code and number
+        let parsedCountryCode = "+49";
+        let parsedPhone = address.phone || "";
+
+        if (address.phone) {
+          const commonCodes = [
+            "+49",
+            "+43",
+            "+41",
+            "+1",
+            "+44",
+            "+33",
+            "+39",
+            "+34",
+            "+31",
+            "+32",
+          ];
+          const foundCode = commonCodes.find((code) =>
+            address.phone?.startsWith(code)
+          );
+          if (foundCode) {
+            parsedCountryCode = foundCode;
+            parsedPhone = address.phone.substring(foundCode.length).trim();
+          }
+        }
+
+        setCountryCode(parsedCountryCode);
         setFormData({
           address_type: address.address_type,
           is_default: address.is_default,
@@ -56,7 +84,7 @@ export function AddressForm({
           city: address.city,
           state: address.state || "",
           country: address.country,
-          phone: address.phone || "",
+          phone: parsedPhone,
         });
       }
     }
@@ -69,6 +97,37 @@ export function AddressForm({
       defaultBillingAddress &&
       formData.address_type === "shipping"
     ) {
+      // Parse phone from billing address to get country code and number
+      let parsedCountryCode = "+49";
+      let parsedPhone = "";
+
+      if (defaultBillingAddress.phone) {
+        const commonCodes = [
+          "+49",
+          "+43",
+          "+41",
+          "+1",
+          "+44",
+          "+33",
+          "+39",
+          "+34",
+          "+31",
+          "+32",
+        ];
+        const foundCode = commonCodes.find((code) =>
+          defaultBillingAddress.phone?.startsWith(code)
+        );
+        if (foundCode) {
+          parsedCountryCode = foundCode;
+          parsedPhone = defaultBillingAddress.phone
+            .substring(foundCode.length)
+            .trim();
+        } else {
+          parsedPhone = defaultBillingAddress.phone;
+        }
+      }
+
+      setCountryCode(parsedCountryCode);
       setFormData((prev) => ({
         ...prev,
         company: defaultBillingAddress.company || "",
@@ -81,21 +140,45 @@ export function AddressForm({
         city: defaultBillingAddress.city,
         state: defaultBillingAddress.state || "",
         country: defaultBillingAddress.country,
-        phone: defaultBillingAddress.phone || "",
+        phone: parsedPhone,
       }));
     }
   }, [sameAsBilling, defaultBillingAddress, formData.address_type]);
+
+  // Auto-suggest country code when country changes
+  useEffect(() => {
+    const getCountryCodeFromCountry = (country: string) => {
+      switch (country) {
+        case "DE":
+          return "+49";
+        case "AT":
+          return "+43";
+        case "CH":
+          return "+41";
+        default:
+          return "+49";
+      }
+    };
+    setCountryCode(getCountryCodeFromCountry(formData.country));
+  }, [formData.country]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setError(null);
 
+    // Combine country code with phone number
+    const fullPhone = formData.phone ? `${countryCode} ${formData.phone}` : "";
+    const dataToSave = {
+      ...formData,
+      phone: fullPhone,
+    };
+
     let result;
     if (addressId) {
-      result = await updateAddress(addressId, formData);
+      result = await updateAddress(addressId, dataToSave);
     } else {
-      result = await createAddress(formData);
+      result = await createAddress(dataToSave);
     }
 
     if (result.error) {
@@ -358,15 +441,34 @@ export function AddressForm({
               <label htmlFor="phone" className="text-sm font-medium">
                 Telefonnummer (optional)
               </label>
-              <input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              />
+              <div className="flex gap-2">
+                {/* Country Code Prefix - Editable Input */}
+                <div className="w-24 shrink-0">
+                  <input
+                    id="country_code"
+                    type="text"
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    placeholder="+49"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-center font-medium ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  />
+                </div>
+                {/* Phone Number Input */}
+                <input
+                  id="phone"
+                  type="tel"
+                  placeholder="1234 567890"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Vorwahl wird automatisch basierend auf dem ausgewählten Land
+                vorgeschlagen, kann aber manuell angepasst werden
+              </p>
             </div>
 
             {/* Action Buttons */}
