@@ -12,7 +12,7 @@ export default function Footer() {
 
   return (
     <footer className="w-full border-t bg-muted mt-16 py-12 text-muted-foreground px-6 sm:px-8 lg:px-12">
-      <div className="container max-w-7xl grid grid-cols-2 md:grid-cols-5 gap-8">
+      <div className="container max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-8">
         {/* Spalte 1: Shop */}
         <div className="text-center md:text-left">
           <Link
@@ -49,21 +49,21 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Spalte 2: Über Uns */}
+        {/* Spalte 2: Home */}
         <div className="text-center md:text-left">
           <Link
-            href="/about"
+            href="/"
             className="hover:text-primary hover:underline transition-colors"
           >
-            <h4 className="font-bold text-foreground mb-3">Über Uns</h4>
+            <h4 className="font-bold text-foreground mb-3">Home</h4>
           </Link>
           <ul className="space-y-2 text-sm">
             <li>
               <Link
-                href="/"
+                href="/about"
                 className="hover:text-primary hover:underline transition-colors"
               >
-                Home
+                Über Uns
               </Link>
             </li>
             <li>
@@ -271,13 +271,13 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Spalte 4: Futterberatung */}
+        {/* Spalte 4: Beratung */}
         <div className="text-center md:text-left">
           <Link
             href="/beratung"
             className="hover:text-primary hover:underline transition-colors"
           >
-            <h4 className="font-bold text-foreground mb-3">Futterberatung</h4>
+            <h4 className="font-bold text-foreground mb-3">Beratung</h4>
           </Link>
           <ul className="space-y-2 text-sm">
             <li>
@@ -293,7 +293,7 @@ export default function Footer() {
                 href="/beratung"
                 className="hover:text-primary hover:underline transition-colors"
               >
-                Beratung
+                KI-Futterberater
               </Link>
             </li>
             <li>
@@ -301,46 +301,7 @@ export default function Footer() {
                 href="/blogs"
                 className="hover:text-primary hover:underline transition-colors"
               >
-                Blog
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Spalte 5: Rechtliches */}
-        <div className="text-center md:text-left">
-          <h4 className="font-bold text-foreground mb-3">Rechtliches</h4>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link
-                href="/impressum"
-                className="hover:text-primary hover:underline transition-colors"
-              >
-                Impressum
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/datenschutz"
-                className="hover:text-primary hover:underline transition-colors"
-              >
-                Datenschutz
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/agb"
-                className="hover:text-primary hover:underline transition-colors"
-              >
-                AGB
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/widerruf"
-                className="hover:text-primary hover:underline transition-colors"
-              >
-                Widerruf
+                Blogs
               </Link>
             </li>
           </ul>
@@ -355,8 +316,8 @@ export default function Footer() {
             <Image
               src="/images/Logo_example_6.png"
               alt="Elite Dog Treats"
-              width={120}
-              height={24}
+              width={180}
+              height={36}
               className="h-auto w-auto"
               priority={false}
             />
@@ -364,7 +325,7 @@ export default function Footer() {
 
           {/* Zahlungsmethoden Rechts */}
           <div className="flex items-center gap-3">
-            <div className="text-xs text-muted-foreground mr-2">
+            <div className="text-xs text-foreground mr-2">
               Sichere Zahlung mit:
             </div>
             <div className="flex items-center gap-2">
@@ -503,7 +464,7 @@ export default function Footer() {
               href="/cookieeinstellungen"
               className="hover:text-primary hover:underline transition-colors"
             >
-              Cookies
+              Cookie-Einstellungen
             </Link>
           </div>
         </div>
