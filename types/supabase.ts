@@ -191,6 +191,52 @@ export type Database = {
           created_at?: string | null;
         };
       };
+      ingredients: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          is_allergen: boolean | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          is_allergen?: boolean | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          is_allergen?: boolean | null;
+          created_at?: string | null;
+        };
+      };
+      product_ingredients: {
+        Row: {
+          id: string;
+          product_id: string;
+          ingredient_id: string;
+          percentage: number | null;
+          display_order: number | null;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          ingredient_id: string;
+          percentage?: number | null;
+          display_order?: number | null;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          ingredient_id?: string;
+          percentage?: number | null;
+          display_order?: number | null;
+        };
+      };
     };
     Views: {
       products_with_primary_image: {
