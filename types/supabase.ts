@@ -25,6 +25,8 @@ export type Database = {
           is_active: boolean | null;
           available_from: string | null;
           available_until: string | null;
+          tax_rate: number;
+          shipping_cost: number;
           created_at: string | null;
           updated_at: string | null;
         };
@@ -43,6 +45,8 @@ export type Database = {
           is_active?: boolean | null;
           available_from?: string | null;
           available_until?: string | null;
+          tax_rate?: number;
+          shipping_cost?: number;
           created_at?: string | null;
           updated_at?: string | null;
         };
@@ -61,6 +65,8 @@ export type Database = {
           is_active?: boolean | null;
           available_from?: string | null;
           available_until?: string | null;
+          tax_rate?: number;
+          shipping_cost?: number;
           created_at?: string | null;
           updated_at?: string | null;
         };
