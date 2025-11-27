@@ -421,6 +421,14 @@ export default function Header() {
                 <ul className="space-y-1 text-sm">
                   <li>
                     <Link
+                      href="/beratung"
+                      className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                    >
+                      KI-Futterberater
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       href="/faq"
                       className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
@@ -620,7 +628,7 @@ export default function Header() {
                     </Link>
                   )}
 
-                  <div className="border-t border-gray-200/30 my-1"></div>
+                  <div className="border-t border-gray-300 my-3"></div>
 
                   {user ? (
                     <button
@@ -628,7 +636,7 @@ export default function Header() {
                         setProfileDropdownOpen(false);
                         signOut();
                       }}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors"
+                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors cursor-pointer"
                     >
                       <LogOut className="w-4 h-4 text-accent" />
                       <span>Abmelden</span>
