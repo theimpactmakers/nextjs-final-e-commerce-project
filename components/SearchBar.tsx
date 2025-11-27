@@ -50,7 +50,7 @@ export default function SearchBar({
       const supabase = createClient();
 
       try {
-        const searchPattern = `%${searchQuery}%`;
+        const searchTerm = searchQuery.toLowerCase();
 
         const { data, error } = await supabase
           .from("products")
@@ -59,6 +59,7 @@ export default function SearchBar({
             id,
             name,
             slug,
+            description,
             age_group,
             meat_type,
             specials,
@@ -66,9 +67,7 @@ export default function SearchBar({
             product_images(image_url, is_primary)
           `
           )
-          .or(
-            `name.ilike.${searchPattern},age_group.ilike.${searchPattern},meat_type.ilike.${searchPattern},specials.ilike.${searchPattern}`
-          )
+          .ilike("name", `%${searchTerm}%`)
           .limit(8);
 
         if (error) {
