@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function SignUpForm({
   className,
@@ -35,10 +35,28 @@ export function SignUpForm({
   const [state, setState] = useState("");
   const [country, setCountry] = useState("DE");
   const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("+49");
 
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // Auto-suggest country code when country changes
+  useEffect(() => {
+    const getCountryCodeFromCountry = (country: string) => {
+      switch (country) {
+        case "DE":
+          return "+49";
+        case "AT":
+          return "+43";
+        case "CH":
+          return "+41";
+        default:
+          return "+49";
+      }
+    };
+    setCountryCode(getCountryCodeFromCountry(country));
+  }, [country]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +102,8 @@ export function SignUpForm({
       userMetadata.city = city;
       userMetadata.state = state;
       userMetadata.country = country;
-      userMetadata.phone = phone;
+      // Combine country code with phone number
+      userMetadata.phone = phone ? `${countryCode} ${phone}` : "";
 
       const { error } = await signUp(email, password, userMetadata);
 
@@ -382,14 +401,32 @@ export function SignUpForm({
                   <label htmlFor="phone" className="text-sm font-medium">
                     Telefon
                   </label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    placeholder="+49 123 456789 (optional)"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
+                  <div className="flex gap-2">
+                    {/* Country Code Prefix - Editable Input */}
+                    <div className="w-24 shrink-0">
+                      <input
+                        id="country_code"
+                        type="text"
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        placeholder="+49"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-center font-medium ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      />
+                    </div>
+                    {/* Phone Number Input */}
+                    <input
+                      id="phone"
+                      type="tel"
+                      placeholder="123 456789"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Vorwahl wird automatisch basierend auf dem ausgewählten Land
+                    vorgeschlagen, kann aber manuell angepasst werden
+                  </p>
                 </div>
               </div>
 
