@@ -117,13 +117,13 @@ export default function ProductCard({
 
         {/* Wishlist Button */}
         <button
-          onClick={(e) => {
+          onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
             if (inWishlist) {
-              removeFromWishlist(product.id);
+              await removeFromWishlist(product.id);
             } else {
-              addToWishlist(product.id);
+              await addToWishlist(product.id);
             }
           }}
           className="absolute top-3 right-3 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-md transition-all hover:scale-110"
@@ -256,13 +256,13 @@ export default function ProductCard({
         </div>
 
         {/* Product Name */}
-        <h3 className="text-xl font-bold leading-tight tracking-tight line-clamp-2 min-h-[3rem]">
+        <h3 className="text-xl font-bold leading-tight tracking-tight line-clamp-2 min-h-12">
           {product.name}
         </h3>
 
         {/* Description */}
         {product.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
+          <p className="text-sm text-muted-foreground line-clamp-2 min-h-10">
             {product.description}
           </p>
         )}

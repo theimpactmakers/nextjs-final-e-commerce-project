@@ -128,14 +128,14 @@ export const BestsellerCarouselClient: React.FC<
                 <div className="h-32 bg-muted flex items-center justify-center overflow-hidden relative">
                   {/* Wishlist Button */}
                   <button
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       if (p.id) {
                         if (isInWishlist(p.id)) {
-                          removeFromWishlist(p.id);
+                          await removeFromWishlist(p.id);
                         } else {
-                          addToWishlist(p.id);
+                          await addToWishlist(p.id);
                         }
                       }
                     }}

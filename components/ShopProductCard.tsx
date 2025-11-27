@@ -20,14 +20,14 @@ export default function ShopProductCard({ product }: ShopProductCardProps) {
       <div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
         {/* Wishlist Button */}
         <button
-          onClick={(e) => {
+          onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
             if (product.id) {
               if (inWishlist) {
-                removeFromWishlist(product.id);
+                await removeFromWishlist(product.id);
               } else {
-                addToWishlist(product.id);
+                await addToWishlist(product.id);
               }
             }
           }}

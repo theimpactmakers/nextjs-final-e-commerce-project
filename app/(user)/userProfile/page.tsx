@@ -2,12 +2,12 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { ProfileSection } from "@/components/profile/ProfileSection";
 import { AddressesSection } from "@/components/profile/AddressesSection";
 import { WishlistSection } from "@/components/profile/WishlistSection";
 
-export default function UserProfile() {
+function UserProfileContent() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,7 +18,11 @@ export default function UserProfile() {
   // Read tab from URL parameter on mount
   useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam === "wishlist" || tabParam === "addresses" || tabParam === "profile") {
+    if (
+      tabParam === "wishlist" ||
+      tabParam === "addresses" ||
+      tabParam === "profile"
+    ) {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
@@ -98,5 +102,22 @@ export default function UserProfile() {
         {activeTab === "wishlist" && <WishlistSection />}
       </div>
     </div>
+  );
+}
+
+export default function UserProfile() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+            <p className="mt-4 text-muted-foreground">Lädt...</p>
+          </div>
+        </div>
+      }
+    >
+      <UserProfileContent />
+    </Suspense>
   );
 }

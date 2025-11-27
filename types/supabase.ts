@@ -7,6 +7,11 @@ export type Json =
   | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5";
+  };
   public: {
     Tables: {
       product_variants: {
@@ -191,6 +196,42 @@ export type Database = {
           created_at?: string | null;
         };
       };
+      wishlist_items: {
+        Row: {
+          id: string;
+          user_id: string;
+          product_id: string;
+          added_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          product_id: string;
+          added_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          product_id?: string;
+          added_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_items_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wishlist_items_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products_with_primary_image";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       ingredients: {
         Row: {
           id: string;
@@ -235,6 +276,56 @@ export type Database = {
           ingredient_id?: string;
           percentage?: number | null;
           display_order?: number | null;
+        };
+      };
+      promotions: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          discount_type: "percentage" | "fixed_amount";
+          discount_value: number;
+          starts_at: string;
+          ends_at: string;
+          applies_to: "all" | "specific_products" | "specific_variants";
+          min_purchase_amount: number | null;
+          product_ids: string[] | null;
+          variant_ids: string[] | null;
+          is_active: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          discount_type: "percentage" | "fixed_amount";
+          discount_value: number;
+          starts_at: string;
+          ends_at: string;
+          applies_to: "all" | "specific_products" | "specific_variants";
+          min_purchase_amount?: number | null;
+          product_ids?: string[] | null;
+          variant_ids?: string[] | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          discount_type?: "percentage" | "fixed_amount";
+          discount_value?: number;
+          starts_at?: string;
+          ends_at?: string;
+          applies_to?: "all" | "specific_products" | "specific_variants";
+          min_purchase_amount?: number | null;
+          product_ids?: string[] | null;
+          variant_ids?: string[] | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
         };
       };
     };
