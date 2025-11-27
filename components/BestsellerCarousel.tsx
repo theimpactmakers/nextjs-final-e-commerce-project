@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useWishlist } from "@/contexts/WishlistContext";
 import type { Database } from "@/types";
 
 // Typen für die Produktdaten aus der View
@@ -57,6 +58,7 @@ export const BestsellerCarouselClient: React.FC<
 > = ({ products }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
   // Responsive: Adjust items per view based on screen size
   useEffect(() => {
@@ -124,6 +126,43 @@ export const BestsellerCarouselClient: React.FC<
                 className="block bg-card text-card-foreground rounded-lg border shadow-md overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-300 h-full cursor-pointer group"
               >
                 <div className="h-32 bg-muted flex items-center justify-center overflow-hidden relative">
+                  {/* Wishlist Button */}
+                  <button
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (p.id) {
+                        if (isInWishlist(p.id)) {
+                          await removeFromWishlist(p.id);
+                        } else {
+                          await addToWishlist(p.id);
+                        }
+                      }
+                    }}
+                    className="absolute top-2 right-2 z-10 p-1.5 bg-white/90 hover:bg-white rounded-full shadow-md transition-all hover:scale-110"
+                    title={
+                      p.id && isInWishlist(p.id)
+                        ? "Von Wunschliste entfernen"
+                        : "Zur Wunschliste hinzufügen"
+                    }
+                  >
+                    <svg
+                      className={`h-4 w-4 transition-colors ${
+                        p.id && isInWishlist(p.id)
+                          ? "fill-red-500 stroke-red-500"
+                          : "fill-none stroke-gray-600"
+                      }`}
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                  </button>
+
                   {p.primary_image_url &&
                   p.primary_image_url !== "/images/placeholder.jpg" ? (
                     <Image

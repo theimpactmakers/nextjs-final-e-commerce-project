@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import type { Database } from "@/types";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
@@ -24,6 +25,9 @@ export default function ProductCard({
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { addToCart } = useCart();
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+
+  const inWishlist = isInWishlist(product.id);
 
   // Sort images by display_order
   const sortedImages = [...images].sort(
@@ -110,6 +114,41 @@ export default function ProductCard({
             </span>
           )}
         </div>
+
+        {/* Wishlist Button */}
+        <button
+          onClick={async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (inWishlist) {
+              await removeFromWishlist(product.id);
+            } else {
+              await addToWishlist(product.id);
+            }
+          }}
+          className="absolute top-3 right-3 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-md transition-all hover:scale-110"
+          title={
+            inWishlist
+              ? "Von Wunschliste entfernen"
+              : "Zur Wunschliste hinzufügen"
+          }
+        >
+          <svg
+            className={`h-5 w-5 transition-colors ${
+              inWishlist
+                ? "fill-red-500 stroke-red-500"
+                : "fill-none stroke-gray-600"
+            }`}
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+            />
+          </svg>
+        </button>
 
         {/* Main Image */}
         {sortedImages.length > 0 ? (
@@ -217,13 +256,13 @@ export default function ProductCard({
         </div>
 
         {/* Product Name */}
-        <h3 className="text-xl font-bold leading-tight tracking-tight line-clamp-2 min-h-[3rem]">
+        <h3 className="text-xl font-bold leading-tight tracking-tight line-clamp-2 min-h-12">
           {product.name}
         </h3>
 
         {/* Description */}
         {product.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
+          <p className="text-sm text-muted-foreground line-clamp-2 min-h-10">
             {product.description}
           </p>
         )}
