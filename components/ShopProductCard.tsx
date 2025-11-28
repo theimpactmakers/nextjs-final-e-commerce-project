@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { Database } from "@/types";
 
 type ProductWithImage =
@@ -11,13 +13,53 @@ interface ShopProductCardProps {
   product: ProductWithImage;
 }
 
+interface PromotionData {
+  originalPrice: number;
+  discountedPrice: number;
+  promotion: Database["public"]["Tables"]["promotions"]["Row"];
+  discountAmount: number;
+  discountType: "percentage" | "fixed_amount";
+}
+
 export default function ShopProductCard({ product }: ShopProductCardProps) {
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const inWishlist = product.id ? isInWishlist(product.id) : false;
+  const [promotionData, setPromotionData] = useState<PromotionData | null>(null);
+  const [loadingPromotion, setLoadingPromotion] = useState(true);
+
+  // Load promotion data
+  useEffect(() => {
+    const loadPromotion = async () => {
+      if (!product.id) return;
+      setLoadingPromotion(true);
+      // Use min_price for promotion calculation
+      const basePrice = product.min_price || 0;
+      const promo = await calculatePromotionDiscount(
+        product.id,
+        `${product.id}_primary`,
+        basePrice
+      );
+      setPromotionData(promo);
+      setLoadingPromotion(false);
+    };
+
+    loadPromotion();
+  }, [product.id, product.min_price]);
 
   return (
     <div className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
       <div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
+        {/* Promotion Badge */}
+        {promotionData && (
+          <div className="absolute top-2 right-2 z-20">
+            <span className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
+              {promotionData.discountType === "percentage"
+                ? `AKTION -${Math.round(promotionData.discountAmount)}%`
+                : `AKTION -€${promotionData.discountAmount.toFixed(2)}`}
+            </span>
+          </div>
+        )}
+
         {/* Wishlist Button */}
         <button
           onClick={async (e) => {
@@ -31,7 +73,7 @@ export default function ShopProductCard({ product }: ShopProductCardProps) {
               }
             }
           }}
-          className="absolute top-3 right-3 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-md transition-all hover:scale-110"
+          className="absolute top-3 left-3 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-md transition-all hover:scale-110"
           title={
             inWishlist
               ? "Von Wunschliste entfernen"
@@ -62,7 +104,7 @@ export default function ShopProductCard({ product }: ShopProductCardProps) {
         />
 
         {/* Badges für Kategorien */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
+        <div className="absolute bottom-2 left-2 flex flex-col gap-1">
           {product.age_group && (
             <span className="bg-accent/90 text-white text-xs px-2 py-1 rounded-full">
               {product.age_group}
@@ -83,6 +125,23 @@ export default function ShopProductCard({ product }: ShopProductCardProps) {
         <p className="text-sm text-muted-foreground line-clamp-2">
           {product.description}
         </p>
+        
+        {/* Price Display */}
+        <div className="flex items-baseline gap-2 mt-2">
+          <span className="text-2xl font-bold text-primary">
+            €{promotionData ? promotionData.discountedPrice.toFixed(2) : product.min_price?.toFixed(2) || "0.00"}
+          </span>
+          {promotionData && promotionData.originalPrice !== promotionData.discountedPrice && (
+            <span className="text-sm text-muted-foreground line-through">
+              €{promotionData.originalPrice.toFixed(2)}
+            </span>
+          )}
+          {promotionData && (
+            <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-semibold">
+              {promotionData.promotion.name}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="p-6 pt-0 space-y-2">

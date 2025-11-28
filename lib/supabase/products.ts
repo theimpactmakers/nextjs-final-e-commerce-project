@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types/supabase";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
+type Promotion = Database["public"]["Tables"]["promotions"]["Row"];
+type ProductVariant = Database["public"]["Tables"]["product_variants"]["Row"];
 
 /*  CLIENT-SIDE FUNKTIONEN
  * Holt alle Bestseller-Produkte aus der Datenbank
@@ -75,28 +77,81 @@ export async function getBestsellersWithFilters(options?: {
   return data as Product[];
 }
 
-/** SERVER SIDE FUNKTIONEN
- *
- * Server-seitige Funktion für Server Components
- * Nutzt den Server-Client für bessere Performance
+/**
+ * Holt alle aktiven Promotions
+ * @returns Array von aktiven Promotions
  */
-export async function getBestsellersServer(limit: number = 10) {
-  const { createClient: createServerClient } = await import(
-    "@/lib/supabase/server"
-  );
-  const supabase = await createServerClient();
+export async function getActivePromotions() {
+  const supabase = createClient();
+  const now = new Date().toISOString();
 
   const { data, error } = await supabase
-    .from("products")
+    .from("promotions")
     .select("*")
-    .eq("bestseller", true)
-    .order("created_at", { ascending: false })
-    .limit(limit);
+    .eq("is_active", true)
+    .lte("starts_at", now)
+    .gte("ends_at", now);
 
   if (error) {
-    console.error("Error fetching bestsellers (server):", error);
+    console.error("Error fetching active promotions:", error);
     return [];
   }
 
-  return data as Product[];
+  return data as Promotion[];
+}
+
+/**
+ * Berechnet den Promotions-Rabatt für ein Produkt/Variante
+ * @param productId - ID des Produkts
+ * @param variantId - ID der Variante
+ * @param basePrice - Basis-Preis
+ * @returns Objekt mit rabattiertem Preis und Promotions-Details oder null
+ */
+export async function calculatePromotionDiscount(
+  productId: string,
+  variantId: string,
+  basePrice: number
+) {
+  const promotions = await getActivePromotions();
+
+  for (const promo of promotions) {
+    let isApplicable = false;
+
+    if (promo.applies_to === "all") {
+      isApplicable = true;
+    } else if (
+      promo.applies_to === "specific_products" &&
+      promo.product_ids
+    ) {
+      isApplicable = promo.product_ids.includes(productId);
+    } else if (
+      promo.applies_to === "specific_variants" &&
+      promo.variant_ids
+    ) {
+      isApplicable = promo.variant_ids.includes(variantId);
+    }
+
+    if (isApplicable) {
+      let discountedPrice = basePrice;
+
+      if (promo.discount_type === "percentage") {
+        discountedPrice = basePrice * (1 - promo.discount_value / 100);
+      } else if (promo.discount_type === "fixed_amount") {
+        discountedPrice = basePrice - promo.discount_value;
+      }
+
+      return {
+        originalPrice: basePrice,
+        discountedPrice: Math.max(0, discountedPrice),
+        promotion: promo,
+        discountAmount:
+          promo.discount_type === "percentage"
+            ? promo.discount_value
+            : promo.discount_value,
+        discountType: promo.discount_type,
+      };
+    }
+  }
+
+  return null;
 }
