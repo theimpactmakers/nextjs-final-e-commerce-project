@@ -11,23 +11,49 @@ type CartItem = {
 };
 
 // Type for database cart item response
+// Supabase returns relations as objects when using !inner, or as arrays otherwise
 type DbCartItem = {
   id: string;
   quantity: number;
   price_at_add: string;
   variant_id: string;
-  product_variants: {
-    id: string;
-    name: string;
-    price: string;
-    stock_quantity: number;
-    product_id: string;
-    products: {
-      id: string;
-      name: string;
-      slug: string;
-    }[];
-  }[];
+  product_variants:
+    | {
+        id: string;
+        name: string;
+        price: string;
+        stock_quantity: number;
+        product_id: string;
+        products:
+          | {
+              id: string;
+              name: string;
+              slug: string;
+            }
+          | {
+              id: string;
+              name: string;
+              slug: string;
+            }[];
+      }
+    | {
+        id: string;
+        name: string;
+        price: string;
+        stock_quantity: number;
+        product_id: string;
+        products:
+          | {
+              id: string;
+              name: string;
+              slug: string;
+            }
+          | {
+              id: string;
+              name: string;
+              slug: string;
+            }[];
+      }[];
 };
 
 type CartContextType = {

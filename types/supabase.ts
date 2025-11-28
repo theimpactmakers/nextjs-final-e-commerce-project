@@ -7,163 +7,22 @@ export type Json =
   | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5";
+  };
   public: {
     Tables: {
-      product_images: {
-        Row: {
-          alt_text: string | null;
-          created_at: string | null;
-          display_order: number;
-          id: string;
-          image_url: string;
-          is_primary: boolean | null;
-          product_id: string;
-          updated_at: string | null;
-        };
-        Insert: {
-          alt_text?: string | null;
-          created_at?: string | null;
-          display_order?: number;
-          id?: string;
-          image_url: string;
-          is_primary?: boolean | null;
-          product_id: string;
-          updated_at?: string | null;
-        };
-        Update: {
-          alt_text?: string | null;
-          created_at?: string | null;
-          display_order?: number;
-          id?: string;
-          image_url?: string;
-          is_primary?: boolean | null;
-          product_id?: string;
-          updated_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "product_images_product_id_fkey";
-            columns: ["product_id"];
-            isOneToOne: false;
-            referencedRelation: "products";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      products: {
-        Row: {
-          age_group: Database["public"]["Enums"]["age_group"] | null;
-          created_at: string | null;
-          description: string | null;
-          ean: number;
-          feeding_recommendation: string | null;
-          id: string;
-          is_featured: boolean;
-          is_new: boolean | null;
-          is_on_sale: boolean | null;
-          meat_type: Database["public"]["Enums"]["meat_type"] | null;
-          meta_description: string | null;
-          meta_keywords: string | null;
-          meta_title: string | null;
-          name: string;
-          price: number | null;
-          published_at: string | null;
-          slug: string;
-          specials: Database["public"]["Enums"]["specials"] | null;
-          stock_quantity: number | null;
-          updated_at: string | null;
-          weight_kg: number | null;
-        };
-        Insert: {
-          age_group?: Database["public"]["Enums"]["age_group"] | null;
-          created_at?: string | null;
-          description?: string | null;
-          ean: number;
-          feeding_recommendation?: string | null;
-          id?: string;
-          is_featured?: boolean;
-          is_new?: boolean | null;
-          is_on_sale?: boolean | null;
-          meat_type?: Database["public"]["Enums"]["meat_type"] | null;
-          meta_description?: string | null;
-          meta_keywords?: string | null;
-          meta_title?: string | null;
-          name: string;
-          price?: number | null;
-          published_at?: string | null;
-          slug?: string;
-          specials?: Database["public"]["Enums"]["specials"] | null;
-          stock_quantity?: number | null;
-          updated_at?: string | null;
-          weight_kg?: number | null;
-        };
-        Update: {
-          age_group?: Database["public"]["Enums"]["age_group"] | null;
-          created_at?: string | null;
-          description?: string | null;
-          ean?: number;
-          feeding_recommendation?: string | null;
-          id?: string;
-          is_featured?: boolean;
-          is_new?: boolean | null;
-          is_on_sale?: boolean | null;
-          meat_type?: Database["public"]["Enums"]["meat_type"] | null;
-          meta_description?: string | null;
-          meta_keywords?: string | null;
-          meta_title?: string | null;
-          name?: string;
-          price?: number | null;
-          published_at?: string | null;
-          slug?: string;
-          specials?: Database["public"]["Enums"]["specials"] | null;
-          stock_quantity?: number | null;
-          updated_at?: string | null;
-          weight_kg?: number | null;
-        };
-        Relationships: [];
-      };
-      profiles: {
-        Row: {
-          created_at: string | null;
-          date_of_birth: string | null;
-          first_name: string;
-          gender: string | null;
-          id: string;
-          last_name: string;
-          role: string | null;
-          updated_at: string | null;
-        };
-        Insert: {
-          created_at?: string | null;
-          date_of_birth?: string | null;
-          first_name: string;
-          gender?: string | null;
-          id: string;
-          last_name: string;
-          role?: string | null;
-          updated_at?: string | null;
-        };
-        Update: {
-          created_at?: string | null;
-          date_of_birth?: string | null;
-          first_name?: string;
-          gender?: string | null;
-          id?: string;
-          last_name?: string;
-          role?: string | null;
-          updated_at?: string | null;
-        };
-        Relationships: [];
-      };
       product_variants: {
         Row: {
           id: string;
           product_id: string;
           name: string;
+          weight_grams: number;
           price: number;
           compare_at_price: number | null;
           cost_price: number | null;
-          weight_grams: number;
           stock_quantity: number;
           low_stock_threshold: number | null;
           track_inventory: boolean | null;
@@ -171,6 +30,8 @@ export type Database = {
           is_active: boolean | null;
           available_from: string | null;
           available_until: string | null;
+          tax_rate: number;
+          shipping_cost: number;
           created_at: string | null;
           updated_at: string | null;
         };
@@ -178,10 +39,10 @@ export type Database = {
           id?: string;
           product_id: string;
           name: string;
+          weight_grams: number;
           price: number;
           compare_at_price?: number | null;
           cost_price?: number | null;
-          weight_grams: number;
           stock_quantity?: number;
           low_stock_threshold?: number | null;
           track_inventory?: boolean | null;
@@ -189,6 +50,8 @@ export type Database = {
           is_active?: boolean | null;
           available_from?: string | null;
           available_until?: string | null;
+          tax_rate?: number;
+          shipping_cost?: number;
           created_at?: string | null;
           updated_at?: string | null;
         };
@@ -196,10 +59,10 @@ export type Database = {
           id?: string;
           product_id?: string;
           name?: string;
+          weight_grams?: number;
           price?: number;
           compare_at_price?: number | null;
           cost_price?: number | null;
-          weight_grams?: number;
           stock_quantity?: number;
           low_stock_threshold?: number | null;
           track_inventory?: boolean | null;
@@ -207,51 +70,293 @@ export type Database = {
           is_active?: boolean | null;
           available_from?: string | null;
           available_until?: string | null;
+          tax_rate?: number;
+          shipping_cost?: number;
           created_at?: string | null;
           updated_at?: string | null;
         };
+      };
+      products: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          ean: number;
+          age_group: Database["public"]["Enums"]["age_group"] | null;
+          meat_type: Database["public"]["Enums"]["meat_type"] | null;
+          specials: Database["public"]["Enums"]["specials"] | null;
+          feeding_recommendation: string | null;
+          is_featured: boolean;
+          is_new: boolean | null;
+          is_on_sale: boolean | null;
+          bestseller: boolean;
+          meta_title: string | null;
+          meta_description: string | null;
+          meta_keywords: string | null;
+          published_at: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug?: string;
+          description?: string | null;
+          ean: number;
+          age_group?: Database["public"]["Enums"]["age_group"] | null;
+          meat_type?: Database["public"]["Enums"]["meat_type"] | null;
+          specials?: Database["public"]["Enums"]["specials"] | null;
+          feeding_recommendation?: string | null;
+          is_featured?: boolean;
+          is_new?: boolean | null;
+          is_on_sale?: boolean | null;
+          bestseller?: boolean;
+          meta_title?: string | null;
+          meta_description?: string | null;
+          meta_keywords?: string | null;
+          published_at?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string;
+          description?: string | null;
+          ean?: number;
+          age_group?: Database["public"]["Enums"]["age_group"] | null;
+          meat_type?: Database["public"]["Enums"]["meat_type"] | null;
+          specials?: Database["public"]["Enums"]["specials"] | null;
+          feeding_recommendation?: string | null;
+          is_featured?: boolean;
+          is_new?: boolean | null;
+          is_on_sale?: boolean | null;
+          bestseller?: boolean;
+          meta_title?: string | null;
+          meta_description?: string | null;
+          meta_keywords?: string | null;
+          published_at?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      product_images: {
+        Row: {
+          id: string;
+          product_id: string;
+          image_url: string;
+          alt_text: string | null;
+          is_primary: boolean | null;
+          display_order: number;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          image_url: string;
+          alt_text?: string | null;
+          is_primary?: boolean | null;
+          display_order?: number;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          image_url?: string;
+          alt_text?: string | null;
+          is_primary?: boolean | null;
+          display_order?: number;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      related_products: {
+        Row: {
+          id: string;
+          product_id: string;
+          related_product_id: string;
+          display_order: number;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          related_product_id: string;
+          display_order?: number;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          related_product_id?: string;
+          display_order?: number;
+          created_at?: string | null;
+        };
+      };
+      wishlist_items: {
+        Row: {
+          id: string;
+          user_id: string;
+          product_id: string;
+          added_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          product_id: string;
+          added_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          product_id?: string;
+          added_at?: string | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "product_variants_product_id_fkey";
+            foreignKeyName: "wishlist_items_product_id_fkey";
             columns: ["product_id"];
             isOneToOne: false;
             referencedRelation: "products";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wishlist_items_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products_with_primary_image";
+            referencedColumns: ["id"];
           }
         ];
+      };
+      ingredients: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          is_allergen: boolean | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          is_allergen?: boolean | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          is_allergen?: boolean | null;
+          created_at?: string | null;
+        };
+      };
+      product_ingredients: {
+        Row: {
+          id: string;
+          product_id: string;
+          ingredient_id: string;
+          percentage: number | null;
+          display_order: number | null;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          ingredient_id: string;
+          percentage?: number | null;
+          display_order?: number | null;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          ingredient_id?: string;
+          percentage?: number | null;
+          display_order?: number | null;
+        };
+      };
+      promotions: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          discount_type: "percentage" | "fixed_amount";
+          discount_value: number;
+          starts_at: string;
+          ends_at: string;
+          applies_to: "all" | "specific_products" | "specific_variants";
+          min_purchase_amount: number | null;
+          product_ids: string[] | null;
+          variant_ids: string[] | null;
+          is_active: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          discount_type: "percentage" | "fixed_amount";
+          discount_value: number;
+          starts_at: string;
+          ends_at: string;
+          applies_to: "all" | "specific_products" | "specific_variants";
+          min_purchase_amount?: number | null;
+          product_ids?: string[] | null;
+          variant_ids?: string[] | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          discount_type?: "percentage" | "fixed_amount";
+          discount_value?: number;
+          starts_at?: string;
+          ends_at?: string;
+          applies_to?: "all" | "specific_products" | "specific_variants";
+          min_purchase_amount?: number | null;
+          product_ids?: string[] | null;
+          variant_ids?: string[] | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
       };
     };
     Views: {
       products_with_primary_image: {
         Row: {
-          age_group: Database["public"]["Enums"]["age_group"] | null;
-          created_at: string | null;
+          id: string | null;
+          name: string | null;
+          slug: string | null;
           description: string | null;
           ean: number | null;
+          age_group: Database["public"]["Enums"]["age_group"] | null;
+          meat_type: Database["public"]["Enums"]["meat_type"] | null;
+          specials: Database["public"]["Enums"]["specials"] | null;
           feeding_recommendation: string | null;
-          id: string | null;
           is_featured: boolean | null;
           is_new: boolean | null;
           is_on_sale: boolean | null;
-          meat_type: Database["public"]["Enums"]["meat_type"] | null;
+          bestseller: boolean | null;
+          meta_title: string | null;
           meta_description: string | null;
           meta_keywords: string | null;
-          meta_title: string | null;
-          name: string | null;
-          price: number | null;
-          primary_image_alt: string | null;
-          primary_image_url: string | null;
           published_at: string | null;
-          slug: string | null;
-          specials: Database["public"]["Enums"]["specials"] | null;
-          stock_quantity: number | null;
+          created_at: string | null;
           updated_at: string | null;
-          weight_kg: number | null;
+          primary_image_url: string | null;
+          primary_image_alt: string | null;
+          min_price: number | null;
+          starting_variant_name: string | null;
         };
       };
-    };
-    Functions: {
-      [_ in never]: never;
     };
     Enums: {
       age_group: "JUNIOR" | "ADULT" | "SENIOR";
@@ -259,14 +364,31 @@ export type Database = {
         | "ENTE"
         | "RIND"
         | "KANINCHEN"
-        | "LAHM"
+        | "LAMM"
         | "PFERD"
         | "WILD"
-        | "LACHS";
+        | "LACHS"
+        | "HUHN";
       specials: "DIAT" | "HYPOALLERGEN" | "DARM" | "GELENK";
-    };
-    CompositeTypes: {
-      [_ in never]: never;
     };
   };
 };
+
+type PublicSchema = Database[Extract<keyof Database, "public">];
+
+export type Tables<
+  TableName extends keyof PublicSchema["Tables"] | keyof PublicSchema["Views"]
+> = TableName extends keyof PublicSchema["Tables"]
+  ? PublicSchema["Tables"][TableName]["Row"]
+  : TableName extends keyof PublicSchema["Views"]
+  ? PublicSchema["Views"][TableName]["Row"]
+  : never;
+
+export type TablesInsert<TableName extends keyof PublicSchema["Tables"]> =
+  PublicSchema["Tables"][TableName]["Insert"];
+
+export type TablesUpdate<TableName extends keyof PublicSchema["Tables"]> =
+  PublicSchema["Tables"][TableName]["Update"];
+
+export type Enums<EnumName extends keyof PublicSchema["Enums"]> =
+  PublicSchema["Enums"][EnumName];
