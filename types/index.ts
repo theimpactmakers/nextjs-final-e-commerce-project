@@ -10,6 +10,7 @@ export type {
   AddressUpdateData,
   AddressFormData,
 } from "./profile";
+export type { CheckoutStep } from "./checkout";
 
 // Re-export commonly used Supabase types
 export type { User, Session } from "@supabase/supabase-js";
