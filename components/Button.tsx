@@ -6,7 +6,7 @@ interface ButtonProps {
   href?: string;
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
-  variant?: "primary" | "secondary" | "outline";
+  variant?: "primary" | "secondary" | "outline" | "brown";
   className?: string;
   disabled?: boolean;
 }
@@ -31,6 +31,8 @@ export default function Button({
       "bg-primary text-white hover:bg-[hsl(27_38%_40%)] active:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed",
     outline:
       "border-2 border-accent text-accent hover:bg-accent/10 active:bg-accent/20 disabled:opacity-50 disabled:cursor-not-allowed",
+    brown:
+      "bg-brand-brown text-white text-lg font-semibold shadow-lg rounded-xl block mx-auto px-8 py-4 hover:bg-brand-brown/90 active:bg-brand-brown/80 disabled:opacity-50 disabled:cursor-not-allowed",
   };
 
   const combinedClassName = `${baseStyles} ${paddingStyles} ${variantStyles[variant]} ${className}`;
