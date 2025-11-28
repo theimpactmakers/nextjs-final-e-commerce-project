@@ -4,11 +4,20 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { Database } from "@/types";
 
 // Typen für die Produktdaten aus der View
 type ProductWithImage =
   Database["public"]["Views"]["products_with_primary_image"]["Row"];
+
+interface PromotionData {
+  originalPrice: number;
+  discountedPrice: number;
+  promotion: Database["public"]["Tables"]["promotions"]["Row"];
+  discountAmount: number;
+  discountType: "percentage" | "fixed_amount";
+}
 
 type BestsellerCarouselClientProps = {
   products: ProductWithImage[];
@@ -59,6 +68,31 @@ export const BestsellerCarouselClient: React.FC<
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const [promotions, setPromotions] = useState<Record<string, PromotionData>>({});
+
+  // Load promotions for all products
+  useEffect(() => {
+    const loadPromotions = async () => {
+      const promoMap: Record<string, PromotionData> = {};
+      
+      for (const product of products) {
+        if (product.id && product.min_price) {
+          const promo = await calculatePromotionDiscount(
+            product.id,
+            `${product.id}_primary`,
+            product.min_price
+          );
+          if (promo) {
+            promoMap[product.id] = promo;
+          }
+        }
+      }
+      
+      setPromotions(promoMap);
+    };
+
+    loadPromotions();
+  }, [products]);
 
   // Responsive: Adjust items per view based on screen size
   useEffect(() => {
@@ -115,119 +149,143 @@ export const BestsellerCarouselClient: React.FC<
             transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
           }}
         >
-          {products.map((p) => (
-            <div
-              key={p.id}
-              className="shrink-0 px-2"
-              style={{ width: `${100 / itemsPerView}%` }}
-            >
-              <Link
-                href={`/products/${p.slug}`}
-                className="block bg-card text-card-foreground rounded-lg border shadow-md overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-300 h-full cursor-pointer group"
-              >
-                <div className="h-32 bg-muted flex items-center justify-center overflow-hidden relative">
-                  {/* Wishlist Button */}
-                  <button
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (p.id) {
-                        if (isInWishlist(p.id)) {
-                          await removeFromWishlist(p.id);
-                        } else {
-                          await addToWishlist(p.id);
-                        }
-                      }
-                    }}
-                    className="absolute top-2 right-2 z-10 p-1.5 bg-white/90 hover:bg-white rounded-full shadow-md transition-all hover:scale-110"
-                    title={
-                      p.id && isInWishlist(p.id)
-                        ? "Von Wunschliste entfernen"
-                        : "Zur Wunschliste hinzufügen"
-                    }
-                  >
-                    <svg
-                      className={`h-4 w-4 transition-colors ${
-                        p.id && isInWishlist(p.id)
-                          ? "fill-red-500 stroke-red-500"
-                          : "fill-none stroke-gray-600"
-                      }`}
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
-                    </svg>
-                  </button>
+          {products.map((p) => {
+            const promo = p.id ? promotions[p.id] : null;
+            const displayPrice = promo
+              ? promo.discountedPrice
+              : p.min_price;
 
-                  {p.primary_image_url &&
-                  p.primary_image_url !== "/images/placeholder.jpg" ? (
-                    <Image
-                      src={p.primary_image_url}
-                      alt={p.primary_image_alt || p.name || "Product image"}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-200">
+            return (
+              <div
+                key={p.id}
+                className="shrink-0 px-2"
+                style={{ width: `${100 / itemsPerView}%` }}
+              >
+                <Link
+                  href={`/products/${p.slug}`}
+                  className="block bg-card text-card-foreground rounded-lg border shadow-md overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-300 h-full cursor-pointer group"
+                >
+                  <div className="h-32 bg-muted flex items-center justify-center overflow-hidden relative">
+                    {/* Promotion Badge */}
+                    {promo && (
+                      <div className="absolute top-1 left-1 z-20">
+                        <span className="bg-red-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg animate-pulse">
+                          {promo.discountType === "percentage"
+                            ? `-${Math.round(promo.discountAmount)}%`
+                            : `-€${promo.discountAmount.toFixed(2)}`}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Wishlist Button */}
+                    <button
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (p.id) {
+                          if (isInWishlist(p.id)) {
+                            await removeFromWishlist(p.id);
+                          } else {
+                            await addToWishlist(p.id);
+                          }
+                        }
+                      }}
+                      className="absolute top-2 right-2 z-10 p-1.5 bg-white/90 hover:bg-white rounded-full shadow-md transition-all hover:scale-110"
+                      title={
+                        p.id && isInWishlist(p.id)
+                          ? "Von Wunschliste entfernen"
+                          : "Zur Wunschliste hinzufügen"
+                      }
+                    >
                       <svg
-                        className="w-12 h-12 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
+                        className={`h-4 w-4 transition-colors ${
+                          p.id && isInWishlist(p.id)
+                            ? "fill-red-500 stroke-red-500"
+                            : "fill-none stroke-gray-600"
+                        }`}
                         viewBox="0 0 24 24"
+                        strokeWidth={2}
                       >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                         />
                       </svg>
-                    </div>
-                  )}
-                </div>
-                <div className="p-3 space-y-2">
-                  <h3 className="text-sm font-semibold leading-tight line-clamp-1 text-foreground group-hover:text-accent transition-colors">
-                    {p.name}
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-base font-bold text-foreground">
-                        ab{" "}
-                        {p.min_price ? Number(p.min_price).toFixed(2) : "N/A"} €
-                      </span>
-                      {p.starting_variant_name && (
-                        <span className="text-[10px] text-muted-foreground">
-                          {p.starting_variant_name}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-accent flex items-center gap-0.5 underline hover:no-underline group-hover:translate-x-1 transition-transform">
-                      Produktdetails
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-foreground"
-                      >
-                        <path d="M9 18l6-6-6-6" />
-                      </svg>
-                    </span>
+                    </button>
+
+                    {p.primary_image_url &&
+                    p.primary_image_url !== "/images/placeholder.jpg" ? (
+                      <Image
+                        src={p.primary_image_url}
+                        alt={p.primary_image_alt || p.name || "Product image"}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-200">
+                        <svg
+                          className="w-12 h-12 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </Link>
-            </div>
-          ))}
+                  <div className="p-3 space-y-2">
+                    <h3 className="text-sm font-semibold leading-tight line-clamp-1 text-foreground group-hover:text-accent transition-colors">
+                      {p.name}
+                    </h3>
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-base font-bold text-foreground">
+                            ab {displayPrice?.toFixed(2) || "N/A"} €
+                          </span>
+                          {promo && promo.originalPrice !== promo.discountedPrice && (
+                            <span className="text-[10px] text-muted-foreground line-through">
+                              {promo.originalPrice.toFixed(2)} €
+                            </span>
+                          )}
+                        </div>
+                        {p.starting_variant_name && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {p.starting_variant_name}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-accent flex items-center gap-0.5 underline hover:no-underline group-hover:translate-x-1 transition-transform">
+                        Details
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-foreground"
+                        >
+                          <path d="M9 18l6-6-6-6" />
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
         </div>
       </div>
 

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { Database } from "@/types";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
@@ -16,6 +17,14 @@ interface ProductCardProps {
   variants: ProductVariant[];
 }
 
+interface PromotionData {
+  originalPrice: number;
+  discountedPrice: number;
+  promotion: Database["public"]["Tables"]["promotions"]["Row"];
+  discountAmount: number;
+  discountType: "percentage" | "fixed_amount";
+}
+
 export default function ProductCard({
   product,
   images,
@@ -24,6 +33,8 @@ export default function ProductCard({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [promotionData, setPromotionData] = useState<PromotionData | null>(null);
+  const [loadingPromotion, setLoadingPromotion] = useState(true);
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
@@ -33,6 +44,22 @@ export default function ProductCard({
   const sortedImages = [...images].sort(
     (a, b) => a.display_order - b.display_order
   );
+
+  // Load promotion data when variant changes
+  useEffect(() => {
+    const loadPromotion = async () => {
+      setLoadingPromotion(true);
+      const promo = await calculatePromotionDiscount(
+        product.id,
+        selectedVariant.id,
+        selectedVariant.price
+      );
+      setPromotionData(promo);
+      setLoadingPromotion(false);
+    };
+
+    loadPromotion();
+  }, [selectedVariant, product.id]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) =>
@@ -50,8 +77,8 @@ export default function ProductCard({
     setCurrentImageIndex(index);
   };
 
-  // Calculate discount percentage
-  const discountPercentage =
+  // Calculate discount percentage from compare_at_price
+  const variantDiscountPercentage =
     selectedVariant.compare_at_price && selectedVariant.price
       ? Math.round(
           ((selectedVariant.compare_at_price - selectedVariant.price) /
@@ -59,6 +86,21 @@ export default function ProductCard({
             100
         )
       : 0;
+
+  // Calculate promotion discount percentage
+  const promotionDiscountPercentage =
+    promotionData && promotionData.discountType === "percentage"
+      ? Math.round(promotionData.discountAmount)
+      : 0;
+
+  // Get the final price (promotion takes precedence)
+  const finalPrice = promotionData
+    ? promotionData.discountedPrice
+    : selectedVariant.price;
+
+  const originalPrice = promotionData
+    ? promotionData.originalPrice
+    : selectedVariant.compare_at_price || selectedVariant.price;
 
   // Handle add to cart
   const handleAddToCart = async () => {
@@ -76,7 +118,7 @@ export default function ProductCard({
         product.id,
         product.name || "Product",
         selectedVariant.name || "Default",
-        Number(selectedVariant.price) || 0,
+        finalPrice,
         sortedImages[0]?.image_url || null,
         selectedVariant.stock_quantity || 0,
         1
@@ -103,12 +145,19 @@ export default function ProductCard({
               NEU
             </span>
           )}
-          {discountPercentage > 0 && (
-            <span className="bg-destructive text-destructive-foreground px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-              -{discountPercentage}%
+          {promotionData && (
+            <span className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
+              {promotionData.discountType === "percentage"
+                ? `AKTION -${Math.round(promotionData.discountAmount)}%`
+                : `AKTION -€${promotionData.discountAmount.toFixed(2)}`}
             </span>
           )}
-          {product.is_on_sale && (
+          {variantDiscountPercentage > 0 && !promotionData && (
+            <span className="bg-destructive text-destructive-foreground px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+              -{variantDiscountPercentage}%
+            </span>
+          )}
+          {product.is_on_sale && !promotionData && (
             <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
               SALE
             </span>
@@ -298,11 +347,16 @@ export default function ProductCard({
         <div className="space-y-2">
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-primary">
-              €{selectedVariant.price?.toFixed(2)}
+              €{finalPrice?.toFixed(2)}
             </span>
-            {selectedVariant.compare_at_price && (
+            {originalPrice !== finalPrice && (
               <span className="text-sm text-muted-foreground line-through">
-                €{selectedVariant.compare_at_price.toFixed(2)}
+                €{originalPrice.toFixed(2)}
+              </span>
+            )}
+            {promotionData && (
+              <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-semibold">
+                {promotionData.promotion.name}
               </span>
             )}
           </div>
