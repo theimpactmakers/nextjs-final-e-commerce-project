@@ -3,7 +3,6 @@ import type { Database } from "@/types/supabase";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type Promotion = Database["public"]["Tables"]["promotions"]["Row"];
-type ProductVariant = Database["public"]["Tables"]["product_variants"]["Row"];
 
 /*  CLIENT-SIDE FUNKTIONEN
  * Holt alle Bestseller-Produkte aus der Datenbank
@@ -119,15 +118,9 @@ export async function calculatePromotionDiscount(
 
     if (promo.applies_to === "all") {
       isApplicable = true;
-    } else if (
-      promo.applies_to === "specific_products" &&
-      promo.product_ids
-    ) {
+    } else if (promo.applies_to === "specific_products" && promo.product_ids) {
       isApplicable = promo.product_ids.includes(productId);
-    } else if (
-      promo.applies_to === "specific_variants" &&
-      promo.variant_ids
-    ) {
+    } else if (promo.applies_to === "specific_variants" && promo.variant_ids) {
       isApplicable = promo.variant_ids.includes(variantId);
     }
 
@@ -148,7 +141,7 @@ export async function calculatePromotionDiscount(
           promo.discount_type === "percentage"
             ? promo.discount_value
             : promo.discount_value,
-        discountType: promo.discount_type,
+        discountType: promo.discount_type as "percentage" | "fixed_amount",
       };
     }
   }

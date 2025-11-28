@@ -5,6 +5,7 @@ type CartItem = {
   product_name: string;
   variant_name: string;
   price: number;
+  original_price?: number; // For calculating savings
   quantity: number;
   image_url: string | null;
   stock_quantity: number;
@@ -22,6 +23,7 @@ type DbCartItem = {
         id: string;
         name: string;
         price: string;
+        compare_at_price: string | null;
         stock_quantity: number;
         product_id: string;
         products:
@@ -40,6 +42,7 @@ type DbCartItem = {
         id: string;
         name: string;
         price: string;
+        compare_at_price: string | null;
         stock_quantity: number;
         product_id: string;
         products:

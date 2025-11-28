@@ -67,6 +67,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               id,
               name,
               price,
+              compare_at_price,
               stock_quantity,
               product_id,
               products!inner(
@@ -130,6 +131,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                   product_name: product.name,
                   variant_name: variant.name,
                   price: parseFloat(item.price_at_add),
+                  original_price: variant.compare_at_price
+                    ? parseFloat(variant.compare_at_price)
+                    : parseFloat(variant.price),
                   quantity: item.quantity,
                   image_url: imageMap.get(variant.product_id) || null,
                   stock_quantity: variant.stock_quantity,

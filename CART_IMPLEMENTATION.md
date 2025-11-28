@@ -1,20 +1,20 @@
-# 🛒 Shopping Cart System - Implementation Summary
+# 🛒 Warenkorb-System - Implementierungszusammenfassung
 
-## Overview
-Complete shopping cart system for the Next.js e-commerce project with support for both logged-in users and guests.
+## Überblick
+Vollständiges Warenkorb-System für das Next.js E-Commerce-Projekt mit Unterstützung für angemeldete Benutzer und Gäste.
 
-## Architecture
+## Architektur
 
-### 1. **Cart Context** (`contexts/CartContext.tsx`)
-Global state management for the cart using React Context API.
+### 1. **Warenkorb-Context** (`contexts/CartContext.tsx`)
+Globale Zustandsverwaltung für den Warenkorb mit React Context API.
 
-**Features:**
-- ✅ **Dual Storage**: Database for logged-in users, localStorage for guests
-- ✅ **Auto-sync**: Automatically loads cart on mount
-- ✅ **Real-time updates**: Cart updates reflect immediately across the app
-- ✅ **Type-safe**: Full TypeScript support with proper types
+**Funktionen:**
+- ✅ **Duale Speicherung**: Datenbank für angemeldete Benutzer, localStorage für Gäste
+- ✅ **Auto-Sync**: Lädt Warenkorb automatisch beim Start
+- ✅ **Echtzeit-Updates**: Warenkorb-Updates werden sofort in der App angezeigt
+- ✅ **Typsicher**: Volle TypeScript-Unterstützung mit korrekten Typen
 
-**API Methods:**
+**API-Methoden:**
 ```typescript
 - addToCart(variantId, productId, productName, variantName, price, imageUrl, stockQuantity, quantity)
 - updateQuantity(itemId, quantity)
@@ -23,124 +23,124 @@ Global state management for the cart using React Context API.
 - refreshCart()
 ```
 
-**State:**
+**Zustand:**
 ```typescript
-- items: CartItem[]          // Array of cart items
-- itemCount: number          // Total number of items
-- totalPrice: number         // Total cart value
-- isLoading: boolean         // Loading state
+- items: CartItem[]          // Array der Warenkorb-Artikel
+- itemCount: number          // Gesamtanzahl der Artikel
+- totalPrice: number         // Gesamtwert des Warenkorbs
+- isLoading: boolean         // Ladezustand
 ```
 
-### 2. **Cart Page** (`app/(shop)/cart/page.tsx`)
-Full-featured cart page with modern UI.
+### 2. **Warenkorb-Seite** (`app/(shop)/cart/page.tsx`)
+Voll ausgestattete Warenkorb-Seite mit modernem UI.
 
-**Features:**
-- ✅ Product cards with images
-- ✅ Quantity controls (+/-)
-- ✅ Remove item button
-- ✅ Clear cart button
-- ✅ Stock warnings (low stock, out of stock)
-- ✅ Order summary with totals
-- ✅ Free shipping threshold (50€)
-- ✅ Trust badges (secure payment, returns, fast delivery)
-- ✅ Empty cart state with CTA
-- ✅ Responsive design (mobile & desktop)
+**Funktionen:**
+- ✅ Produktkarten mit Bildern
+- ✅ Mengen-Steuerung (+/-)
+- ✅ Artikel entfernen-Button
+- ✅ Warenkorb leeren-Button
+- ✅ Lagerbestandswarnungen (niedriger Lagerbestand, ausverkauft)
+- ✅ Bestellübersicht mit Summen
+- ✅ Gratis-Versand-Schwelle (50€)
+- ✅ Vertrauensabzeichen (sichere Zahlung, Rücksendung, schnelle Lieferung)
+- ✅ Leerer Warenkorb-Status mit CTA
+- ✅ Responsives Design (Mobil & Desktop)
 
 **URL:** `/cart`
 
-### 3. **ProductCard Integration** (`components/ProductCard.tsx`)
-Enhanced ProductCard with add-to-cart functionality.
+### 3. **ProductCard-Integration** (`components/ProductCard.tsx`)
+Erweiterte ProductCard mit Warenkorb-Funktionalität.
 
 **Updates:**
-- ✅ "In den Warenkorb" button functional
-- ✅ Loading state while adding
-- ✅ Disabled when out of stock
-- ✅ Success/error messages
-- ✅ Uses selected variant for pricing and stock
+- ✅ "In den Warenkorb"-Button funktionsfähig
+- ✅ Ladezustand beim Hinzufügen
+- ✅ Deaktiviert bei ausverkauften Artikeln
+- ✅ Erfolgs-/Fehlermeldungen
+- ✅ Verwendet ausgewählte Variante für Preis und Lagerbestand
 
-### 4. **Header Integration** (`components/Header.tsx`)
-Cart icon with live item count.
+### 4. **Header-Integration** (`components/Header.tsx`)
+Warenkorb-Symbol mit Live-Artikelanzahl.
 
 **Updates:**
-- ✅ Desktop cart link with count: (3)
-- ✅ Mobile cart icon with badge
-- ✅ Real-time count updates
-- ✅ Links to `/cart` page
+- ✅ Desktop-Warenkorb-Link mit Anzahl: (3)
+- ✅ Mobiles Warenkorb-Symbol mit Badge
+- ✅ Echtzeit-Anzahl-Updates
+- ✅ Verlinkt zu `/cart`-Seite
 
-## Database Tables Used
+## Verwendete Datenbanktabellen
 
 ### `carts`
-Stores cart metadata for logged-in users.
+Speichert Warenkorb-Metadaten für angemeldete Benutzer.
 ```sql
 - id: uuid
-- user_id: uuid (FK to profiles)
-- session_id: varchar (for guest carts)
+- user_id: uuid (FK zu profiles)
+- session_id: varchar (für Gast-Warenkörbe)
 - status: text (OPEN, ORDERED, ABANDONED)
 - created_at, updated_at, expires_at
 ```
 
 ### `cart_items`
-Stores individual items in the cart.
+Speichert einzelne Artikel im Warenkorb.
 ```sql
 - id: uuid
-- cart_id: uuid (FK to carts)
-- variant_id: uuid (FK to product_variants)
+- cart_id: uuid (FK zu carts)
+- variant_id: uuid (FK zu product_variants)
 - quantity: integer
-- price_at_add: numeric (price snapshot)
+- price_at_add: numeric (Preis-Snapshot)
 - created_at, updated_at
 ```
 
-## User Flows
+## Benutzerflows
 
-### Guest User Flow
-1. Browse products → Select variant → Click "In den Warenkorb"
-2. Item saved to `localStorage`
-3. Cart count updates in header
-4. Navigate to `/cart` to view items
-5. Modify quantities or remove items
-6. Proceed to checkout (future feature)
+### Gast-Benutzer-Flow
+1. Produkte durchsuchen → Variante wählen → "In den Warenkorb" klicken
+2. Artikel in `localStorage` gespeichert
+3. Warenkorb-Anzahl aktualisiert sich im Header
+4. Zu `/cart` navigieren, um Artikel anzuzeigen
+5. Mengen ändern oder Artikel entfernen
+6. Zur Kasse gehen (zukünftige Funktion)
 
-### Logged-in User Flow
-1. Browse products → Select variant → Click "In den Warenkorb"
-2. Item saved to database (`carts` + `cart_items`)
-3. Cart persists across devices/sessions
-4. Cart count updates in header
-5. Navigate to `/cart` to view items
-6. Modify quantities or remove items
-7. Proceed to checkout (future feature)
+### Angemeldeter Benutzer-Flow
+1. Produkte durchsuchen → Variante wählen → "In den Warenkorb" klicken
+2. Artikel in Datenbank gespeichert (`carts` + `cart_items`)
+3. Warenkorb bleibt über Geräte/Sitzungen hinweg erhalten
+4. Warenkorb-Anzahl aktualisiert sich im Header
+5. Zu `/cart` navigieren, um Artikel anzuzeigen
+6. Mengen ändern oder Artikel entfernen
+7. Zur Kasse gehen (zukünftige Funktion)
 
-## Key Features
+## Hauptfunktionen
 
-### ✅ Implemented
-- [x] Cart context with React hooks
-- [x] Database integration (Supabase)
-- [x] localStorage fallback for guests
-- [x] Add to cart from product pages
-- [x] Full cart page with UI
-- [x] Quantity controls
-- [x] Remove items
-- [x] Clear cart
-- [x] Header cart icon with count
-- [x] Stock validation
-- [x] Price calculations
-- [x] Free shipping threshold
-- [x] Responsive design
-- [x] Loading states
-- [x] Empty cart state
+### ✅ Implementiert
+- [x] Warenkorb-Context mit React Hooks
+- [x] Datenbankintegration (Supabase)
+- [x] localStorage-Fallback für Gäste
+- [x] In den Warenkorb von Produktseiten
+- [x] Vollständige Warenkorb-Seite mit UI
+- [x] Mengen-Steuerung
+- [x] Artikel entfernen
+- [x] Warenkorb leeren
+- [x] Header-Warenkorb-Symbol mit Anzahl
+- [x] Lagerbestandsvalidierung
+- [x] Preisberechnungen
+- [x] Gratis-Versand-Schwelle
+- [x] Responsives Design
+- [x] Ladezustände
+- [x] Leerer Warenkorb-Status
 
-### 🔜 Next Steps (Future Implementation)
-- [ ] Checkout page
-- [ ] Payment integration
-- [ ] Order creation
-- [ ] Cart persistence for guests after login
-- [ ] Cart sharing/wishlist
-- [ ] Promo codes/discounts
-- [ ] Recently viewed items
-- [ ] Cart abandonment emails
+### 🔜 Nächste Schritte (Zukünftige Implementierung)
+- [ ] Checkout-Seite
+- [ ] Zahlungsintegration
+- [ ] Bestellerstellung
+- [ ] Warenkorb-Persistenz für Gäste nach Anmeldung
+- [ ] Warenkorb teilen/Wunschliste
+- [ ] Promo-Codes/Rabatte
+- [ ] Kürzlich angesehene Artikel
+- [ ] Warenkorb-Abbruch-E-Mails
 
-## Usage Examples
+## Verwendungsbeispiele
 
-### Add to Cart
+### In den Warenkorb
 ```tsx
 import { useCart } from "@/contexts/CartContext";
 
@@ -151,29 +151,29 @@ function MyComponent() {
     await addToCart(
       variantId,
       productId,
-      "Product Name",
+      "Produktname",
       "500g",
       19.99,
       imageUrl,
-      10, // stock
-      1   // quantity
+      10, // Lagerbestand
+      1   // Menge
     );
   };
 }
 ```
 
-### Display Cart Count
+### Warenkorb-Anzahl anzeigen
 ```tsx
 import { useCart } from "@/contexts/CartContext";
 
 function Header() {
   const { itemCount } = useCart();
   
-  return <div>Cart ({itemCount})</div>;
+  return <div>Warenkorb ({itemCount})</div>;
 }
 ```
 
-### Access Cart Items
+### Auf Warenkorb-Artikel zugreifen
 ```tsx
 import { useCart } from "@/contexts/CartContext";
 
@@ -187,63 +187,63 @@ function CartPage() {
           {item.product_name} - €{item.price}
         </div>
       ))}
-      <div>Total: €{totalPrice.toFixed(2)}</div>
+      <div>Gesamt: €{totalPrice.toFixed(2)}</div>
     </div>
   );
 }
 ```
 
-## Performance Considerations
+## Performance-Überlegungen
 
-- ✅ **Lazy loading**: Cart only loads when needed
-- ✅ **Optimistic updates**: UI updates before API call completes
-- ✅ **Debouncing**: Could add for quantity changes (future)
-- ✅ **Caching**: Cart data cached in context, reduces DB calls
+- ✅ **Lazy Loading**: Warenkorb lädt nur bei Bedarf
+- ✅ **Optimistische Updates**: UI aktualisiert sich vor API-Call
+- ✅ **Debouncing**: Könnte für Mengenänderungen hinzugefügt werden (zukünftig)
+- ✅ **Caching**: Warenkorb-Daten im Context gecacht, reduziert DB-Aufrufe
 
-## Security
+## Sicherheit
 
-- ✅ **RLS enabled**: Row-level security on cart tables
-- ✅ **User isolation**: Users can only access their own carts
-- ✅ **Price snapshot**: Stores price at time of add (prevents tampering)
-- ✅ **Stock validation**: Prevents over-purchasing
+- ✅ **RLS aktiviert**: Row-Level Security auf Warenkorb-Tabellen
+- ✅ **Benutzerisolierung**: Benutzer können nur auf eigene Warenkörbe zugreifen
+- ✅ **Preis-Snapshot**: Speichert Preis zum Zeitpunkt des Hinzufügens (verhindert Manipulation)
+- ✅ **Lagerbestandsvalidierung**: Verhindert Überkauf
 
-## Testing Checklist
+## Test-Checkliste
 
-- [ ] Add item to cart as guest
-- [ ] Add item to cart as logged-in user
-- [ ] Update quantity
-- [ ] Remove item
-- [ ] Clear cart
-- [ ] View cart page
-- [ ] Check header count updates
-- [ ] Test with out-of-stock items
-- [ ] Test free shipping threshold
-- [ ] Test mobile responsiveness
+- [ ] Artikel als Gast in den Warenkorb legen
+- [ ] Artikel als angemeldeter Benutzer in den Warenkorb legen
+- [ ] Menge aktualisieren
+- [ ] Artikel entfernen
+- [ ] Warenkorb leeren
+- [ ] Warenkorb-Seite ansehen
+- [ ] Header-Anzahl-Update prüfen
+- [ ] Mit ausverkauften Artikeln testen
+- [ ] Gratis-Versand-Schwelle testen
+- [ ] Mobile Responsivität testen
 
-## Files Modified/Created
+## Geänderte/Erstellte Dateien
 
-**Created:**
-- `contexts/CartContext.tsx` - Cart state management
-- `app/(shop)/cart/page.tsx` - Cart page UI
+**Erstellt:**
+- `contexts/CartContext.tsx` - Warenkorb-Zustandsverwaltung
+- `app/(shop)/cart/page.tsx` - Warenkorb-Seiten-UI
 
-**Modified:**
-- `app/layout.tsx` - Added CartProvider
-- `components/Header.tsx` - Added cart count display
-- `components/ProductCard.tsx` - Added add-to-cart functionality
-
----
-
-## Quick Start
-
-1. **Navigate to shop**: `/shop`
-2. **Click on product**: "Zum Produkt"
-3. **Select variant**: Choose size (500g/1kg/2kg)
-4. **Add to cart**: Click "In den Warenkorb"
-5. **View cart**: Click cart icon in header or navigate to `/cart`
-6. **Modify cart**: Change quantities or remove items
-7. **Checkout**: Click "Zur Kasse" (to be implemented)
+**Geändert:**
+- `app/layout.tsx` - CartProvider hinzugefügt
+- `components/Header.tsx` - Warenkorb-Anzahl-Anzeige hinzugefügt
+- `components/ProductCard.tsx` - In-den-Warenkorb-Funktionalität hinzugefügt
 
 ---
 
-**Created:** November 21, 2025
-**Status:** ✅ Fully functional cart system ready for checkout integration
+## Schnellstart
+
+1. **Zum Shop navigieren**: `/shop`
+2. **Auf Produkt klicken**: "Zum Produkt"
+3. **Variante wählen**: Größe auswählen (500g/1kg/2kg)
+4. **In den Warenkorb**: "In den Warenkorb" klicken
+5. **Warenkorb ansehen**: Warenkorb-Symbol im Header klicken oder zu `/cart` navigieren
+6. **Warenkorb bearbeiten**: Mengen ändern oder Artikel entfernen
+7. **Zur Kasse**: "Zur Kasse" klicken (wird noch implementiert)
+
+---
+
+**Erstellt:** 21. November 2025
+**Status:** ✅ Voll funktionsfähiges Warenkorb-System bereit für Checkout-Integration

@@ -1,0 +1,435 @@
+# Supabase Integration - Checkout Implementierung
+
+## ✅ Abgeschlossene Funktionen
+
+### 1. Datenbankgesteuerte Versand- & Zahlungsmethoden
+- **Professionelle Datenbankarchitektur** mit Stripe-bereiter Struktur
+- **Dynamisches Laden** aus `shipping_methods` und `payment_methods` Tabellen
+- **Stripe-kompatible Felder**: `stripe_payment_method_type`, `stripe_supported_currencies`, `config` (JSONB)
+- **Admin-freundlich**: Methoden können ohne Code-Änderungen aktualisiert werden
+- **Gratis-Versand-Logik**: Konfigurierbar pro Versandmethode über `free_shipping_threshold`
+
+#### Verfügbare Versandmethoden:
+1. **DHL Standard**: 2,99€, GRATIS ab 50€ (3-5 Tage)
+2. **DHL Express**: 7,99€, KEIN Gratis-Versand (1-2 Tage)
+
+#### Verfügbare Zahlungsmethoden:
+1. **Kreditkarte** (Stripe Card) - `stripe_payment_method_type: 'card'`
+2. **PayPal** - `provider: 'paypal'`
+3. **Klarna** - `stripe_payment_method_type: 'klarna'` (NEU)
+4. **Sofort** - `stripe_payment_method_type: 'sofort'` (NEU)
+
+### 2. Adress-Autofill für angemeldete Benutzer
+- **Lädt gespeicherte Adressen automatisch** von Supabase wenn Benutzer authentifiziert ist
+- **Intelligentes Fallback**: Standard-Versandadresse → Beliebige Versandadresse → Standard-Adresse → Erste Adresse
+- **Smarte Rechnungsadress-Behandlung**: Füllt nur vor, wenn Rechnungsadresse existiert UND von Versandadresse abweicht
+- **Benutzerprofil-Integration**: Füllt Name und E-Mail automatisch aus Profil
+- **Voll editierbar**: Benutzer können jedes vorausgefüllte Feld ändern
+- **Nahtlose UX**: Klicke sofort "Weiter zu Lieferung" wenn Adressen korrekt sind
+
+### 3. Gesamt-Ersparnis-Berechnung
+- **Aktions-Ersparnis**: Verfolgt `original_price` vs. rabattierter `price` aus Warenkorb
+- **Versand-Ersparnis**: Gratis-Versand wenn Schwellenwert erreicht
+- **Kombinierte Anzeige**: Zeigt Gesamt-Ersparnis mit Aufschlüsselung
+- **Smarte Nachricht**: 
+  - Zeigt nur wenn Ersparnis > 0
+  - Schlüsselt nach Typ auf wenn sowohl Aktionen als auch Gratis-Versand zutreffen
+
+Beispiel-Anzeige:
+```
+💰 Sie sparen insgesamt 8,99 €
+   (6,00 € Rabatt + 2,99 € Versand)
+```
+
+### 4. Bestellungserstellung in der Datenbank
+Vollständige Bestellungserstellung mit allen erforderlichen Feldern:
+
+#### Bestellungsdatensatz (`orders` Tabelle)
+- **Bestellnummer**: Automatisch generierte eindeutige ID (Format: `ORD-{timestamp}-{random}`)
+- **Benutzer/Gast-Unterstützung**: 
+  - Registrierte Benutzer: Speichert `user_id`
+  - Gast-Checkout: Speichert `guest_email`, `guest_first_name`, `guest_last_name`
+- **Adressen (JSONB-Format)**:
+  - `billing_address`: Vollständiges Rechnungsadress-Objekt
+  - `shipping_address`: Vollständiges Versandadress-Objekt
+  - Flexible Struktur unterstützt alle Adressfelder
+- **Preisgestaltung**:
+  - `subtotal`: Warenkorb-Gesamt
+  - `shipping_cost`: **Dynamisch berechnet** aus Datenbank-Versandmethoden
+  - `tax_amount`: 19% MwSt-Berechnung
+  - `total_amount`: Endgültige Bestellsumme
+- **Versand & Zahlung**:
+  - `shipping_method`: Methodencode aus Datenbank (z.B. "dhl_standard", "dhl_express")
+  - `payment_method`: Methodencode aus Datenbank (z.B. "stripe_card", "paypal", "klarna", "sofort")
+  - `payment_transaction_id`: Bereit für Stripe Payment Intent
+- **Notizen**: `customer_notes` aus Checkout-Formular
+- **Status-Verfolgung**: 
+  - `status`: Standard "pending"
+  - `payment_status`: Standard "pending"
+
+#### Bestellposten (`order_items` Tabelle)
+- Erstellt einen Datensatz pro Warenkorb-Artikel
+- Erfasst: product_id, variant_id, product_name, variant_name
+- Preis-Snapshot: unit_price, quantity, total_price
+- Verknüpft mit Bestellung über `order_id`
+
+### 4. Post-Order Workflow
+- **Clears cart** after successful order creation
+- **Redirects** to order success page with order number
+- **Error handling** with user-friendly messages
+
+## �️ Database Schema
+
+### `shipping_methods` Table (NEW)
+```sql
+- id (uuid, PK)
+- code (varchar, unique) - e.g., 'dhl_standard', 'dhl_express'
+- name (varchar) - Display name
+- description (text, nullable)
+- carrier (varchar, nullable) - e.g., 'DHL'
+- base_price (numeric) - Base shipping cost
+- free_shipping_threshold (numeric, nullable) - Order total for free shipping
+- estimated_days_min, estimated_days_max (integer, nullable) - Delivery time range
+- is_active (boolean, default true)
+- display_order (integer) - Sort order in UI
+- icon_url (varchar, nullable)
+- created_at, updated_at
+```
+
+### `payment_methods` Table (NEW)
+```sql
+- id (uuid, PK)
+- code (varchar, unique) - e.g., 'stripe_card', 'klarna', 'sofort'
+- name (varchar) - Display name
+- description (text, nullable)
+- provider (varchar) - 'stripe', 'paypal', etc.
+- stripe_payment_method_type (varchar, nullable) - Stripe-specific type
+- stripe_supported_currencies (text[], nullable) - Supported currencies array
+- config (JSONB, nullable) - Provider-specific configuration
+- is_active (boolean, default true)
+- display_order (integer) - Sort order in UI
+- icon_url (varchar, nullable)
+- created_at, updated_at
+```
+
+### `addresses` Table
+
+### `/app/(shop)/checkout/page.tsx`
+**Changes:**
+1. Added Supabase client import
+2. Defined `Address` interface for database addresses
+3. Added state for `savedAddresses` and `loadingAddresses`
+4. **New useEffect**: Loads user addresses on mount
+   - Queries `addresses` table filtered by `user_id`
+   - Pre-fills shipping address from default shipping address
+   - Pre-fills billing address from default billing address (if exists)
+5. **Implemented `handlePlaceOrder()`**:
+   - Generates unique order number
+   - Prepares shipping/billing address JSONB objects
+   - Calculates totals (subtotal, shipping, tax, total)
+   - Creates order record in database
+   - Creates order_items for each cart item
+   - Clears cart
+   - Redirects to success page
+
+**Key Code Additions:**
+
+```typescript
+// Load shipping and payment methods from database
+useEffect(() => {
+  async function loadMethods() {
+    const { data: shipping } = await supabase
+      .from("shipping_methods")
+      .select("*")
+      .eq("is_active", true)
+      .order("display_order");
+    
+    const { data: payment } = await supabase
+      .from("payment_methods")
+      .select("*")
+      .eq("is_active", true)
+      .order("display_order");
+    
+    setShippingMethods(shipping);
+    setPaymentMethods(payment);
+  }
+  loadMethods();
+}, [supabase]);
+
+// Dynamic shipping cost calculation
+const shippingCost = selectedShipping
+  ? selectedShipping.free_shipping_threshold && 
+    totalPrice >= selectedShipping.free_shipping_threshold
+    ? 0
+    : selectedShipping.base_price
+  : 0;
+
+// Total savings calculation
+const promotionSavings = items.reduce((total, item) => {
+  if (item.original_price && item.original_price > item.price) {
+    return total + (item.original_price - item.price) * item.quantity;
+  }
+  return total;
+}, 0);
+
+const shippingSavings = selectedShipping?.free_shipping_threshold &&
+  totalPrice >= selectedShipping.free_shipping_threshold &&
+  selectedShipping.base_price > 0
+    ? selectedShipping.base_price
+    : 0;
+
+const totalSavings = promotionSavings + shippingSavings;
+```
+
+### `/contexts/CartContext.tsx`
+**Changes:**
+- Added `compare_at_price` to product_variants query
+- Added `original_price` field to CartItem
+- Calculates original price from `compare_at_price` or falls back to current `price`
+
+```typescript
+original_price: variant.compare_at_price 
+  ? parseFloat(variant.compare_at_price) 
+  : parseFloat(variant.price)
+```
+
+### `/types/Cart.ts`
+**Changes:**
+- Added `original_price?: number` to CartItem type
+- Added `compare_at_price: string | null` to DbCartItem type
+
+### `/types/supabase.ts`
+**Auto-generated:**
+- Includes `shipping_methods` table types
+- Includes `payment_methods` table types
+- All fields properly typed with nullable indicators
+
+## 🔄 User Flow
+```sql
+- id (uuid, PK)
+- user_id (uuid, FK to auth.users)
+- address_type ('billing' | 'shipping')
+- is_default (boolean)
+- first_name, last_name
+- street, house_number, address_line2
+- postal_code, city, country
+- phone
+- created_at, updated_at
+```
+
+### `orders` Table
+```sql
+- id (uuid, PK)
+- order_number (varchar, unique)
+- user_id (uuid, nullable)
+- guest_email, guest_first_name, guest_last_name (nullable)
+- status (varchar, default 'pending')
+- payment_status (varchar, default 'pending')
+- billing_address (JSONB)
+- shipping_address (JSONB)
+- subtotal, shipping_cost, tax_amount, discount_amount, total_amount (numeric)
+- shipping_method, payment_method (varchar)
+- payment_transaction_id (varchar, nullable)
+- customer_notes, admin_notes (text, nullable)
+- created_at, updated_at, confirmed_at, shipped_at, delivered_at, cancelled_at
+```
+
+### `order_items` Table
+```sql
+- id (uuid, PK)
+- order_id (uuid, FK to orders)
+- product_id (uuid, FK to products)
+- variant_id (uuid, FK to product_variants)
+- product_name, variant_name (varchar)
+- quantity (integer)
+- unit_price, total_price (numeric)
+- created_at
+```
+
+## � Files Modified
+
+### `/app/(shop)/checkout/page.tsx`
+**Major Changes:**
+1. **Dynamic Method Loading**:
+   - Removed hardcoded shipping/payment arrays
+   - Added `loadMethods()` useEffect to fetch from database
+   - Auto-selects first method as default
+   - Added `loadingMethods` state
+
+2. **Enhanced Address Auto-fill**:
+   - Loads user profile (first_name, last_name, email)
+   - Intelligent address fallback logic
+   - Only pre-fills billing if different from shipping
+
+3. **Smart Savings Calculation**:
+   - Calculates promotion savings from `original_price` vs `price`
+   - Calculates shipping savings from free threshold
+   - Shows combined total with breakdown
+
+4. **Dynamic Shipping Cost**:
+   - Uses `base_price` and `free_shipping_threshold` from database
+   - Handles NULL threshold for methods without free shipping
+   - Consistent calculation in UI and order creation
+
+**Key Code Additions:**
+
+### For Logged-in Users:
+1. Navigate to `/checkout`
+2. **Form auto-fills** with saved addresses, name, and email from profile
+3. **Shipping/payment methods** load from database
+4. Review/edit pre-filled information (fully editable)
+5. **See total savings** including promotions and free shipping
+6. Select shipping method - **free standard shipping shown when order ≥ 50€**
+7. Select payment method (Card/PayPal/Klarna/Sofort)
+8. Accept terms & privacy
+9. Click "Jetzt kaufen"
+10. **Order created in database** with dynamic pricing
+11. **Cart cleared automatically**
+12. Redirect to `/order-success?order=ORD-...`
+
+### For Guest Users:
+1. Navigate to `/checkout`
+2. **Manually enter** all details (email, name, address)
+3. **Same dynamic methods** load from database
+4. **Same savings display** if promotions apply
+5. Rest of flow same as logged-in users
+6. **Order created with guest email** (no user_id)
+7. Same post-order workflow
+
+## 🎯 Integration Points
+
+### With Database:
+- **Shipping Methods**: Dynamically loaded, fully configurable
+- **Payment Methods**: Stripe-ready with proper type mappings
+- **Free Shipping**: Per-method threshold configuration
+- **Promotions**: Tracked via `compare_at_price` on variants
+
+### With CartContext:
+- Uses `items` (with `original_price`) for savings calculation
+- Uses `totalPrice` for shipping threshold checks
+- Calls `clearCart()` after successful order
+
+### With AuthContext:
+- Checks `user?.id` to determine logged-in status
+- Loads user profile for name/email auto-fill
+- Conditional user_id vs guest fields in order
+
+### With Supabase:
+- Queries `shipping_methods` and `payment_methods` tables
+- Queries `addresses` table for user addresses
+- Queries `profiles` table for user data
+- Inserts into `orders` table with dynamic pricing
+- Inserts into `order_items` table
+- All operations use proper error handling
+
+## 🚀 Next Steps (Future Enhancements)
+
+### Immediate:
+- [ ] Stripe payment integration in `handlePlaceOrder()`
+- [ ] Email confirmation after order creation
+- [ ] Address selection dropdown (if user has multiple saved addresses)
+- [ ] Checkbox to "Save this address" for new addresses
+
+### Future:
+- [ ] Order history in user profile
+- [ ] Order status tracking
+- [ ] Invoice generation
+- [ ] Admin order management dashboard
+- [ ] Inventory reduction after order
+- [ ] Admin UI to manage shipping/payment methods
+
+## 🐛 Known Issues
+- No payment provider integration yet (orders created but payment_status stays "pending")
+- Tax calculation is simplified (19% flat rate, should consider product-specific rates)
+
+## 📝 Testing Checklist
+
+- [x] Shipping methods load from database
+- [x] Payment methods load from database
+- [x] Free shipping only for standard (not express)
+- [x] Promotion savings calculated correctly
+- [x] Shipping savings calculated correctly
+- [x] Total savings display with breakdown
+- [x] Addresses load for logged-in users
+- [x] Form pre-fills with profile data
+- [x] Intelligent address fallback logic
+- [x] Billing address only pre-fills if different
+- [x] Order creation works with user_id
+- [x] Order creation works for guest (no user_id)
+- [x] Order items created correctly
+- [x] Dynamic shipping cost in order
+- [x] Cart clears after order
+- [x] Redirect to success page
+- [ ] Payment integration (pending)
+- [ ] Email notifications (pending)
+
+## 💡 Code Highlights
+
+**Dynamic Shipping Cost (Database-Driven):**
+```typescript
+const shippingCost = selectedShipping
+  ? selectedShipping.free_shipping_threshold && 
+    totalPrice >= selectedShipping.free_shipping_threshold
+    ? 0 // Free if threshold met
+    : selectedShipping.base_price // Otherwise base price
+  : 0;
+```
+
+**Savings Calculation (Promotions + Shipping):**
+```typescript
+const promotionSavings = items.reduce((total, item) => {
+  if (item.original_price && item.original_price > item.price) {
+    return total + (item.original_price - item.price) * item.quantity;
+  }
+  return total;
+}, 0);
+
+const shippingSavings = selectedShipping?.free_shipping_threshold &&
+  totalPrice >= selectedShipping.free_shipping_threshold
+    ? selectedShipping.base_price
+    : 0;
+
+const totalSavings = promotionSavings + shippingSavings;
+```
+
+**Smart Address Auto-fill:**
+```typescript
+// Intelligent fallback priority
+const defaultShipping = 
+  data.find((addr) => addr.address_type === "shipping" && addr.is_default) ||
+  data.find((addr) => addr.address_type === "shipping") ||
+  data.find((addr) => addr.is_default) ||
+  data[0];
+
+// Only pre-fill billing if different from shipping
+if (defaultBilling && defaultBilling.id !== defaultShipping?.id) {
+  setFormData(prev => ({ ...prev, billingDifferent: true, ... }));
+}
+```
+
+**Address JSONB Structure:**
+```typescript
+const shippingAddress = {
+  first_name: formData.firstName,
+  last_name: formData.lastName,
+  street: formData.street,
+  house_number: formData.houseNumber,
+  address_line2: formData.addressLine2 || null,
+  postal_code: formData.postalCode,
+  city: formData.city,
+  country: formData.country,
+  phone: formData.phone || null,
+};
+```
+
+**Order Number Generation:**
+```typescript
+const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+// Example: ORD-1732800123456-X7K2PQW9A
+```
+
+---
+
+**Status:** ✅ Professional checkout with database-driven methods, auto-fill, and comprehensive savings tracking
+**Date:** November 28, 2025
+**Next Session:** Implement Stripe payment integration and email notifications

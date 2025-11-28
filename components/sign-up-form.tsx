@@ -397,23 +397,30 @@ export function SignUpForm({
                   </div>
                 </div>
 
-                <div className="grid gap-2">
-                  <label htmlFor="phone" className="text-sm font-medium">
-                    Telefon
-                  </label>
-                  <div className="flex gap-2">
-                    {/* Country Code Prefix - Editable Input */}
-                    <div className="w-24 shrink-0">
-                      <input
-                        id="country_code"
-                        type="text"
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        placeholder="+49"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-center font-medium ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      />
-                    </div>
-                    {/* Phone Number Input */}
+                <div className="grid grid-cols-3 gap-4">
+                  {/* Country Code Input */}
+                  <div className="grid gap-2">
+                    <label
+                      htmlFor="country_code"
+                      className="text-sm font-medium"
+                    >
+                      Vorwahl
+                    </label>
+                    <input
+                      id="country_code"
+                      type="text"
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      placeholder="+49"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-center font-medium ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    />
+                  </div>
+
+                  {/* Phone Number Input */}
+                  <div className="col-span-2 grid gap-2">
+                    <label htmlFor="phone" className="text-sm font-medium">
+                      Telefonnummer
+                    </label>
                     <input
                       id="phone"
                       type="tel"
@@ -423,11 +430,11 @@ export function SignUpForm({
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Vorwahl wird automatisch basierend auf dem ausgewählten Land
-                    vorgeschlagen, kann aber manuell angepasst werden
-                  </p>
                 </div>
+
+                <p className="text-xs text-muted-foreground -mt-2">
+                  Vorwahl wird automatisch basierend auf dem Land vorgeschlagen
+                </p>
               </div>
 
               {error && (
