@@ -93,11 +93,11 @@ export default function Footer() {
           >
             <h4 className="font-bold text-foreground mb-3">Alle Produkte</h4>
           </Link>
-          <ul className="space-y-1 text-sm">
+          <ul className="space-y-0 text-sm">
             <li>
               <button
                 onClick={() => setSpezialfutterOpen(!spezialfutterOpen)}
-                className="inline-flex items-center hover:text-primary transition-colors w-full text-left cursor-pointer"
+                className="inline-flex items-center hover:text-primary transition-colors cursor-pointer"
               >
                 <span>Spezialfutter</span>
                 <span className="text-lg ml-2">
@@ -148,7 +148,7 @@ export default function Footer() {
             <li>
               <button
                 onClick={() => setAlterOpen(!alterOpen)}
-                className="inline-flex items-center hover:text-primary transition-colors w-full text-left cursor-pointer"
+                className="inline-flex items-center hover:text-primary transition-colors cursor-pointer"
               >
                 <span>Alter</span>
                 <span className="text-lg ml-2">{alterOpen ? "−" : "+"}</span>
@@ -188,10 +188,12 @@ export default function Footer() {
             <li>
               <button
                 onClick={() => setFleischsortenOpen(!fleischsortenOpen)}
-                className="inline-flex items-center hover:text-primary transition-colors w-full text-left cursor-pointer"
+                className="inline-flex items-center hover:text-primary transition-colors cursor-pointer"
               >
                 <span>Fleischsorten</span>
-                <span className="text-lg ml-2">{fleischsortenOpen ? "−" : "+"}</span>
+                <span className="text-lg ml-2">
+                  {fleischsortenOpen ? "−" : "+"}
+                </span>
               </button>
               {fleischsortenOpen && (
                 <ul className="mt-2 ml-6 space-y-1">
