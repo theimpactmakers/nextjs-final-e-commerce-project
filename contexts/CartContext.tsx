@@ -8,6 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { CartItem, DbCartItem, CartContextType } from "@/types";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -30,6 +31,34 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === "undefined") return;
     localStorage.setItem("cart", JSON.stringify(cartItems));
   };
+
+  // Load promotion prices for local cart items
+  const loadLocalCartWithPromotions = useCallback(async (): Promise<
+    CartItem[]
+  > => {
+    const localCart = getLocalCart();
+
+    const updatedCartPromises = localCart.map(async (item) => {
+      // Calculate promotion discount
+      const promotionData = await calculatePromotionDiscount(
+        item.product_id,
+        item.variant_id,
+        item.original_price || item.price
+      );
+
+      if (promotionData) {
+        return {
+          ...item,
+          price: promotionData.discountedPrice,
+          original_price: promotionData.originalPrice,
+        };
+      }
+
+      return item;
+    });
+
+    return Promise.all(updatedCartPromises);
+  }, []);
 
   // Load cart from database
   const loadDatabaseCart = useCallback(
@@ -102,7 +131,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               images?.map((img) => [img.product_id, img.image_url]) || []
             );
 
-            const formattedItems: CartItem[] = (cartItems as DbCartItem[])
+            // Format items with promotion prices
+            const formattedItemsPromises = (cartItems as DbCartItem[])
               .filter((item) => {
                 // Handle both array and object responses from Supabase
                 const variant = Array.isArray(item.product_variants)
@@ -115,7 +145,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                   : null;
                 return variant && product;
               })
-              .map((item) => {
+              .map(async (item) => {
                 // Handle both array and object responses from Supabase
                 const variant = Array.isArray(item.product_variants)
                   ? item.product_variants[0]
@@ -124,22 +154,43 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                   ? variant.products[0]
                   : variant.products;
 
+                // Calculate promotion discount
+                const promotionData = await calculatePromotionDiscount(
+                  variant.product_id,
+                  variant.id,
+                  parseFloat(variant.price)
+                );
+
+                // Determine final price and original price
+                const basePrice = parseFloat(variant.price);
+                const comparePrice = variant.compare_at_price
+                  ? parseFloat(variant.compare_at_price)
+                  : null;
+
+                let finalPrice = basePrice;
+                let originalPrice = comparePrice || basePrice;
+
+                // If there's an active promotion, use promotion price
+                if (promotionData) {
+                  finalPrice = promotionData.discountedPrice;
+                  originalPrice = promotionData.originalPrice;
+                }
+
                 return {
                   id: item.id,
                   variant_id: item.variant_id,
                   product_id: variant.product_id,
                   product_name: product.name,
                   variant_name: variant.name,
-                  price: parseFloat(item.price_at_add),
-                  original_price: variant.compare_at_price
-                    ? parseFloat(variant.compare_at_price)
-                    : parseFloat(variant.price),
+                  price: finalPrice,
+                  original_price: originalPrice,
                   quantity: item.quantity,
                   image_url: imageMap.get(variant.product_id) || null,
                   stock_quantity: variant.stock_quantity,
                 };
               });
 
+            const formattedItems = await Promise.all(formattedItemsPromises);
             setItems(formattedItems);
           }
         }
@@ -166,15 +217,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         // Load from database for logged-in users
         await loadDatabaseCart(user.id);
       } else {
-        // Load from localStorage for guests
-        setItems(getLocalCart());
+        // Load from localStorage for guests with promotion prices
+        const cartWithPromotions = await loadLocalCartWithPromotions();
+        setItems(cartWithPromotions);
       }
 
       setIsLoading(false);
     };
 
     loadCart();
-  }, [loadDatabaseCart, supabase.auth]);
+  }, [loadDatabaseCart, loadLocalCartWithPromotions, supabase.auth]);
 
   // Refresh cart
   const refreshCart = async () => {
@@ -185,7 +237,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       await loadDatabaseCart(user.id);
     } else {
-      setItems(getLocalCart());
+      const cartWithPromotions = await loadLocalCartWithPromotions();
+      setItems(cartWithPromotions);
     }
   };
 
