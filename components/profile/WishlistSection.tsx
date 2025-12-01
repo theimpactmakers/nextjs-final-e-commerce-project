@@ -149,7 +149,7 @@ export function WishlistSection() {
         </p>
         <Link
           href="/shop"
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 hover:cursor-pointer"
         >
           Zum Shop
         </Link>
@@ -191,7 +191,7 @@ export function WishlistSection() {
                   e.stopPropagation();
                   handleRemove(product.id);
                 }}
-                className="absolute top-2 right-2 p-2 bg-white/90 hover:bg-white rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
+                className="absolute top-2 right-2 p-2 bg-white/90 hover:bg-white rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100 hover:cursor-pointer"
                 title="Von Wunschliste entfernen"
               >
                 <svg
@@ -232,7 +232,7 @@ export function WishlistSection() {
                   e.stopPropagation();
                   handleAddToCart(product);
                 }}
-                className="mt-3 w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 py-2"
+                className="mt-3 w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 py-2 hover:cursor-pointer"
               >
                 <svg
                   className="h-4 w-4"
@@ -269,7 +269,7 @@ export function WishlistSection() {
               <h2 className="text-xl font-semibold">Produktdetails</h2>
               <button
                 onClick={() => setSelectedProduct(null)}
-                className="p-2 hover:bg-muted rounded-full transition-colors"
+                className="p-2 hover:bg-muted rounded-full transition-colors hover:cursor-pointer"
               >
                 <svg
                   className="h-5 w-5"
@@ -354,7 +354,7 @@ export function WishlistSection() {
               <div className="flex gap-3 pt-4 border-t">
                 <button
                   onClick={() => handleAddToCart(selectedProduct)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                  className="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 hover:cursor-pointer"
                 >
                   <svg
                     className="h-4 w-4"
@@ -373,13 +373,13 @@ export function WishlistSection() {
                 </button>
                 <Link
                   href={`/products/${selectedProduct.slug}`}
-                  className="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                  className="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 hover:cursor-pointer"
                 >
                   Details ansehen
                 </Link>
                 <button
                   onClick={() => handleRemove(selectedProduct.id)}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-red-200 bg-background hover:bg-red-50 hover:text-red-700 h-10 px-4 py-2"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-red-200 bg-background hover:bg-red-50 hover:text-red-700 h-10 px-4 py-2 hover:cursor-pointer"
                   title="Von Wunschliste entfernen"
                 >
                   <svg

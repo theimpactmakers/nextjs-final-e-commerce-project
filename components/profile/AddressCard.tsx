@@ -63,20 +63,20 @@ export function AddressCard({
         {!address.is_default && (
           <button
             onClick={handleSetDefault}
-            className="text-sm text-primary hover:underline"
+            className="text-sm text-primary hover:underline hover:cursor-pointer"
           >
             Als Standard setzen
           </button>
         )}
         <button
           onClick={onEdit}
-          className="text-sm text-primary hover:underline ml-auto"
+          className="text-sm text-primary hover:underline ml-auto hover:cursor-pointer"
         >
           Bearbeiten
         </button>
         <button
           onClick={() => setShowDeleteConfirm(true)}
-          className="text-sm text-red-600 hover:underline"
+          className="text-sm text-red-600 hover:underline hover:cursor-pointer"
         >
           Löschen
         </button>
@@ -95,14 +95,14 @@ export function AddressCard({
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-red-600 text-white hover:bg-red-700 h-10 px-4 py-2 flex-1 disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-red-600 text-white hover:bg-red-700 h-10 px-4 py-2 flex-1 disabled:opacity-50 hover:cursor-pointer"
               >
                 {isDeleting ? "Wird gelöscht..." : "Löschen"}
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex-1 disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 flex-1 disabled:opacity-50 hover:cursor-pointer"
               >
                 Abbrechen
               </button>

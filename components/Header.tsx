@@ -620,14 +620,85 @@ export default function Header() {
               {profileDropdownOpen && (
                 <div className="absolute right-0 top-full mt-1 w-56 bg-white/98 backdrop-blur-sm border border-gray-200/30 rounded-md shadow-sm p-2 z-50">
                   {user && (
-                    <Link
-                      href="/userProfile"
-                      onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors"
-                    >
-                      <User className="w-4 h-4 text-accent" />
-                      <span>User Profile</span>
-                    </Link>
+                    <>
+                      <Link
+                        href="/userProfile?tab=profile"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors"
+                      >
+                        <User className="w-4 h-4 text-accent" />
+                        <span>Persönliche Daten</span>
+                      </Link>
+
+                      <Link
+                        href="/userProfile?tab=addresses"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors"
+                      >
+                        <svg
+                          className="w-4 h-4 text-accent"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                        <span>Adressen</span>
+                      </Link>
+
+                      <Link
+                        href="/userProfile?tab=wishlist"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors"
+                      >
+                        <svg
+                          className="w-4 h-4 text-accent"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                          />
+                        </svg>
+                        <span>Wunschliste</span>
+                      </Link>
+
+                      <Link
+                        href="/userProfile?tab=orders"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors"
+                      >
+                        <svg
+                          className="w-4 h-4 text-accent"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                          />
+                        </svg>
+                        <span>Bestellungen</span>
+                      </Link>
+                    </>
                   )}
 
                   <div className="border-t border-gray-300 my-3"></div>

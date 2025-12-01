@@ -503,7 +503,7 @@ export default function CheckoutPage() {
         <div className="container max-w-6xl px-4 mx-auto">
           <Link
             href="/cart"
-            className="inline-flex items-center text-primary-foreground hover:underline"
+            className="inline-flex items-center text-primary-foreground hover:underline hover:cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
             Zurück zum Warenkorb
@@ -539,7 +539,7 @@ export default function CheckoutPage() {
                 {currentStep !== "data" && isStepCompleted("data") && (
                   <button
                     onClick={() => setCurrentStep("data")}
-                    className="text-primary hover:underline flex items-center gap-1"
+                    className="text-primary hover:underline hover:cursor-pointer flex items-center gap-1"
                   >
                     <Edit2 className="w-4 h-4" />
                     Ändern
@@ -834,7 +834,7 @@ export default function CheckoutPage() {
                       }
                     }}
                     disabled={!canProceedFromData()}
-                    className="w-full bg-primary text-primary-foreground py-3 rounded-md font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-primary text-primary-foreground py-3 rounded-md font-semibold hover:bg-primary/90 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Weiter zur Lieferung
                   </button>
@@ -926,7 +926,7 @@ export default function CheckoutPage() {
                 {currentStep !== "delivery" && isStepCompleted("delivery") && (
                   <button
                     onClick={() => setCurrentStep("delivery")}
-                    className="text-primary hover:underline flex items-center gap-1"
+                    className="text-primary hover:underline hover:cursor-pointer flex items-center gap-1"
                   >
                     <Edit2 className="w-4 h-4" />
                     Ändern
@@ -992,7 +992,7 @@ export default function CheckoutPage() {
                       handleStepComplete("delivery");
                       setCurrentStep("payment");
                     }}
-                    className="w-full bg-primary text-primary-foreground py-3 rounded-md font-semibold hover:bg-primary/90"
+                    className="w-full bg-primary text-primary-foreground py-3 rounded-md font-semibold hover:bg-primary/90 hover:cursor-pointer"
                   >
                     Weiter zur Zahlung
                   </button>
@@ -1045,7 +1045,7 @@ export default function CheckoutPage() {
                 {currentStep !== "payment" && isStepCompleted("payment") && (
                   <button
                     onClick={() => setCurrentStep("payment")}
-                    className="text-primary hover:underline flex items-center gap-1"
+                    className="text-primary hover:underline hover:cursor-pointer flex items-center gap-1"
                   >
                     <Edit2 className="w-4 h-4" />
                     Ändern
@@ -1090,7 +1090,7 @@ export default function CheckoutPage() {
                       handleStepComplete("payment");
                       setCurrentStep("review");
                     }}
-                    className="w-full bg-primary text-primary-foreground py-3 rounded-md font-semibold hover:bg-primary/90"
+                    className="w-full bg-primary text-primary-foreground py-3 rounded-md font-semibold hover:bg-primary/90 hover:cursor-pointer"
                   >
                     Bestellung prüfen
                   </button>
@@ -1153,7 +1153,7 @@ export default function CheckoutPage() {
                         Mit Ihrer Bestellung erklären Sie sich mit unseren{" "}
                         <Link
                           href="/agb"
-                          className="text-primary hover:underline"
+                          className="text-primary hover:underline hover:cursor-pointer"
                           target="_blank"
                         >
                           Datenschutzbestimmungen
@@ -1161,7 +1161,7 @@ export default function CheckoutPage() {
                         und{" "}
                         <Link
                           href="/widerruf"
-                          className="text-primary hover:underline"
+                          className="text-primary hover:underline hover:cursor-pointer"
                           target="_blank"
                         >
                           Widerrufsbestimmungen
@@ -1183,7 +1183,7 @@ export default function CheckoutPage() {
                         Ich habe die{" "}
                         <Link
                           href="/agb"
-                          className="text-primary hover:underline"
+                          className="text-primary hover:underline hover:cursor-pointer"
                           target="_blank"
                         >
                           AGB
@@ -1200,7 +1200,7 @@ export default function CheckoutPage() {
                       !formData.acceptTerms ||
                       !formData.acceptPrivacy
                     }
-                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black py-4 rounded-md font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 hover:cursor-pointer text-black py-4 rounded-md font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {isProcessing
                       ? "Wird bearbeitet..."
@@ -1275,7 +1275,9 @@ export default function CheckoutPage() {
                 <div className="pt-3 border-t">
                   <div className="flex justify-between font-bold text-lg">
                     <span>GESAMTSUMME</span>
-                    <span>{totalAmount.toFixed(2)} €</span>
+                    <span className="text-green-600">
+                      {totalAmount.toFixed(2)} €
+                    </span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     (Inkl. MwSt.)
