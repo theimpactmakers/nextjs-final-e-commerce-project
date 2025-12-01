@@ -4,15 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Database } from "@/types/supabase";
-import {
-  Package,
-  Truck,
-  CheckCircle,
-  XCircle,
-  Clock,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import Link from "next/link";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
@@ -21,13 +13,19 @@ interface OrderWithItems extends Order {
   order_items: OrderItem[];
 }
 
+interface ProductSlug {
+  [productId: string]: string;
+}
+
 export function OrdersSection() {
   const { user } = useAuth();
   const supabase = createClient();
   const [orders, setOrders] = useState<OrderWithItems[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
-  const [filter, setFilter] = useState<"all" | "active" | "past">("all");
+  const [filter, setFilter] = useState<"all" | "months3" | "months6" | "year">(
+    "months3"
+  );
+  const [productSlugs, setProductSlugs] = useState<ProductSlug>({});
 
   useEffect(() => {
     if (user) {
@@ -43,17 +41,36 @@ export function OrdersSection() {
     try {
       const { data, error } = await supabase
         .from("orders")
-        .select(
-          `
-          *,
-          order_items (*)
-        `
-        )
+        .select(`*, order_items (*)`)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       setOrders((data as OrderWithItems[]) || []);
+
+      // Load product slugs
+      if (data && data.length > 0) {
+        const productIds = Array.from(
+          new Set(
+            data.flatMap((order) =>
+              order.order_items.map((item: OrderItem) => item.product_id)
+            )
+          )
+        );
+
+        const { data: products } = await supabase
+          .from("products")
+          .select("id, slug")
+          .in("id", productIds);
+
+        if (products) {
+          const slugMap: ProductSlug = {};
+          products.forEach((product) => {
+            slugMap[product.id] = product.slug;
+          });
+          setProductSlugs(slugMap);
+        }
+      }
     } catch (error) {
       console.error("Error loading orders:", error);
     } finally {
@@ -61,80 +78,56 @@ export function OrdersSection() {
     }
   };
 
-  const toggleOrderDetails = (orderId: string) => {
-    setExpandedOrders((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(orderId)) {
-        newSet.delete(orderId);
-      } else {
-        newSet.add(orderId);
-      }
-      return newSet;
-    });
-  };
-
-  const getStatusInfo = (status: string) => {
-    const isActive = ["pending", "confirmed", "shipped"].includes(status);
-
+  const getStatusText = (status: string) => {
     switch (status) {
       case "pending":
-        return {
-          label: "In Bearbeitung",
-          icon: Clock,
-          color: isActive ? "text-primary" : "text-gray-400",
-          bgColor: isActive ? "bg-muted" : "bg-gray-50",
-          borderColor: isActive ? "border-muted" : "border-gray-200",
-        };
+        return "In Bearbeitung";
       case "confirmed":
-        return {
-          label: "Bestätigt",
-          icon: CheckCircle,
-          color: isActive ? "text-primary" : "text-gray-400",
-          bgColor: isActive ? "bg-secondary" : "bg-gray-50",
-          borderColor: isActive ? "border-secondary" : "border-gray-200",
-        };
+        return "Bestätigt";
       case "shipped":
-        return {
-          label: "Versandt",
-          icon: Truck,
-          color: isActive ? "text-accent" : "text-gray-400",
-          bgColor: isActive ? "bg-accent/10" : "bg-gray-50",
-          borderColor: isActive ? "border-accent/30" : "border-gray-200",
-        };
+        return "Versandt";
       case "delivered":
-        return {
-          label: "Zugestellt",
-          icon: Package,
-          color: "text-gray-400",
-          bgColor: "bg-gray-50",
-          borderColor: "border-gray-200",
-        };
+        return "Zugestellt";
       case "cancelled":
-        return {
-          label: "Storniert",
-          icon: XCircle,
-          color: "text-gray-400",
-          bgColor: "bg-gray-50",
-          borderColor: "border-gray-200",
-        };
+        return "Storniert";
       default:
-        return {
-          label: status,
-          icon: Clock,
-          color: "text-gray-400",
-          bgColor: "bg-gray-50",
-          borderColor: "border-gray-200",
-        };
+        return status;
     }
   };
 
-  const isActiveOrder = (status: string) => {
-    return ["pending", "confirmed", "shipped"].includes(status);
+  const getDeliveryDate = (order: Order) => {
+    if (order.delivered_at) {
+      return new Date(order.delivered_at).toLocaleDateString("de-DE", {
+        day: "numeric",
+        month: "long",
+      });
+    }
+    if (order.shipped_at) {
+      const shippedDate = new Date(order.shipped_at);
+      shippedDate.setDate(shippedDate.getDate() + 3); // Add 3 days
+      return shippedDate.toLocaleDateString("de-DE", {
+        day: "numeric",
+        month: "long",
+      });
+    }
+    return null;
   };
 
   const filteredOrders = orders.filter((order) => {
-    if (filter === "active") return isActiveOrder(order.status);
-    if (filter === "past") return !isActiveOrder(order.status);
+    const orderDate = new Date(order.created_at!);
+    const now = new Date();
+    const monthsAgo = new Date();
+
+    if (filter === "months3") {
+      monthsAgo.setMonth(now.getMonth() - 3);
+      return orderDate >= monthsAgo;
+    } else if (filter === "months6") {
+      monthsAgo.setMonth(now.getMonth() - 6);
+      return orderDate >= monthsAgo;
+    } else if (filter === "year") {
+      monthsAgo.setFullYear(now.getFullYear() - 1);
+      return orderDate >= monthsAgo;
+    }
     return true;
   });
 
@@ -152,252 +145,184 @@ export function OrdersSection() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Filter Buttons */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => setFilter("all")}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            filter === "all"
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:bg-muted/80"
-          }`}
+    <div className="space-y-4">
+      {/* Filter Dropdown */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium">
+          {filteredOrders.length} Bestellung
+          {filteredOrders.length !== 1 ? "en" : ""} aufgegeben in
+        </span>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value as typeof filter)}
+          className="border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary hover:cursor-pointer"
         >
-          Alle ({orders.length})
-        </button>
-        <button
-          onClick={() => setFilter("active")}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            filter === "active"
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:bg-muted/80"
-          }`}
-        >
-          Aktiv ({orders.filter((o) => isActiveOrder(o.status)).length})
-        </button>
-        <button
-          onClick={() => setFilter("past")}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            filter === "past"
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:bg-muted/80"
-          }`}
-        >
-          Abgeschlossen ({orders.filter((o) => !isActiveOrder(o.status)).length}
-          )
-        </button>
+          <option value="months3">den letzten 3 Monaten</option>
+          <option value="months6">den letzten 6 Monaten</option>
+          <option value="year">dem letzten Jahr</option>
+          <option value="all">allen Jahren</option>
+        </select>
       </div>
 
       {/* Orders List */}
       {filteredOrders.length === 0 ? (
-        <div className="text-center py-12">
-          <Package className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+        <div className="text-center py-12 border rounded-lg bg-muted/20">
           <h3 className="text-lg font-semibold mb-2">
             Keine Bestellungen gefunden
           </h3>
           <p className="text-muted-foreground">
-            {filter === "active"
-              ? "Sie haben derzeit keine aktiven Bestellungen."
-              : filter === "past"
-              ? "Sie haben noch keine abgeschlossenen Bestellungen."
-              : "Sie haben noch keine Bestellungen aufgegeben."}
+            Sie haben in diesem Zeitraum keine Bestellungen aufgegeben.
           </p>
         </div>
       ) : (
         <div className="space-y-4">
           {filteredOrders.map((order) => {
-            const statusInfo = getStatusInfo(order.status);
-            const StatusIcon = statusInfo.icon;
-            const isExpanded = expandedOrders.has(order.id);
-            const isActive = isActiveOrder(order.status);
+            const deliveryDate = getDeliveryDate(order);
+            const orderDate = new Date(order.created_at!);
 
             return (
               <div
                 key={order.id}
-                className={`border-2 rounded-lg overflow-hidden transition-all ${
-                  statusInfo.borderColor
-                } ${isActive ? "shadow-md" : "shadow-sm"}`}
+                className="border rounded-lg bg-white overflow-hidden"
               >
-                {/* Order Header */}
-                <div
-                  className={`p-4 ${statusInfo.bgColor} cursor-pointer hover:opacity-90 transition-opacity`}
-                  onClick={() => toggleOrderDetails(order.id)}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <StatusIcon className={`w-5 h-5 ${statusInfo.color}`} />
-                        <span
-                          className={`font-semibold ${
-                            isActive ? "text-foreground" : "text-gray-500"
-                          }`}
-                        >
-                          {statusInfo.label}
-                        </span>
-                      </div>
-                      <div
-                        className={`text-sm ${
-                          isActive ? "text-muted-foreground" : "text-gray-400"
-                        }`}
-                      >
-                        Bestellnummer:{" "}
-                        <span className="font-mono">{order.order_number}</span>
-                      </div>
-                      <div
-                        className={`text-sm ${
-                          isActive ? "text-muted-foreground" : "text-gray-400"
-                        }`}
-                      >
-                        Bestellt am{" "}
-                        {new Date(order.created_at!).toLocaleDateString(
-                          "de-DE",
-                          {
-                            day: "2-digit",
-                            month: "long",
-                            year: "numeric",
-                          }
-                        )}
-                      </div>
+                {/* Order Header - Amazon Style */}
+                <div className="bg-muted/30 px-6 py-3 border-b grid grid-cols-4 gap-4">
+                  <div>
+                    <div className="text-xs text-muted-foreground uppercase">
+                      Bestellung aufgegeben
                     </div>
-                    <div className="text-right">
-                      <div
-                        className={`text-lg font-bold ${
-                          isActive ? "text-green-600" : "text-gray-500"
-                        }`}
-                      >
-                        {Number(order.total_amount).toFixed(2)} €
-                      </div>
-                      <div
-                        className={`text-sm ${
-                          isActive ? "text-muted-foreground" : "text-gray-400"
-                        }`}
-                      >
-                        {order.order_items.length} Artikel
-                      </div>
+                    <div className="text-sm font-medium">
+                      {orderDate.toLocaleDateString("de-DE", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      })}
                     </div>
                   </div>
-                  <div className="flex items-center justify-center mt-2">
-                    {isExpanded ? (
-                      <ChevronUp
-                        className={`w-5 h-5 ${
-                          isActive ? "text-muted-foreground" : "text-gray-400"
-                        }`}
-                      />
-                    ) : (
-                      <ChevronDown
-                        className={`w-5 h-5 ${
-                          isActive ? "text-muted-foreground" : "text-gray-400"
-                        }`}
-                      />
-                    )}
+                  <div>
+                    <div className="text-xs text-muted-foreground uppercase">
+                      Summe
+                    </div>
+                    <div className="text-sm font-medium">
+                      {Number(order.total_amount).toFixed(2)} €
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground uppercase">
+                      Versandadresse
+                    </div>
+                    <div className="text-sm font-medium">
+                      {typeof order.shipping_address === "object" &&
+                      order.shipping_address !== null
+                        ? (
+                            order.shipping_address as {
+                              first_name?: string;
+                              last_name?: string;
+                            }
+                          )?.first_name || "N/A"
+                        : "N/A"}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-muted-foreground uppercase">
+                      Bestellnr.
+                    </div>
+                    <div className="text-sm font-mono">
+                      {order.order_number}
+                    </div>
                   </div>
                 </div>
 
-                {/* Order Details (Expandable) */}
-                {isExpanded && (
-                  <div className="p-4 bg-card border-t">
-                    <div className="space-y-4">
-                      {/* Order Items */}
-                      <div>
-                        <h4 className="font-semibold mb-3">
-                          Bestellte Artikel:
-                        </h4>
-                        <div className="space-y-2">
-                          {order.order_items.map((item) => (
-                            <div
-                              key={item.id}
-                              className="flex justify-between items-start p-3 bg-muted/50 rounded-md"
-                            >
-                              <div>
-                                <p className="font-medium">
-                                  {item.product_name}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  {item.variant_name}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Menge: {item.quantity}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <p className="font-semibold">
-                                  {Number(item.total_price).toFixed(2)} €
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  {Number(item.unit_price).toFixed(2)} € / Stk.
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Order Summary */}
-                      <div className="border-t pt-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">
-                              Zwischensumme:
-                            </span>
-                            <span>{Number(order.subtotal).toFixed(2)} €</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">
-                              Versandkosten:
-                            </span>
-                            <span>
-                              {Number(order.shipping_cost) === 0
-                                ? "Kostenlos"
-                                : `${Number(order.shipping_cost).toFixed(2)} €`}
-                            </span>
-                          </div>
-                          {order.discount_amount &&
-                          Number(order.discount_amount) > 0 ? (
-                            <div className="flex justify-between text-sm text-green-600">
-                              <span>Rabatt:</span>
-                              <span>
-                                -{Number(order.discount_amount).toFixed(2)} €
-                              </span>
-                            </div>
-                          ) : null}
-                          <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                            <span>Gesamt:</span>
-                            <span className="text-green-600">
-                              {Number(order.total_amount).toFixed(2)} €
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Tracking Info */}
-                      {order.tracking_number && (
-                        <div className="border-t pt-4">
-                          <h4 className="font-semibold mb-2">
-                            Sendungsverfolgung:
-                          </h4>
-                          <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-                            <p className="text-sm">
-                              <span className="font-medium">
-                                Tracking-Nummer:
-                              </span>{" "}
-                              <span className="font-mono">
-                                {order.tracking_number}
-                              </span>
-                            </p>
-                            {order.carrier && (
-                              <p className="text-sm mt-1">
-                                <span className="font-medium">
-                                  Versanddienstleister:
-                                </span>{" "}
-                                {order.carrier}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                {/* Order Content */}
+                <div className="p-6">
+                  {/* Delivery Status */}
+                  <div className="mb-4">
+                    <h3 className="text-lg font-bold text-primary mb-1">
+                      {order.status === "delivered"
+                        ? `Zugestellt ${deliveryDate || ""}`
+                        : order.status === "shipped"
+                        ? `Versandt - Ankunft ${deliveryDate || ""}`
+                        : getStatusText(order.status)}
+                    </h3>
+                    {order.tracking_number && (
+                      <p className="text-sm text-muted-foreground">
+                        Sendungsnummer:{" "}
+                        <span className="font-mono text-foreground">
+                          {order.tracking_number}
+                        </span>
+                      </p>
+                    )}
                   </div>
-                )}
+
+                  {/* Order Items */}
+                  <div className="space-y-4">
+                    {order.order_items.map((item) => (
+                      <div key={item.id} className="flex gap-4">
+                        {/* Product Image Placeholder */}
+                        <div className="w-24 h-24 bg-muted/50 rounded flex items-center justify-center shrink-0">
+                          <svg
+                            className="w-12 h-12 text-muted-foreground/50"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.5}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                        </div>
+
+                        {/* Product Details */}
+                        <div className="flex-1">
+                          <h4 className="font-medium text-foreground mb-1">
+                            {item.product_name}
+                          </h4>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {item.variant_name}
+                          </p>
+                          <div className="flex gap-4 text-sm">
+                            <span className="text-muted-foreground">
+                              Menge:{" "}
+                              <span className="text-foreground">
+                                {item.quantity}
+                              </span>
+                            </span>
+                            <span className="text-muted-foreground">
+                              Preis:{" "}
+                              <span className="text-foreground">
+                                {Number(item.unit_price).toFixed(2)} €
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col gap-2">
+                          {item.product_id && productSlugs[item.product_id] ? (
+                            <Link
+                              href={`/products/${
+                                productSlugs[item.product_id]
+                              }`}
+                              className="px-4 py-2 bg-accent text-accent-foreground hover:bg-accent/90 rounded-md text-sm font-medium transition-colors text-center hover:cursor-pointer"
+                            >
+                              Artikel anzeigen
+                            </Link>
+                          ) : (
+                            <button
+                              disabled
+                              className="px-4 py-2 bg-muted text-muted-foreground rounded-md text-sm font-medium cursor-not-allowed"
+                            >
+                              Artikel anzeigen
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             );
           })}

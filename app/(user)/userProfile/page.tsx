@@ -66,7 +66,7 @@ function UserProfileContent() {
         <nav className="flex space-x-8" aria-label="Tabs">
           <button
             onClick={() => setActiveTab("profile")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
               activeTab === "profile"
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
@@ -76,7 +76,7 @@ function UserProfileContent() {
           </button>
           <button
             onClick={() => setActiveTab("addresses")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
               activeTab === "addresses"
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
@@ -86,7 +86,7 @@ function UserProfileContent() {
           </button>
           <button
             onClick={() => setActiveTab("wishlist")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
               activeTab === "wishlist"
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
@@ -96,7 +96,7 @@ function UserProfileContent() {
           </button>
           <button
             onClick={() => setActiveTab("orders")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
               activeTab === "orders"
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
