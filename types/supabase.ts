@@ -237,6 +237,26 @@ export type Database = {
           display_order?: number | null;
         };
       };
+      newsletter_subscriptions: {
+        Row: {
+          id: string;
+          email: string;
+          subscribed_at: string | null;
+          source: string | null;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          subscribed_at?: string | null;
+          source?: string | null;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          subscribed_at?: string | null;
+          source?: string | null;
+        };
+      };
     };
     Views: {
       products_with_primary_image: {
