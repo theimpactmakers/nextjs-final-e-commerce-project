@@ -6,13 +6,14 @@ import { useEffect, useState, Suspense } from "react";
 import { ProfileSection } from "@/components/profile/ProfileSection";
 import { AddressesSection } from "@/components/profile/AddressesSection";
 import { WishlistSection } from "@/components/profile/WishlistSection";
+import { OrdersSection } from "@/components/profile/OrdersSection";
 
 function UserProfileContent() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<
-    "profile" | "addresses" | "wishlist"
+    "profile" | "addresses" | "wishlist" | "orders"
   >("profile");
 
   // Read tab from URL parameter on mount
@@ -21,7 +22,8 @@ function UserProfileContent() {
     if (
       tabParam === "wishlist" ||
       tabParam === "addresses" ||
-      tabParam === "profile"
+      tabParam === "profile" ||
+      tabParam === "orders"
     ) {
       setActiveTab(tabParam);
     }
@@ -92,6 +94,16 @@ function UserProfileContent() {
           >
             Wunschliste
           </button>
+          <button
+            onClick={() => setActiveTab("orders")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === "orders"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+            }`}
+          >
+            Bestellungen
+          </button>
         </nav>
       </div>
 
@@ -100,6 +112,7 @@ function UserProfileContent() {
         {activeTab === "profile" && <ProfileSection />}
         {activeTab === "addresses" && <AddressesSection />}
         {activeTab === "wishlist" && <WishlistSection />}
+        {activeTab === "orders" && <OrdersSection />}
       </div>
     </div>
   );
