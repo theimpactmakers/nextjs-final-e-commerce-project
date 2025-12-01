@@ -106,7 +106,7 @@ export default function Header() {
         />
 
         {/* Hauptnavigation & Logo */}
-        <div className="relative z-10 w-full mx-auto px-2 sm:px-3 md:px-6 lg:px-8 max-w-full grid grid-cols-[minmax(44px,auto)_1fr_minmax(44px,auto)] items-center h-16 md:h-20">
+        <div className="relative z-10 w-full mx-auto px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 max-w-full grid grid-cols-[minmax(44px,auto)_1fr_minmax(44px,auto)] items-center h-16 md:h-18 lg:h-20">
           {/* Mobile: search icon on the left */}
           <button
             aria-label="Suche"
@@ -141,7 +141,7 @@ export default function Header() {
               width={120}
               height={48}
               priority
-              className={`block w-24 sm:w-24 md:w-24 lg:w-28 transition-all duration-150 ${
+              className={`block w-20 sm:w-22 md:w-24 lg:w-28 transition-all duration-150 ${
                 mobileOpen ? "w-12 sm:w-14" : ""
               }`}
               style={{
@@ -150,12 +150,12 @@ export default function Header() {
             />
           </Link>
           {/* 2. Hauptmenü Links (zentriert auf md+) */}
-          <nav className="hidden md:flex md:gap-1 lg:gap-2 text-sm font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
+          <nav className="hidden md:flex md:gap-0.5 lg:gap-1 xl:gap-2 text-xs md:text-sm font-medium justify-center col-start-2 whitespace-nowrap overflow-visible">
             {/* Home Link */}
             <div className="relative group inline-block">
               <Link
                 href="/"
-                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
+                className="relative inline-flex items-center h-9 px-1.5 md:px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 Home
                 <span
@@ -172,7 +172,7 @@ export default function Header() {
             <div className="relative group inline-block">
               <Link
                 href="/shop"
-                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
+                className="relative inline-flex items-center h-9 px-1.5 md:px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 Shop
                 <span
@@ -345,7 +345,7 @@ export default function Header() {
             <div className="relative group inline-block">
               <Link
                 href="/specials"
-                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
+                className="relative inline-flex items-center h-9 px-1.5 md:px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 Spezialfutter
                 <span
@@ -403,7 +403,7 @@ export default function Header() {
             <div className="relative group inline-block">
               <Link
                 href="/beratung"
-                className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
+                className="relative inline-flex items-center h-9 px-1.5 md:px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 Beratung
                 <span
@@ -450,10 +450,10 @@ export default function Header() {
             </div>
 
             <div className="relative group inline-block">
-              <button className="relative inline-flex items-center h-9 gap-2 transition-colors px-2 py-2 align-middle text-foreground hover:text-[hsl(33,100%,37%)]!">
+              <button className="relative inline-flex items-center h-9 gap-1 md:gap-2 transition-colors px-1.5 md:px-2 py-2 align-middle text-foreground hover:text-[hsl(33,100%,37%)]!">
                 <span>Mehr</span>
                 <svg
-                  className="w-3 h-3 transition-transform duration-150 group-hover:rotate-90 text-accent"
+                  className="w-2.5 h-2.5 md:w-3 md:h-3 transition-transform duration-150 group-hover:rotate-90 text-accent"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
