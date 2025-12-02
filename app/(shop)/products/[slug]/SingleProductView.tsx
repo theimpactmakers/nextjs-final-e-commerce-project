@@ -195,13 +195,13 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
   return (
     <div className="space-y-12">
       {/* Main Product Section */}
-      <div className="grid md:grid-cols-[2fr_0.8fr] gap-8 lg:gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_0.8fr] gap-6 lg:gap-12">
         {/* Left: Image Gallery */}
-        <div className="flex gap-4">
-          {/* Thumbnail Gallery - Left Side */}
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Thumbnail Gallery - Left Side (desktop/tablet) */}
           {sortedImages.length > 0 && (
-            <div className="flex flex-col gap-3 w-24 shrink-0">
-              {sortedImages.slice(0, 3).map((image, index) => (
+            <div className="hidden md:flex md:flex-col gap-3 w-20 md:w-24 shrink-0">
+              {sortedImages.slice(0, 4).map((image, index) => (
                 <button
                   key={image.id}
                   onClick={() => setCurrentImageIndex(index)}
@@ -223,8 +223,8 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
             </div>
           )}
 
-          {/* Main Image - Right Side */}
-          <div className="relative w-[600px] h-[600px] bg-muted rounded-lg overflow-hidden shrink-0">
+          {/* Main Image - Responsive */}
+          <div className="relative w-full md:w-[560px] lg:w-[600px] h-[340px] sm:h-[420px] md:h-[520px] lg:h-[600px] bg-muted rounded-lg overflow-hidden">
             <Image
               src={sortedImages[currentImageIndex].image_url}
               alt={
@@ -234,19 +234,44 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
               }
               fill
               className="object-cover"
-              sizes="600px"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 560px, 600px"
               priority
             />
 
             {/* Badges */}
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-col gap-2">
               {promotionData && (
-                <span className="bg-red-600 text-white px-3 py-1 rounded text-xs font-bold">
+                <span className="bg-red-600 text-white px-2.5 py-1 rounded text-[10px] sm:text-xs font-bold">
                   Sparpreis
                 </span>
               )}
             </div>
           </div>
+
+          {/* Thumbnail Gallery - Below Main Image (mobile) */}
+          {sortedImages.length > 0 && (
+            <div className="flex md:hidden gap-3 mt-1">
+              {sortedImages.slice(0, 4).map((image, index) => (
+                <button
+                  key={image.id}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                    currentImageIndex === index
+                      ? "border-accent ring-2 ring-accent/20"
+                      : "border-muted-foreground/30 hover:border-accent/50"
+                  }`}
+                >
+                  <Image
+                    src={image.image_url}
+                    alt={image.alt_text || `Thumbnail ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 64px, 80px"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right: Product Info */}
