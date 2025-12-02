@@ -136,9 +136,9 @@ export default function RelatedProducts({
             <Link
               key={relatedProduct.id}
               href={`/products/${relatedProduct.slug || relatedProduct.id}`}
-              className="group cursor-pointer"
+              className="group cursor-pointer h-full"
             >
-              <div className="bg-card border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+              <div className="bg-card border rounded-lg overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                 <div className="aspect-square bg-muted relative overflow-hidden">
                   {primaryImage ? (
                     <Image
@@ -154,7 +154,7 @@ export default function RelatedProducts({
                     </div>
                   )}
                 </div>
-                <div className="p-4">
+                <div className="p-4 flex flex-col gap-2 grow">
                   <h3 className="font-medium line-clamp-2 mb-2">
                     {relatedProduct.name}
                   </h3>

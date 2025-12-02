@@ -2,10 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import RelatedProducts from "@/components/RelatedProducts";
+import {
+  AddToCartButton,
+  BuyNowButton,
+  AddToWishlistButton,
+} from "@/components/Button";
 import type { Database } from "@/types";
 
 type Product = Database["public"]["Tables"]["products"]["Row"] & {
@@ -45,6 +51,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
 
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const router = useRouter();
 
   const inWishlist = isInWishlist(product.id);
 
@@ -153,16 +160,48 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
     }
   };
 
+  // Handle buy now - add to cart and redirect to checkout
+  const handleBuyNow = async () => {
+    if (
+      !selectedVariant.stock_quantity ||
+      selectedVariant.stock_quantity === 0
+    ) {
+      return;
+    }
+
+    setIsAddingToCart(true);
+    try {
+      await addToCart(
+        selectedVariant.id,
+        product.id,
+        product.name || "Product",
+        selectedVariant.name || "Default",
+        finalPrice,
+        sortedImages[0]?.image_url || null,
+        selectedVariant.stock_quantity || 0,
+        quantity
+      );
+
+      // Redirect to checkout
+      router.push("/checkout");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Fehler beim Hinzufügen zum Warenkorb");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   return (
     <div className="space-y-12">
       {/* Main Product Section */}
-      <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_0.8fr] gap-6 lg:gap-12">
         {/* Left: Image Gallery */}
-        <div className="flex gap-4">
-          {/* Thumbnail Gallery - Left Side */}
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Thumbnail Gallery - Left Side (desktop/tablet) */}
           {sortedImages.length > 0 && (
-            <div className="flex flex-col gap-3 w-20">
-              {sortedImages.slice(0, 3).map((image, index) => (
+            <div className="hidden md:flex md:flex-col gap-3 w-20 md:w-24 shrink-0">
+              {sortedImages.slice(0, 4).map((image, index) => (
                 <button
                   key={image.id}
                   onClick={() => setCurrentImageIndex(index)}
@@ -177,15 +216,15 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                     alt={image.alt_text || `Thumbnail ${index + 1}`}
                     fill
                     className="object-cover"
-                    sizes="80px"
+                    sizes="96px"
                   />
                 </button>
               ))}
             </div>
           )}
 
-          {/* Main Image - Right Side */}
-          <div className="flex-1 relative aspect-square bg-muted rounded-lg overflow-hidden">
+          {/* Main Image - Responsive */}
+          <div className="relative w-full md:w-[560px] lg:w-[600px] h-[340px] sm:h-[420px] md:h-[520px] lg:h-[600px] bg-muted rounded-lg overflow-hidden">
             <Image
               src={sortedImages[currentImageIndex].image_url}
               alt={
@@ -195,19 +234,44 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
               }
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 560px, 600px"
               priority
             />
 
             {/* Badges */}
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-col gap-2">
               {promotionData && (
-                <span className="bg-red-600 text-white px-3 py-1 rounded text-xs font-bold">
+                <span className="bg-red-600 text-white px-2.5 py-1 rounded text-[10px] sm:text-xs font-bold">
                   Sparpreis
                 </span>
               )}
             </div>
           </div>
+
+          {/* Thumbnail Gallery - Below Main Image (mobile) */}
+          {sortedImages.length > 0 && (
+            <div className="flex md:hidden gap-3 mt-1">
+              {sortedImages.slice(0, 4).map((image, index) => (
+                <button
+                  key={image.id}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                    currentImageIndex === index
+                      ? "border-accent ring-2 ring-accent/20"
+                      : "border-muted-foreground/30 hover:border-accent/50"
+                  }`}
+                >
+                  <Image
+                    src={image.image_url}
+                    alt={image.alt_text || `Thumbnail ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 64px, 80px"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right: Product Info */}
@@ -221,70 +285,126 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <svg
                     key={star}
-                    className="w-5 h-5 fill-current"
+                    className="w-4 h-4 fill-current"
                     viewBox="0 0 20 20"
                   >
                     <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                   </svg>
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">
-                4,2 (10) Produkt bewerten
-              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("reviews");
+                  setTimeout(() => {
+                    const el = document.getElementById("reviews-section");
+                    el?.scrollIntoView({ behavior: "smooth" });
+                  }, 0);
+                }}
+                className="text-xs text-muted-foreground underline hover:text-foreground cursor-pointer hover:no-underline"
+              >
+                4,2 (10) Produktbewertungen
+              </button>
             </div>
           </div>
 
           {/* Key Features */}
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
-              <span className="text-green-600">•</span>
+              <span className="text-muted-foreground">•</span>
               <span>Enthält die Muskelmasse</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-green-600">•</span>
+              <span className="text-muted-foreground">•</span>
               <span>Stärkt die natürlichen Abwehrkräfte</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-green-600">•</span>
+              <span className="text-muted-foreground">•</span>
               <span>Das ausgewogene Nährstoffprofil</span>
             </li>
           </ul>
 
+          {/* Small Links above first divider */}
+          <div className="mt-1 mb-8 text-xs text-primary flex items-center gap-2">
+            <button
+              className="underline underline-offset-4 hover:no-underline cursor-pointer"
+              onClick={() => {
+                const header = document.getElementById("product-tabs-header");
+                if (header) {
+                  const y =
+                    header.getBoundingClientRect().top + window.scrollY - 100;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
+                setTimeout(() => setActiveTab("ingredients"), 150);
+              }}
+            >
+              Inhaltsstoffe
+            </button>
+            <button
+              className="underline underline-offset-4 hover:no-underline cursor-pointer"
+              onClick={() => {
+                const header = document.getElementById("product-tabs-header");
+                if (header) {
+                  const y =
+                    header.getBoundingClientRect().top + window.scrollY - 100;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
+                setTimeout(() => setActiveTab("feeding"), 150);
+              }}
+            >
+              Fütterungsempfehlung
+            </button>
+            <button
+              className="underline underline-offset-4 hover:no-underline cursor-pointer"
+              onClick={() => {
+                const header = document.getElementById("product-tabs-header");
+                if (header) {
+                  const y =
+                    header.getBoundingClientRect().top + window.scrollY - 100;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
+                setTimeout(() => setActiveTab("description"), 150);
+              }}
+            >
+              Produktdetails
+            </button>
+          </div>
+
           {/* Size Selector */}
           <div>
-            <label className="block text-sm font-medium mb-3">
-              Größe:
-              {product.product_variants.length > 1 && (
-                <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-sm font-medium text-foreground">
+                Größe:{" "}
+                <span className="font-bold text-primary">
                   {selectedVariant.name}
                 </span>
-              )}
-            </label>
-            <div className="flex gap-3">
-              {product.product_variants.map((variant) => (
-                <button
-                  key={variant.id}
-                  onClick={() => setSelectedVariant(variant)}
-                  className={`px-4 py-2 rounded-lg border-2 font-medium transition-all cursor-pointer ${
-                    selectedVariant.id === variant.id
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                >
-                  {variant.name}
-                </button>
-              ))}
+              </span>
+              <div className="flex gap-3">
+                {product.product_variants.map((variant) => (
+                  <button
+                    key={variant.id}
+                    onClick={() => setSelectedVariant(variant)}
+                    className={`px-4 py-2 rounded-(--app-radius) border-2 font-medium transition-all cursor-pointer ${
+                      selectedVariant.id === variant.id
+                        ? "border-accent bg-accent/10 text-primary"
+                        : "border-muted-foreground/30 hover:border-accent/50 text-foreground"
+                    }`}
+                  >
+                    {variant.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Price */}
           <div className="border-t border-b py-4">
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-bold text-foreground">
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-foreground">
                 {finalPrice.toFixed(2)} €
               </span>
               {hasDiscount && (
-                <span className="text-xl text-muted-foreground line-through">
+                <span className="text-base text-muted-foreground line-through">
                   {originalPrice.toFixed(2)} €
                 </span>
               )}
@@ -295,15 +415,16 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           </div>
 
           {/* Quantity Selector */}
-          <div>
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-medium whitespace-nowrap">
+          <div className="flex justify-end my-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-bold whitespace-nowrap">
                 Anzahl:
               </label>
-              <div className="flex items-center border-2 border-muted-foreground/30 rounded-lg flex-1">
+              <div className="flex items-center border-2 border-muted-foreground/30 rounded-[0.3125rem] overflow-hidden w-28 sm:w-32">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-2 text-accent hover:text-foreground hover:bg-muted transition-colors cursor-pointer rounded-l-lg font-bold"
+                  className="w-10 h-10 grid place-items-center text-foreground bg-muted hover:bg-accent hover:text-white transition-colors cursor-pointer font-bold"
+                  aria-label="Menge verringern"
                 >
                   -
                 </button>
@@ -323,7 +444,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                       )
                     )
                   }
-                  className="flex-1 text-center border-x-2 border-muted-foreground/30 py-2 font-bold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-12 text-center border-x-2 border-muted-foreground/30 py-2 font-bold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <button
                   onClick={() =>
@@ -334,7 +455,8 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                       )
                     )
                   }
-                  className="px-4 py-2 text-accent hover:text-foreground hover:bg-muted transition-colors cursor-pointer rounded-r-lg font-bold"
+                  className="w-10 h-10 grid place-items-center text-foreground bg-muted hover:bg-accent hover:text-white transition-colors cursor-pointer font-bold"
+                  aria-label="Menge erhöhen"
                 >
                   +
                 </button>
@@ -342,69 +464,33 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
             </div>
           </div>
 
-          {/* Add to Cart Button */}
-          <button
-            onClick={handleAddToCart}
-            disabled={
-              !selectedVariant.stock_quantity ||
-              selectedVariant.stock_quantity === 0 ||
-              isAddingToCart
-            }
-            className="w-full bg-accent text-accent-foreground hover:bg-accent/90 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
-          >
-            {isAddingToCart ? (
-              <>
-                <svg
-                  className="w-5 h-5 animate-spin"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Wird hinzugefügt...
-              </>
-            ) : (
-              "Zum Warenkorb hinzufügen"
-            )}
-          </button>
+          {/* Actions */}
+          <div className="space-y-3">
+            {/* Add to Cart Button */}
+            <AddToCartButton
+              onClick={handleAddToCart}
+              isLoading={isAddingToCart}
+              disabled={
+                !selectedVariant.stock_quantity ||
+                selectedVariant.stock_quantity === 0 ||
+                isAddingToCart
+              }
+            />
 
-          {/* Wishlist Button */}
-          <button
-            onClick={toggleWishlist}
-            className="w-full border-2 border-border hover:border-primary py-3 rounded-lg font-medium transition-colors cursor-pointer flex items-center justify-center gap-2"
-          >
-            <svg
-              className={`w-5 h-5 transition-colors ${
-                inWishlist
-                  ? "fill-accent stroke-none"
-                  : "fill-none stroke-current"
-              }`}
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-            {inWishlist
-              ? "Von Wunschliste entfernen"
-              : "Zur Wunschliste hinzufügen"}
-          </button>
+            {/* Buy Now Button */}
+            <BuyNowButton
+              onClick={handleBuyNow}
+              isLoading={isAddingToCart}
+              disabled={
+                !selectedVariant.stock_quantity ||
+                selectedVariant.stock_quantity === 0 ||
+                isAddingToCart
+              }
+            />
+
+            {/* Wishlist Button */}
+            <AddToWishlistButton onClick={toggleWishlist} active={inWishlist} />
+          </div>
 
           {/* Shipping Info */}
           <div className="space-y-3 text-sm border-t pt-4">
@@ -475,12 +561,15 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
       </div>
 
       {/* Tabs Section */}
-      <div className="border rounded-lg overflow-hidden">
+      <div id="product-tabs" className="border rounded-lg overflow-hidden">
         {/* Tab Headers */}
-        <div className="flex border-b">
+        <div
+          id="product-tabs-header"
+          className="flex items-center gap-1 border-b"
+        >
           <button
             onClick={() => setActiveTab("description")}
-            className={`flex-1 px-6 py-4 font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-2 font-medium transition-colors cursor-pointer pr-3 mr-1 border-r border-muted-foreground/30 last:border-r-0 ${
               activeTab === "description"
                 ? "border-b-2 border-accent text-accent"
                 : "hover:bg-muted"
@@ -490,7 +579,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           </button>
           <button
             onClick={() => setActiveTab("ingredients")}
-            className={`flex-1 px-6 py-4 font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-2 font-medium transition-colors cursor-pointer pr-3 mr-1 border-r border-muted-foreground/30 last:border-r-0 ${
               activeTab === "ingredients"
                 ? "border-b-2 border-accent text-accent"
                 : "hover:bg-muted"
@@ -500,7 +589,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           </button>
           <button
             onClick={() => setActiveTab("feeding")}
-            className={`flex-1 px-6 py-4 font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-2 font-medium transition-colors cursor-pointer pr-3 mr-1 border-r border-muted-foreground/30 last:border-r-0 ${
               activeTab === "feeding"
                 ? "border-b-2 border-accent text-accent"
                 : "hover:bg-muted"
@@ -510,7 +599,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           </button>
           <button
             onClick={() => setActiveTab("reviews")}
-            className={`flex-1 px-6 py-4 font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-2 font-medium transition-colors cursor-pointer ${
               activeTab === "reviews"
                 ? "border-b-2 border-accent text-accent"
                 : "hover:bg-muted"
@@ -636,7 +725,10 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           )}
 
           {activeTab === "reviews" && (
-            <div className="text-center py-8 text-muted-foreground">
+            <div
+              id="reviews-section"
+              className="text-center py-8 text-muted-foreground"
+            >
               Noch keine Bewertungen vorhanden. Seien Sie der Erste, der dieses
               Produkt bewertet!
             </div>
