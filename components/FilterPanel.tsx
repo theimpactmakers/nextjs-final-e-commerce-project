@@ -16,7 +16,7 @@ interface FilterGroup {
 }
 
 interface FilterPanelProps {
-  currentAge?: 'junior' | 'adult' | 'senior';
+  currentAge?: 'junior' | 'adult' | 'senior' | 'promotions';
 }
 
 const MEAT_OPTIONS: FilterOption[] = [
@@ -44,7 +44,20 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Bestimme welche Filter angezeigt werden
-  const filterGroups: FilterGroup[] = currentAge
+  const filterGroups: FilterGroup[] = currentAge === 'promotions'
+    ? [
+        {
+          id: 'age',
+          label: 'Altersgruppe',
+          options: AGE_OPTIONS,
+        },
+        {
+          id: 'meat',
+          label: 'Fleischsorte',
+          options: MEAT_OPTIONS,
+        },
+      ]
+    : currentAge
     ? [
         {
           id: 'meat',
@@ -71,11 +84,11 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
     if (searchParams.get('meat')) {
       filters['meat'] = searchParams.get('meat')!.split(',').filter(Boolean);
     }
-    if (!currentAge && searchParams.get('age')) {
+    if (searchParams.get('age')) {
       filters['age'] = searchParams.get('age')!.split(',').filter(Boolean);
     }
     setSelectedFilters(filters);
-  }, [searchParams, currentAge]);
+  }, [searchParams]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -136,7 +149,17 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
   const applyFilters = (filters: Record<string, string[]>) => {
     const params = new URLSearchParams();
 
-    if (currentAge) {
+    if (currentAge === 'promotions') {
+      // On promotions page, navigate to promotions route with both filters
+      if (filters['age']?.length > 0) {
+        params.set('age', filters['age'].join(','));
+      }
+      if (filters['meat']?.length > 0) {
+        params.set('meat', filters['meat'].join(','));
+      }
+      const queryString = params.toString();
+      router.push(queryString ? `/promotions?${queryString}` : '/promotions', { scroll: false });
+    } else if (currentAge) {
       // On age-specific pages, navigate within that page
       if (filters['meat']?.length > 0) {
         params.set('meat', filters['meat'].join(','));
@@ -158,7 +181,9 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
 
   const resetFilters = () => {
     setSelectedFilters({});
-    if (currentAge) {
+    if (currentAge === 'promotions') {
+      router.push('/promotions', { scroll: false });
+    } else if (currentAge) {
       router.push(`/${currentAge}`, { scroll: false });
     } else {
       router.push('/shop', { scroll: false });
