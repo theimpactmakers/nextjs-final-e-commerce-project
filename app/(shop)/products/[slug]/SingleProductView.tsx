@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
@@ -45,6 +46,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
 
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const router = useRouter();
 
   const inWishlist = isInWishlist(product.id);
 
@@ -153,15 +155,47 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
     }
   };
 
+  // Handle buy now - add to cart and redirect to checkout
+  const handleBuyNow = async () => {
+    if (
+      !selectedVariant.stock_quantity ||
+      selectedVariant.stock_quantity === 0
+    ) {
+      return;
+    }
+
+    setIsAddingToCart(true);
+    try {
+      await addToCart(
+        selectedVariant.id,
+        product.id,
+        product.name || "Product",
+        selectedVariant.name || "Default",
+        finalPrice,
+        sortedImages[0]?.image_url || null,
+        selectedVariant.stock_quantity || 0,
+        quantity
+      );
+
+      // Redirect to checkout
+      router.push("/checkout");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Fehler beim Hinzufügen zum Warenkorb");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   return (
     <div className="space-y-12">
       {/* Main Product Section */}
-      <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+      <div className="grid md:grid-cols-[2fr_1fr] gap-8 lg:gap-12">
         {/* Left: Image Gallery */}
         <div className="flex gap-4">
           {/* Thumbnail Gallery - Left Side */}
           {sortedImages.length > 0 && (
-            <div className="flex flex-col gap-3 w-20">
+            <div className="flex flex-col gap-3 w-24 shrink-0">
               {sortedImages.slice(0, 3).map((image, index) => (
                 <button
                   key={image.id}
@@ -177,7 +211,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                     alt={image.alt_text || `Thumbnail ${index + 1}`}
                     fill
                     className="object-cover"
-                    sizes="80px"
+                    sizes="96px"
                   />
                 </button>
               ))}
@@ -185,7 +219,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           )}
 
           {/* Main Image - Right Side */}
-          <div className="flex-1 relative aspect-square bg-muted rounded-lg overflow-hidden">
+          <div className="relative w-[600px] h-[600px] bg-muted rounded-lg overflow-hidden shrink-0">
             <Image
               src={sortedImages[currentImageIndex].image_url}
               alt={
@@ -195,7 +229,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
               }
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
+              sizes="600px"
               priority
             />
 
@@ -252,13 +286,8 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
 
           {/* Size Selector */}
           <div>
-            <label className="block text-sm font-medium mb-3">
-              Größe:
-              {product.product_variants.length > 1 && (
-                <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                  {selectedVariant.name}
-                </span>
-              )}
+            <label className="block text-sm font-medium mb-3 text-foreground">
+              Größe: <span className="font-bold">{selectedVariant.name}</span>
             </label>
             <div className="flex gap-3">
               {product.product_variants.map((variant) => (
@@ -267,8 +296,8 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                   onClick={() => setSelectedVariant(variant)}
                   className={`px-4 py-2 rounded-lg border-2 font-medium transition-all cursor-pointer ${
                     selectedVariant.id === variant.id
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border hover:border-primary/50"
+                      ? "border-accent bg-accent/10 text-foreground"
+                      : "border-muted-foreground/30 hover:border-accent/50 text-foreground"
                   }`}
                 >
                   {variant.name}
@@ -280,11 +309,11 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           {/* Price */}
           <div className="border-t border-b py-4">
             <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-bold text-foreground">
+              <span className="text-3xl font-bold text-foreground">
                 {finalPrice.toFixed(2)} €
               </span>
               {hasDiscount && (
-                <span className="text-xl text-muted-foreground line-through">
+                <span className="text-lg text-muted-foreground line-through">
                   {originalPrice.toFixed(2)} €
                 </span>
               )}
@@ -350,7 +379,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
               selectedVariant.stock_quantity === 0 ||
               isAddingToCart
             }
-            className="w-full bg-accent text-accent-foreground hover:bg-accent/90 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+            className="w-full bg-background text-accent border-2 border-accent hover:bg-accent hover:text-white py-3 rounded-lg font-medium transition-all duration-350 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 group"
           >
             {isAddingToCart ? (
               <>
@@ -377,7 +406,78 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                 Wird hinzugefügt...
               </>
             ) : (
-              "Zum Warenkorb hinzufügen"
+              <>
+                <svg
+                  className="w-5 h-5 stroke-accent group-hover:stroke-white transition-all duration-350"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                Zum Warenkorb hinzufügen
+              </>
+            )}
+          </button>
+
+          {/* Buy Now Button */}
+          <button
+            onClick={handleBuyNow}
+            disabled={
+              !selectedVariant.stock_quantity ||
+              selectedVariant.stock_quantity === 0 ||
+              isAddingToCart
+            }
+            className="w-full bg-accent text-white border-2 border-accent hover:bg-background hover:text-accent py-3 rounded-lg font-medium transition-all duration-350 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 group"
+          >
+            {isAddingToCart ? (
+              <>
+                <svg
+                  className="w-5 h-5 animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Wird verarbeitet...
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-5 h-5 stroke-white group-hover:stroke-accent transition-all duration-350"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+                Sofort kaufen
+              </>
             )}
           </button>
 
