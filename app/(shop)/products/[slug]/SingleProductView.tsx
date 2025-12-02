@@ -7,6 +7,11 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import RelatedProducts from "@/components/RelatedProducts";
+import {
+  AddToCartButton,
+  BuyNowButton,
+  AddToWishlistButton,
+} from "@/components/Button";
 import type { Database } from "@/types";
 
 type Product = Database["public"]["Tables"]["products"]["Row"] & {
@@ -190,7 +195,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
   return (
     <div className="space-y-12">
       {/* Main Product Section */}
-      <div className="grid md:grid-cols-[2fr_1fr] gap-8 lg:gap-12">
+      <div className="grid md:grid-cols-[2fr_0.8fr] gap-8 lg:gap-12">
         {/* Left: Image Gallery */}
         <div className="flex gap-4">
           {/* Thumbnail Gallery - Left Side */}
@@ -255,65 +260,126 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <svg
                     key={star}
-                    className="w-5 h-5 fill-current"
+                    className="w-4 h-4 fill-current"
                     viewBox="0 0 20 20"
                   >
                     <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                   </svg>
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">
-                4,2 (10) Produkt bewerten
-              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("reviews");
+                  setTimeout(() => {
+                    const el = document.getElementById("reviews-section");
+                    el?.scrollIntoView({ behavior: "smooth" });
+                  }, 0);
+                }}
+                className="text-xs text-muted-foreground underline hover:text-foreground cursor-pointer hover:no-underline"
+              >
+                4,2 (10) Produktbewertungen
+              </button>
             </div>
           </div>
 
           {/* Key Features */}
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
-              <span className="text-green-600">•</span>
+              <span className="text-muted-foreground">•</span>
               <span>Enthält die Muskelmasse</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-green-600">•</span>
+              <span className="text-muted-foreground">•</span>
               <span>Stärkt die natürlichen Abwehrkräfte</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-green-600">•</span>
+              <span className="text-muted-foreground">•</span>
               <span>Das ausgewogene Nährstoffprofil</span>
             </li>
           </ul>
 
+          {/* Small Links above first divider */}
+          <div className="mt-1 mb-8 text-xs text-primary flex items-center gap-2">
+            <button
+              className="underline underline-offset-4 hover:no-underline cursor-pointer"
+              onClick={() => {
+                const header = document.getElementById("product-tabs-header");
+                if (header) {
+                  const y =
+                    header.getBoundingClientRect().top + window.scrollY - 100;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
+                setTimeout(() => setActiveTab("ingredients"), 150);
+              }}
+            >
+              Inhaltsstoffe
+            </button>
+            <button
+              className="underline underline-offset-4 hover:no-underline cursor-pointer"
+              onClick={() => {
+                const header = document.getElementById("product-tabs-header");
+                if (header) {
+                  const y =
+                    header.getBoundingClientRect().top + window.scrollY - 100;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
+                setTimeout(() => setActiveTab("feeding"), 150);
+              }}
+            >
+              Fütterungsempfehlung
+            </button>
+            <button
+              className="underline underline-offset-4 hover:no-underline cursor-pointer"
+              onClick={() => {
+                const header = document.getElementById("product-tabs-header");
+                if (header) {
+                  const y =
+                    header.getBoundingClientRect().top + window.scrollY - 100;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
+                setTimeout(() => setActiveTab("description"), 150);
+              }}
+            >
+              Produktdetails
+            </button>
+          </div>
+
           {/* Size Selector */}
           <div>
-            <label className="block text-sm font-medium mb-3 text-foreground">
-              Größe: <span className="font-bold">{selectedVariant.name}</span>
-            </label>
-            <div className="flex gap-3">
-              {product.product_variants.map((variant) => (
-                <button
-                  key={variant.id}
-                  onClick={() => setSelectedVariant(variant)}
-                  className={`px-4 py-2 rounded-lg border-2 font-medium transition-all cursor-pointer ${
-                    selectedVariant.id === variant.id
-                      ? "border-accent bg-accent/10 text-foreground"
-                      : "border-muted-foreground/30 hover:border-accent/50 text-foreground"
-                  }`}
-                >
-                  {variant.name}
-                </button>
-              ))}
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-sm font-medium text-foreground">
+                Größe:{" "}
+                <span className="font-bold text-primary">
+                  {selectedVariant.name}
+                </span>
+              </span>
+              <div className="flex gap-3">
+                {product.product_variants.map((variant) => (
+                  <button
+                    key={variant.id}
+                    onClick={() => setSelectedVariant(variant)}
+                    className={`px-4 py-2 rounded-(--app-radius) border-2 font-medium transition-all cursor-pointer ${
+                      selectedVariant.id === variant.id
+                        ? "border-accent bg-accent/10 text-primary"
+                        : "border-muted-foreground/30 hover:border-accent/50 text-foreground"
+                    }`}
+                  >
+                    {variant.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Price */}
           <div className="border-t border-b py-4">
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-foreground">
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-foreground">
                 {finalPrice.toFixed(2)} €
               </span>
               {hasDiscount && (
-                <span className="text-lg text-muted-foreground line-through">
+                <span className="text-base text-muted-foreground line-through">
                   {originalPrice.toFixed(2)} €
                 </span>
               )}
@@ -324,15 +390,16 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           </div>
 
           {/* Quantity Selector */}
-          <div>
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-medium whitespace-nowrap">
+          <div className="flex justify-end my-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-bold whitespace-nowrap">
                 Anzahl:
               </label>
-              <div className="flex items-center border-2 border-muted-foreground/30 rounded-lg flex-1">
+              <div className="flex items-center border-2 border-muted-foreground/30 rounded-[0.3125rem] overflow-hidden w-28 sm:w-32">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-2 text-accent hover:text-foreground hover:bg-muted transition-colors cursor-pointer rounded-l-lg font-bold"
+                  className="w-10 h-10 grid place-items-center text-foreground bg-muted hover:bg-accent hover:text-white transition-colors cursor-pointer font-bold"
+                  aria-label="Menge verringern"
                 >
                   -
                 </button>
@@ -352,7 +419,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                       )
                     )
                   }
-                  className="flex-1 text-center border-x-2 border-muted-foreground/30 py-2 font-bold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-12 text-center border-x-2 border-muted-foreground/30 py-2 font-bold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <button
                   onClick={() =>
@@ -363,7 +430,8 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                       )
                     )
                   }
-                  className="px-4 py-2 text-accent hover:text-foreground hover:bg-muted transition-colors cursor-pointer rounded-r-lg font-bold"
+                  className="w-10 h-10 grid place-items-center text-foreground bg-muted hover:bg-accent hover:text-white transition-colors cursor-pointer font-bold"
+                  aria-label="Menge erhöhen"
                 >
                   +
                 </button>
@@ -371,140 +439,33 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
             </div>
           </div>
 
-          {/* Add to Cart Button */}
-          <button
-            onClick={handleAddToCart}
-            disabled={
-              !selectedVariant.stock_quantity ||
-              selectedVariant.stock_quantity === 0 ||
-              isAddingToCart
-            }
-            className="w-full bg-background text-accent border-2 border-accent hover:bg-accent hover:text-white py-3 rounded-lg font-medium transition-all duration-350 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 group"
-          >
-            {isAddingToCart ? (
-              <>
-                <svg
-                  className="w-5 h-5 animate-spin"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Wird hinzugefügt...
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-5 h-5 stroke-accent group-hover:stroke-white transition-all duration-350"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-                Zum Warenkorb hinzufügen
-              </>
-            )}
-          </button>
+          {/* Actions */}
+          <div className="space-y-3">
+            {/* Add to Cart Button */}
+            <AddToCartButton
+              onClick={handleAddToCart}
+              isLoading={isAddingToCart}
+              disabled={
+                !selectedVariant.stock_quantity ||
+                selectedVariant.stock_quantity === 0 ||
+                isAddingToCart
+              }
+            />
 
-          {/* Buy Now Button */}
-          <button
-            onClick={handleBuyNow}
-            disabled={
-              !selectedVariant.stock_quantity ||
-              selectedVariant.stock_quantity === 0 ||
-              isAddingToCart
-            }
-            className="w-full bg-accent text-white border-2 border-accent hover:bg-background hover:text-accent py-3 rounded-lg font-medium transition-all duration-350 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 group"
-          >
-            {isAddingToCart ? (
-              <>
-                <svg
-                  className="w-5 h-5 animate-spin"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Wird verarbeitet...
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-5 h-5 stroke-white group-hover:stroke-accent transition-all duration-350"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-                Sofort kaufen
-              </>
-            )}
-          </button>
+            {/* Buy Now Button */}
+            <BuyNowButton
+              onClick={handleBuyNow}
+              isLoading={isAddingToCart}
+              disabled={
+                !selectedVariant.stock_quantity ||
+                selectedVariant.stock_quantity === 0 ||
+                isAddingToCart
+              }
+            />
 
-          {/* Wishlist Button */}
-          <button
-            onClick={toggleWishlist}
-            className="w-full border-2 border-border hover:border-primary py-3 rounded-lg font-medium transition-colors cursor-pointer flex items-center justify-center gap-2"
-          >
-            <svg
-              className={`w-5 h-5 transition-colors ${
-                inWishlist
-                  ? "fill-accent stroke-none"
-                  : "fill-none stroke-current"
-              }`}
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-            {inWishlist
-              ? "Von Wunschliste entfernen"
-              : "Zur Wunschliste hinzufügen"}
-          </button>
+            {/* Wishlist Button */}
+            <AddToWishlistButton onClick={toggleWishlist} active={inWishlist} />
+          </div>
 
           {/* Shipping Info */}
           <div className="space-y-3 text-sm border-t pt-4">
@@ -575,12 +536,15 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
       </div>
 
       {/* Tabs Section */}
-      <div className="border rounded-lg overflow-hidden">
+      <div id="product-tabs" className="border rounded-lg overflow-hidden">
         {/* Tab Headers */}
-        <div className="flex border-b">
+        <div
+          id="product-tabs-header"
+          className="flex items-center gap-1 border-b"
+        >
           <button
             onClick={() => setActiveTab("description")}
-            className={`flex-1 px-6 py-4 font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-2 font-medium transition-colors cursor-pointer pr-3 mr-1 border-r border-muted-foreground/30 last:border-r-0 ${
               activeTab === "description"
                 ? "border-b-2 border-accent text-accent"
                 : "hover:bg-muted"
@@ -590,7 +554,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           </button>
           <button
             onClick={() => setActiveTab("ingredients")}
-            className={`flex-1 px-6 py-4 font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-2 font-medium transition-colors cursor-pointer pr-3 mr-1 border-r border-muted-foreground/30 last:border-r-0 ${
               activeTab === "ingredients"
                 ? "border-b-2 border-accent text-accent"
                 : "hover:bg-muted"
@@ -600,7 +564,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           </button>
           <button
             onClick={() => setActiveTab("feeding")}
-            className={`flex-1 px-6 py-4 font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-2 font-medium transition-colors cursor-pointer pr-3 mr-1 border-r border-muted-foreground/30 last:border-r-0 ${
               activeTab === "feeding"
                 ? "border-b-2 border-accent text-accent"
                 : "hover:bg-muted"
@@ -610,7 +574,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           </button>
           <button
             onClick={() => setActiveTab("reviews")}
-            className={`flex-1 px-6 py-4 font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-2 font-medium transition-colors cursor-pointer ${
               activeTab === "reviews"
                 ? "border-b-2 border-accent text-accent"
                 : "hover:bg-muted"
@@ -736,7 +700,10 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           )}
 
           {activeTab === "reviews" && (
-            <div className="text-center py-8 text-muted-foreground">
+            <div
+              id="reviews-section"
+              className="text-center py-8 text-muted-foreground"
+            >
               Noch keine Bewertungen vorhanden. Seien Sie der Erste, der dieses
               Produkt bewertet!
             </div>
