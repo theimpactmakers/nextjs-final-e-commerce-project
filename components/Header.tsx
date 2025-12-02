@@ -9,11 +9,21 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, LogIn, LogOut } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
+import { createClient } from "@/lib/supabase/client";
+
+type Promotion = {
+  id: string;
+  name: string;
+  description: string | null;
+  discount_type: string;
+  discount_value: number;
+};
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [activePromotions, setActivePromotions] = useState<Promotion[]>([]);
   const { itemCount } = useCart();
   const { wishlistCount } = useWishlist();
   const { user, signOut } = useAuth();
@@ -73,6 +83,28 @@ export default function Header() {
       passive: true,
     });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Load active promotions
+  useEffect(() => {
+    const loadPromotions = async () => {
+      const supabase = createClient();
+      const now = new Date().toISOString();
+
+      const { data, error } = await supabase
+        .from("promotions")
+        .select("id, name, description, discount_type, discount_value")
+        .eq("is_active", true)
+        .lte("starts_at", now)
+        .gte("ends_at", now)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setActivePromotions(data);
+      }
+    };
+
+    loadPromotions();
   }, []);
 
   // lock body scroll when mobile menu is open
@@ -341,16 +373,13 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Angebote / Promotions Link */}
+            {/* Angebote / Promotions Link mit Dropdown */}
             <div className="relative group inline-block">
               <Link
                 href="/promotions"
                 className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
                 <span className="flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
                   Angebote
                 </span>
                 <span
@@ -361,6 +390,57 @@ export default function Header() {
                   }}
                 ></span>
               </Link>
+
+              <div
+                role="menu"
+                aria-label="Angebote Menü"
+                className="absolute left-0 top-full mt-0 w-64 transform transition-all duration-200 opacity-0 -translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto bg-white/98 backdrop-blur-sm text-foreground border border-gray-200/30 rounded-md shadow-sm p-3 z-50"
+              >
+                {/* Alle Angebote Link */}
+                <div className="mb-3">
+                  <Link
+                    href="/promotions"
+                    className="block rounded-md px-3 pt-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors text-sm font-medium"
+                  >
+                    Alle Angebote
+                  </Link>
+                </div>
+
+                {/* Trennlinie */}
+                {activePromotions.length > 0 && (
+                  <div className="border-t border-gray-300 mb-3"></div>
+                )}
+
+                {/* Aktive Promotions */}
+                {activePromotions.length > 0 && (
+                  <ul className="space-y-1 text-sm">
+                    {activePromotions.map((promo) => (
+                      <li key={promo.id}>
+                        <Link
+                          href={`/promotions?promo=${promo.id}`}
+                          className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{promo.name}</span>
+                            <span className="text-xs text-red-600 font-semibold ml-2">
+                              {promo.discount_type === "percentage"
+                                ? `-${Math.round(promo.discount_value)}%`
+                                : `-€${promo.discount_value.toFixed(2)}`}
+                            </span>
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {/* Fallback wenn keine Promotions aktiv */}
+                {activePromotions.length === 0 && (
+                  <p className="text-xs text-muted-foreground px-3 py-2">
+                    Derzeit keine aktiven Angebote
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Specials mit Dropdown */}
