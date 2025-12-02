@@ -713,10 +713,14 @@ export default function Header() {
             >
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer"
+                className="relative p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer"
                 aria-label="Benutzerprofil"
               >
                 <User className="w-5 h-5" />
+                {/* Grüner Online-Indikator wenn angemeldet */}
+                {user && (
+                  <span className="absolute top-0 right-0.5 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
+                )}
               </button>
 
               {profileDropdownOpen && (
@@ -1003,10 +1007,10 @@ export default function Header() {
                 </span>
               )}
             </Link>
-            {/* Login icon */}
+            {/* Login icon / User Profile icon (Mobile) */}
             <Link
-              href={loginUrl}
-              className="p-1 rounded hover:bg-accent/10 text-accent active:text-foreground transition-colors"
+              href={user ? "/userProfile" : loginUrl}
+              className="relative p-1 rounded hover:bg-accent/10 text-accent active:text-foreground transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -1022,7 +1026,11 @@ export default function Header() {
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
-              <span className="sr-only">Anmelden</span>
+              {/* Grüner Online-Indikator wenn angemeldet (Mobile) */}
+              {user && (
+                <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
+              )}
+              <span className="sr-only">{user ? "Benutzerprofil" : "Anmelden"}</span>
             </Link>
             {/* Hamburger menu */}
             <button
