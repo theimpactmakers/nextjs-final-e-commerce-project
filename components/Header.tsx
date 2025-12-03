@@ -718,7 +718,7 @@ export default function Header() {
               > 
 
                 {!user && (
-                  <User className="w-7 h-7 bold" />
+                  <User className="w-7 h-7 bold" strokeWidth={2}/>
                 )}
 
                 {/* Grüner Online-Indikator wenn angemeldet */}
@@ -913,7 +913,7 @@ export default function Header() {
             >
               <Heart
                 className="w-6 h-6 text-accent group-hover:text-red-500 transition-colors"
-                strokeWidth={2}
+                strokeWidth={2.3}
               />
               {wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1">
