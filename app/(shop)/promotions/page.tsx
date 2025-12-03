@@ -242,7 +242,7 @@ async function PromotionsContent({
           {/* Promotion Description Banner - Mittig und schön gestylt */}
           {promo && activePromotions.length > 0 && activePromotions[0].description && (
             <div className="my-8 flex justify-center">
-              <div className="max-w-3xl w-full bg-gradient-to-r from-red-50 via-orange-50 to-red-50 rounded-2xl shadow-lg border-2 border-red-200 p-6 md:p-8">
+              <div className="max-w-3xl w-full bg-linear-to-r from-red-50 via-orange-50 to-red-50 rounded-2xl shadow-lg border-2 border-red-200 p-6 md:p-8">
                 <div className="flex flex-col items-center text-center space-y-4">
                   <div className="flex items-center gap-2">
                     <svg className="w-8 h-8 text-red-600 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
@@ -282,7 +282,7 @@ async function PromotionsContent({
                   .map((promo) => (
                     <div
                       key={promo.id}
-                      className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 shadow-md border-2 border-orange-200 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+                      className="bg-linear-to-br from-amber-50 to-orange-50 rounded-xl p-5 shadow-md border-2 border-orange-200 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
                     >
                       <div className="flex flex-col space-y-3">
                         <div className="flex items-center gap-2">

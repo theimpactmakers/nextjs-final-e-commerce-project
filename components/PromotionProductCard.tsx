@@ -48,7 +48,7 @@ export default function PromotionProductCard({
       {/* Großer Promotion-Banner */}
       {promotion && (
         <div className="absolute top-0 right-0 z-20">
-          <div className="bg-gradient-to-br from-red-600 to-red-700 text-white px-4 py-2 rounded-bl-2xl shadow-lg">
+          <div className="bg-linear-to-br from-red-600 to-red-700 text-white px-4 py-2 rounded-bl-2xl shadow-lg">
             <div className="text-xs font-semibold uppercase tracking-wide">
               Angebot
             </div>
