@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, LogIn, LogOut } from "lucide-react";
+import { User, LogIn, LogOut, Heart, ShoppingCart } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
 import { createClient } from "@/lib/supabase/client";
 
@@ -715,12 +715,20 @@ export default function Header() {
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="relative p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer"
                 aria-label="Benutzerprofil"
-              >
-                <User className="w-5 h-5" />
+              > 
+
+                {!user && (
+                  <User className="w-7 h-7 bold" />
+                )}
+
                 {/* Grüner Online-Indikator wenn angemeldet */}
                 {user && (
-                  <span className="absolute top-0 right-0.5 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
-                )}
+                    <>
+                      <User className="w-7 h-7 bold text-green-600" />
+                      <span className="absolute top-0 right-0.5 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
+                    </>
+                  )
+                }
               </button>
 
               {profileDropdownOpen && (
@@ -903,20 +911,10 @@ export default function Header() {
               className="relative p-1 rounded hover:bg-accent/10 group"
               aria-label="Wunschliste"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-accent group-hover:text-red-500 transition-colors"
-              >
-                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
+              <Heart
+                className="w-6 h-6 text-accent group-hover:text-red-500 transition-colors"
+                strokeWidth={2}
+              />
               {wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1">
                   {wishlistCount}
@@ -929,22 +927,10 @@ export default function Header() {
               className="relative p-1 rounded hover:bg-accent/10 group"
               aria-label="Warenkorb"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-shopping-cart text-accent group-hover:text-primary transition-colors"
-              >
-                <circle cx="8" cy="21" r="1" />
-                <circle cx="19" cy="21" r="1" />
-                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
-              </svg>
+              <ShoppingCart
+                className="w-6 h-6 text-accent group-hover:text-primary transition-colors"
+                strokeWidth={2}
+              />
               {itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1">
                   {itemCount}
@@ -959,20 +945,10 @@ export default function Header() {
               className="relative p-1 rounded hover:bg-accent/10 group"
               aria-label="Wunschliste"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-accent group-active:text-red-500 transition-colors"
-              >
-                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
+              <Heart
+                className="w-5 h-5 text-accent group-active:text-red-500 transition-colors"
+                strokeWidth={2}
+              />
               {wishlistCount > 0 && (
                 <span className="absolute -top-1.5 -right-0.5 inline-flex items-center justify-center text-foreground text-[9px] rounded-full px-1 bg-transparent transition-colors">
                   ({wishlistCount})
@@ -985,22 +961,10 @@ export default function Header() {
               className="relative p-1 rounded hover:bg-accent/10 group"
               aria-label="Warenkorb"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-shopping-cart text-accent group-active:text-primary transition-colors"
-              >
-                <circle cx="8" cy="21" r="1" />
-                <circle cx="19" cy="21" r="1" />
-                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 6H6" />
-              </svg>
+              <ShoppingCart
+                className="w-5 h-5 text-accent group-active:text-primary transition-colors"
+                strokeWidth={2}
+              />
               {itemCount > 0 && (
                 <span className="absolute -top-1.5 -right-0.5 inline-flex items-center justify-center text-foreground text-[9px] rounded-full px-1 bg-transparent transition-colors">
                   ({itemCount})
