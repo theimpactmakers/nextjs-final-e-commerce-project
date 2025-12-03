@@ -7,6 +7,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^5.4.1",
     "@stripe/stripe-js": "^8.5.3",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",

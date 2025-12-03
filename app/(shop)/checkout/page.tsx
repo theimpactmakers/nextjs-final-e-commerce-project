@@ -8,6 +8,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, Check, Edit2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { Elements } from "@stripe/react-stripe-js";
+import { getStripe } from "@/lib/stripe/client";
+import StripePaymentForm from "@/components/StripePaymentForm";
 import type { Database } from "@/types/supabase";
 import type { CheckoutStep } from "@/types";
 
@@ -23,10 +26,14 @@ export default function CheckoutPage() {
   const supabase = createClient();
 
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("data");
-  const [isProcessing, setIsProcessing] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]); // Reserved for address selection UI
   const [loadingAddresses, setLoadingAddresses] = useState(false);
+
+  // Stripe state
+  const [clientSecret, setClientSecret] = useState<string>("");
+  const [paymentIntentId, setPaymentIntentId] = useState<string>("");
+  const stripePromise = getStripe();
 
   // Load shipping and payment methods from database
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
@@ -261,6 +268,14 @@ export default function CheckoutPage() {
     loadMethods();
   }, [supabase]);
 
+  // Create payment intent when entering review step
+  useEffect(() => {
+    if (currentStep === "review" && !clientSecret && items.length > 0) {
+      createPaymentIntent();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
+
   // Auto-update country code when country changes
   useEffect(() => {
     const getCountryCodeFromCountry = (country: string) => {
@@ -363,13 +378,75 @@ export default function CheckoutPage() {
     return basicDataValid;
   };
 
+  // Create Stripe Payment Intent
+  const createPaymentIntent = async () => {
+    try {
+      // Get the selected payment method's Stripe type
+      const selectedPaymentMethod = paymentMethods.find(
+        (m) => m.code === formData.paymentMethod // ✅ Use code, not id
+      );
+
+      console.log("=== Payment Intent Debug ===");
+      console.log("formData.paymentMethod:", formData.paymentMethod);
+      console.log("All payment methods:", paymentMethods);
+      console.log("Selected payment method:", selectedPaymentMethod);
+      console.log(
+        "Stripe payment method type:",
+        selectedPaymentMethod?.stripe_payment_method_type
+      );
+
+      const response = await fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: items,
+          shippingMethod: formData.shippingMethod,
+          paymentMethodType: selectedPaymentMethod?.stripe_payment_method_type,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle unsupported payment method
+        if (data.unsupportedMethod) {
+          alert(
+            data.error +
+              "\n\nHinweis: Klarna und Sofort müssen in den Stripe Dashboard-Einstellungen aktiviert werden."
+          );
+          // Go back to payment method selection
+          setCurrentStep("payment");
+          return;
+        }
+        throw new Error(data.error || "Failed to create payment intent");
+      }
+
+      console.log(
+        "Payment Intent created with method types:",
+        data.paymentMethodTypes
+      );
+      console.log(
+        "Selected payment method type:",
+        selectedPaymentMethod?.stripe_payment_method_type
+      );
+
+      setClientSecret(data.clientSecret);
+      setPaymentIntentId(data.paymentIntentId);
+    } catch (error) {
+      console.error("Error creating payment intent:", error);
+      alert(
+        "Fehler beim Erstellen der Zahlung. Bitte versuchen Sie es erneut."
+      );
+    }
+  };
+
   const handlePlaceOrder = async () => {
     if (!formData.acceptTerms || !formData.acceptPrivacy) {
       alert("Bitte akzeptieren Sie die AGB und Datenschutzbestimmungen");
       return;
     }
-
-    setIsProcessing(true);
 
     try {
       // Generate unique order number
@@ -430,7 +507,7 @@ export default function CheckoutPage() {
           guest_first_name: user?.id ? null : formData.firstName,
           guest_last_name: user?.id ? null : formData.lastName,
           status: "pending",
-          payment_status: "pending",
+          payment_status: "paid", // Changed to "paid" since payment was confirmed
           billing_address: billingAddress,
           shipping_address: shippingAddress,
           subtotal: subtotal,
@@ -439,7 +516,8 @@ export default function CheckoutPage() {
           discount_amount: 0,
           total_amount: totalAmount,
           shipping_method: formData.shippingMethod,
-          payment_method: formData.paymentMethod,
+          payment_method: "stripe_card", // Set to stripe payment method
+          payment_transaction_id: paymentIntentId, // Save Stripe Payment Intent ID
           customer_notes: formData.customerNotes || null,
         })
         .select()
@@ -475,8 +553,6 @@ export default function CheckoutPage() {
       alert(
         "Es gab einen Fehler beim Erstellen Ihrer Bestellung. Bitte versuchen Sie es erneut."
       );
-    } finally {
-      setIsProcessing(false);
     }
   };
 
@@ -956,6 +1032,16 @@ export default function CheckoutPage() {
                             onChange={handleInputChange}
                             className="w-4 h-4 text-primary"
                           />
+                          {method.icon_url && (
+                            <div className="shrink-0 w-16 h-12 relative bg-white rounded-lg border border-border p-2">
+                              <Image
+                                src={method.icon_url}
+                                alt={method.name}
+                                fill
+                                className="object-contain p-1"
+                              />
+                            </div>
+                          )}
                           <div>
                             <p className="font-semibold">{method.name}</p>
                             <p className="text-sm text-muted-foreground">
@@ -1044,7 +1130,12 @@ export default function CheckoutPage() {
                 </div>
                 {currentStep !== "payment" && isStepCompleted("payment") && (
                   <button
-                    onClick={() => setCurrentStep("payment")}
+                    onClick={() => {
+                      // Reset payment intent when editing payment method
+                      setClientSecret("");
+                      setPaymentIntentId("");
+                      setCurrentStep("payment");
+                    }}
                     className="text-primary hover:underline hover:cursor-pointer flex items-center gap-1"
                   >
                     <Edit2 className="w-4 h-4" />
@@ -1055,44 +1146,63 @@ export default function CheckoutPage() {
 
               {currentStep === "payment" ? (
                 <div className="p-6 space-y-4">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Wählen Sie Ihre bevorzugte Zahlungsmethode
+                  </p>
                   <div className="space-y-3">
-                    {paymentMethods.map((method) => (
-                      <label
-                        key={method.id}
-                        className={`flex items-start gap-4 p-4 border-2 rounded-lg cursor-pointer hover:border-primary transition-colors ${
-                          formData.paymentMethod === method.id
-                            ? "border-primary bg-primary/5"
-                            : "border-border"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value={method.id}
-                          checked={formData.paymentMethod === method.id}
-                          onChange={handleInputChange}
-                          className="w-4 h-4 text-primary mt-1"
-                        />
-                        <div className="flex-1">
-                          <p className="font-semibold">{method.name}</p>
-                          {method.description && (
-                            <p className="text-sm text-muted-foreground">
-                              {method.description}
-                            </p>
+                    {paymentMethods
+                      .filter((method) => method.provider === "stripe")
+                      .map((method) => (
+                        <label
+                          key={method.id}
+                          className={`flex items-start gap-4 p-4 border-2 rounded-lg cursor-pointer hover:border-primary transition-colors ${
+                            formData.paymentMethod === method.code
+                              ? "border-primary bg-primary/5"
+                              : "border-border"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            value={method.code}
+                            checked={formData.paymentMethod === method.code}
+                            onChange={handleInputChange}
+                            className="w-4 h-4 text-primary mt-1"
+                          />
+                          {method.icon_url && (
+                            <div className="shrink-0 w-12 h-8 relative">
+                              <Image
+                                src={method.icon_url}
+                                alt={method.name}
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
                           )}
-                        </div>
-                      </label>
-                    ))}
+                          <div className="flex-1">
+                            <p className="font-semibold">{method.name}</p>
+                            {method.description && (
+                              <p className="text-sm text-muted-foreground">
+                                {method.description}
+                              </p>
+                            )}
+                          </div>
+                        </label>
+                      ))}
                   </div>
 
                   <button
                     onClick={() => {
+                      if (!formData.paymentMethod) {
+                        alert("Bitte wählen Sie eine Zahlungsmethode");
+                        return;
+                      }
                       handleStepComplete("payment");
                       setCurrentStep("review");
                     }}
                     className="w-full bg-primary text-primary-foreground py-3 rounded-md font-semibold hover:bg-primary/90 hover:cursor-pointer"
                   >
-                    Bestellung prüfen
+                    Weiter zur Bestellübersicht
                   </button>
                 </div>
               ) : isStepCompleted("payment") ? (
@@ -1100,7 +1210,7 @@ export default function CheckoutPage() {
                   <p className="font-semibold">
                     {
                       paymentMethods.find(
-                        (m) => m.id === formData.paymentMethod
+                        (m) => m.code === formData.paymentMethod // ✅ Use code, not id
                       )?.name
                     }
                   </p>
@@ -1139,73 +1249,181 @@ export default function CheckoutPage() {
                     />
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="acceptTerms"
-                        checked={formData.acceptTerms}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 text-primary mt-1"
-                        required
-                      />
-                      <span className="text-sm">
-                        Mit Ihrer Bestellung erklären Sie sich mit unseren{" "}
-                        <Link
-                          href="/agb"
-                          className="text-primary hover:underline hover:cursor-pointer"
-                          target="_blank"
-                        >
-                          Datenschutzbestimmungen
-                        </Link>{" "}
-                        und{" "}
-                        <Link
-                          href="/widerruf"
-                          className="text-primary hover:underline hover:cursor-pointer"
-                          target="_blank"
-                        >
-                          Widerrufsbestimmungen
-                        </Link>{" "}
-                        einverstanden. *
-                      </span>
-                    </label>
+                  {/* Stripe Payment Form */}
+                  <div className="pt-4 border-t">
+                    <h3 className="font-semibold mb-4">Zahlung abschließen</h3>
 
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="acceptPrivacy"
-                        checked={formData.acceptPrivacy}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 text-primary mt-1"
-                        required
-                      />
-                      <span className="text-sm">
-                        Ich habe die{" "}
-                        <Link
-                          href="/agb"
-                          className="text-primary hover:underline hover:cursor-pointer"
-                          target="_blank"
+                    {/* Selected Payment Method Display */}
+                    <div className="mb-6 p-4 bg-muted/30 rounded-lg border-2 border-primary/20">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center p-2 border border-border">
+                          {paymentMethods.find(
+                            (m) => m.code === formData.paymentMethod
+                          )?.icon_url ? (
+                            <div className="w-full h-full relative">
+                              <Image
+                                src={
+                                  paymentMethods.find(
+                                    (m) => m.code === formData.paymentMethod
+                                  )?.icon_url || ""
+                                }
+                                alt={
+                                  paymentMethods.find(
+                                    (m) => m.code === formData.paymentMethod
+                                  )?.name || "Payment method"
+                                }
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                          ) : (
+                            <svg
+                              className="w-6 h-6 text-primary"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm text-muted-foreground">
+                            Ausgewählte Zahlungsmethode
+                          </p>
+                          <p className="font-semibold text-lg">
+                            {
+                              paymentMethods.find(
+                                (m) => m.code === formData.paymentMethod
+                              )?.name
+                            }
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            // Reset payment intent and go back to payment selection
+                            setClientSecret("");
+                            setPaymentIntentId("");
+                            setCurrentStep("payment");
+                          }}
+                          className="text-primary hover:underline text-sm font-medium"
                         >
-                          AGB
-                        </Link>{" "}
-                        gelesen und akzeptiert. *
-                      </span>
-                    </label>
+                          Ändern
+                        </button>
+                      </div>
+                    </div>
+
+                    {!clientSecret ? (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground mb-4">
+                          Bereite Zahlung vor...
+                        </p>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                      </div>
+                    ) : (
+                      <Elements
+                        stripe={stripePromise}
+                        options={{
+                          clientSecret,
+                          appearance: {
+                            theme: "stripe",
+                          },
+                          locale: "de",
+                        }}
+                      >
+                        <StripePaymentForm
+                          onSuccess={(paymentIntentId: string) => {
+                            // Save the payment intent ID and create order
+                            setPaymentIntentId(paymentIntentId);
+                            handlePlaceOrder();
+                          }}
+                          disabled={
+                            !formData.acceptTerms || !formData.acceptPrivacy
+                          }
+                          paymentMethodType={
+                            paymentMethods.find(
+                              (m) => m.code === formData.paymentMethod // ✅ Use code, not id
+                            )?.stripe_payment_method_type || undefined
+                          }
+                          amount={
+                            totalPrice +
+                            (shippingMethods.find(
+                              (m) => m.code === formData.shippingMethod
+                            )?.free_shipping_threshold &&
+                            totalPrice >=
+                              (shippingMethods.find(
+                                (m) => m.code === formData.shippingMethod
+                              )?.free_shipping_threshold || 0)
+                              ? 0
+                              : shippingMethods.find(
+                                  (m) => m.code === formData.shippingMethod
+                                )?.base_price || 0)
+                          }
+                          checkboxes={
+                            <>
+                              <label className="flex items-start gap-3 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  name="acceptTerms"
+                                  checked={formData.acceptTerms}
+                                  onChange={handleInputChange}
+                                  className="w-4 h-4 text-primary mt-1"
+                                  required
+                                />
+                                <span className="text-sm">
+                                  Mit Ihrer Bestellung erklären Sie sich mit
+                                  unseren{" "}
+                                  <Link
+                                    href="/agb"
+                                    className="text-primary hover:underline hover:cursor-pointer"
+                                    target="_blank"
+                                  >
+                                    Datenschutzbestimmungen
+                                  </Link>{" "}
+                                  und{" "}
+                                  <Link
+                                    href="/widerruf"
+                                    className="text-primary hover:underline hover:cursor-pointer"
+                                    target="_blank"
+                                  >
+                                    Widerrufsbestimmungen
+                                  </Link>{" "}
+                                  einverstanden. *
+                                </span>
+                              </label>
+
+                              <label className="flex items-start gap-3 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  name="acceptPrivacy"
+                                  checked={formData.acceptPrivacy}
+                                  onChange={handleInputChange}
+                                  className="w-4 h-4 text-primary mt-1"
+                                  required
+                                />
+                                <span className="text-sm">
+                                  Ich habe die{" "}
+                                  <Link
+                                    href="/agb"
+                                    className="text-primary hover:underline hover:cursor-pointer"
+                                    target="_blank"
+                                  >
+                                    AGB
+                                  </Link>{" "}
+                                  gelesen und akzeptiert. *
+                                </span>
+                              </label>
+                            </>
+                          }
+                        />
+                      </Elements>
+                    )}
                   </div>
-
-                  <button
-                    onClick={handlePlaceOrder}
-                    disabled={
-                      isProcessing ||
-                      !formData.acceptTerms ||
-                      !formData.acceptPrivacy
-                    }
-                    className="w-full bg-yellow-400 hover:bg-yellow-500 hover:cursor-pointer text-black py-4 rounded-md font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {isProcessing
-                      ? "Wird bearbeitet..."
-                      : "Kostenpflichtig bestellen →"}
-                  </button>
                 </div>
               )}
             </div>

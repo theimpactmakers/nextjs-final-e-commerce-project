@@ -23,10 +23,20 @@ export async function POST(request: NextRequest) {
 
     // Get request body
     const body = await request.json();
-    const { items, shippingMethod } = body as {
+    const { items, shippingMethod, paymentMethodType } = body as {
       items: CartItem[];
       shippingMethod: string;
+      paymentMethodType?: string;
     };
+
+    console.log("=== Payment Intent API Debug ===");
+    console.log("Received paymentMethodType:", paymentMethodType);
+    console.log("Type of paymentMethodType:", typeof paymentMethodType);
+    console.log("Full body:", {
+      items: items.length,
+      shippingMethod,
+      paymentMethodType,
+    });
 
     // Validate items exist
     if (!items || items.length === 0) {
@@ -65,26 +75,53 @@ export async function POST(request: NextRequest) {
     const totalAmount = subtotal + shippingCost;
     const amountInCents = Math.round(totalAmount * 100);
 
-    // Create Payment Intent
+    console.log("Creating PaymentIntent with method type:", paymentMethodType);
+
+    // Create Payment Intent with specific payment method type
+    // Default to 'card' if no method type specified
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: "eur",
-      automatic_payment_methods: {
-        enabled: true,
-      },
+      payment_method_types: [paymentMethodType || "card"],
       metadata: {
         subtotal: subtotal.toFixed(2),
         shipping_cost: shippingCost.toFixed(2),
         total: totalAmount.toFixed(2),
+        payment_method_type: paymentMethodType || "card",
       },
+    });
+
+    console.log("PaymentIntent created successfully:", {
+      id: paymentIntent.id,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      payment_method_types: paymentIntent.payment_method_types,
     });
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
+      paymentMethodTypes: paymentIntent.payment_method_types, // Send back what was actually created
     });
   } catch (error) {
     console.error("Error creating payment intent:", error);
+
+    // Check if error is due to unsupported payment method
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (
+      errorMessage.includes("payment_method_types") ||
+      errorMessage.includes("not activated")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Diese Zahlungsmethode ist derzeit nicht verfügbar. Bitte wählen Sie eine andere Zahlungsmethode.",
+          unsupportedMethod: true,
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Failed to create payment intent" },
       { status: 500 }
