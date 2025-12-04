@@ -120,346 +120,276 @@ export function SignUpForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <div className="bg-card text-card-foreground rounded-xl border shadow-xs">
-        <div className="flex flex-col space-y-1.5 p-6">
-          <h3 className="text-2xl font-semibold leading-none tracking-tight">
-            Registrierung
-          </h3>
-          <p className="text-sm text-muted-foreground">Erstelle dein Konto</p>
+      <div className="bg-white rounded-lg p-6 max-w-4xl mx-auto">
+        <div className="text-center mb-10">
+          
+          <div className="inline-block mb-4">
+            <div className="bg-linear-to-r from-primary to-accent text-primary-foreground w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mb-3">
+            Willkommen bei ELITE DOG TREATS
+          </h1>
+          <p className="text-gray-600 text-base max-w-2xl mx-auto">
+            Werden Sie Teil unserer Community und genießen Sie exklusive Vorteile für die beste Pflege Ihres Vierbeiners
+          </p>
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <div className="h-1 w-12 bg-linear-to-r from-primary to-accent rounded-full"></div>
+
+          </div>
+          
+          <div className="mt-6">
+            <Link
+              href="/auth/login"
+              className="text-sm text-gray-600 hover:text-gray-900 underline underline-offset-2"
+            >
+              Bereits ein Konto? Jetzt anmelden
+            </Link>
+          </div>
         </div>
-        <div className="p-6 pt-0">
-          <form onSubmit={handleSignUp}>
-            <div className="flex flex-col gap-6">
-              {/* Account Information */}
-              <div className="space-y-4">
-                <h4 className="font-semibold text-sm">Account-Daten</h4>
+        
+        <form onSubmit={handleSignUp}>
+          <div className="space-y-4">
+            {/* Account Information */}
+            <div className="space-y-4">
+              <input
+                id="email"
+                type="email"
+                placeholder="E-Mail-Adresse*"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
+              />
 
-                <div className="grid gap-2">
-                  <label htmlFor="email" className="text-sm font-medium">
-                    E-Mail <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="max@beispiel.de"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
+              <input
+                id="password"
+                type="password"
+                placeholder="Passwort*"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
+              />
 
-                <div className="grid gap-2">
-                  <label htmlFor="password" className="text-sm font-medium">
-                    Passwort <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    placeholder="Mindestens 6 Zeichen"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
+              <input
+                id="repeatPassword"
+                type="password"
+                placeholder="Passwort wiederholen*"
+                required
+                value={repeatPassword}
+                onChange={(e) => setRepeatPassword(e.target.value)}
+                className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
+              />
+            </div>
 
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="repeat-password"
-                    className="text-sm font-medium"
-                  >
-                    Passwort wiederholen{" "}
-                    <span className="text-destructive">*</span>
-                  </label>
+            {/* Gender Selection with Radio Buttons */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                * Pflichtfelder
+              </label>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
-                    id="repeat-password"
-                    type="password"
-                    placeholder="Passwort bestätigen"
-                    required
-                    value={repeatPassword}
-                    onChange={(e) => setRepeatPassword(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    type="radio"
+                    name="gender"
+                    value="F"
+                    checked={gender === "F"}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                   />
-                </div>
+                  <span className="text-sm text-gray-700">Frau</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="M"
+                    checked={gender === "M"}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+                  />
+                  <span className="text-sm text-gray-700">Herr</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="D"
+                    checked={gender === "D"}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+                  />
+                  <span className="text-sm text-gray-700">Divers</span>
+                </label>
               </div>
+            </div>
 
-              {/* Personal Information */}
-              <div className="space-y-4 pt-4 border-t">
-                <h4 className="font-semibold text-sm">Persönliche Daten</h4>
+            {/* Personal Information */}
+            <div className="space-y-4">
+              <input
+                id="first-name"
+                type="text"
+                placeholder="Vorname*"
+                required
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
+              />
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <label htmlFor="first-name" className="text-sm font-medium">
-                      Vorname <span className="text-destructive">*</span>
-                    </label>
-                    <input
-                      id="first-name"
-                      type="text"
-                      placeholder="Max"
-                      required
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                  </div>
+              <input
+                id="lastName"
+                type="text"
+                placeholder="Nachname*"
+                required
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
+              />
+            </div>
 
-                  <div className="grid gap-2">
-                    <label htmlFor="last-name" className="text-sm font-medium">
-                      Nachname <span className="text-destructive">*</span>
-                    </label>
-                    <input
-                      id="last-name"
-                      type="text"
-                      placeholder="Mustermann"
-                      required
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                  </div>
-                </div>
+            {/* Company Field (Optional) */}
+            <div>
+              <input
+                id="company"
+                type="text"
+                placeholder="Firma"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
+              />
+            </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <label htmlFor="gender" className="text-sm font-medium">
-                      Geschlecht
-                    </label>
-                    <select
-                      id="gender"
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <option value="">Bitte wählen</option>
-                      <option value="M">Männlich</option>
-                      <option value="F">Weiblich</option>
-                      <option value="D">Divers</option>
-                    </select>
-                  </div>
+            {/* Address Information */}
+            <div className="space-y-4">
+              <input
+                id="street-house"
+                type="text"
+                placeholder="Straße und Hausnummer*"
+                required
+                value={`${street}${houseNumber ? " " + houseNumber : ""}`}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const parts = value.split(" ");
+                  const lastPart = parts[parts.length - 1];
+                  if (/^\d/.test(lastPart)) {
+                    setHouseNumber(lastPart);
+                    setStreet(parts.slice(0, -1).join(" "));
+                  } else {
+                    setStreet(value);
+                    setHouseNumber("");
+                  }
+                }}
+                className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
+              />
 
-                  <div className="grid gap-2">
-                    <label
-                      htmlFor="date-of-birth"
-                      className="text-sm font-medium"
-                    >
-                      Geburtsdatum
-                    </label>
-                    <input
-                      id="date-of-birth"
-                      type="date"
-                      value={dateOfBirth}
-                      onChange={(e) => setDateOfBirth(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                  </div>
-                </div>
-              </div>
+              <input
+                id="address-line2"
+                type="text"
+                placeholder="Adresszusatz"
+                value={addressLine2}
+                onChange={(e) => setAddressLine2(e.target.value)}
+                className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
+              />
 
-              {/* Address Information (Required) */}
-              <div className="space-y-4 pt-4 border-t">
-                <h4 className="font-semibold text-sm">Adresse</h4>
-                <p className="text-xs text-muted-foreground">
-                  Bitte gib deine vollständige Adresse an
-                </p>
+              <div className="grid grid-cols-3 gap-3">
+                <input
+                  id="postal-code"
+                  type="text"
+                  placeholder="PLZ*"
+                  required
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
+                  className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
+                />
+              
 
-                <div className="grid gap-2">
-                  <label htmlFor="company" className="text-sm font-medium">
-                    Firma
-                  </label>
+                <div className="col-span-2">
                   <input
-                    id="company"
+                    id="city"
                     type="text"
-                    placeholder="Firma (optional)"
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="Ort*"
+                    required
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
                   />
                 </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-2 grid gap-2">
-                    <label htmlFor="street" className="text-sm font-medium">
-                      Straße <span className="text-destructive">*</span>
-                    </label>
-                    <input
-                      id="street"
-                      type="text"
-                      placeholder="Musterstraße"
-                      required
-                      value={street}
-                      onChange={(e) => setStreet(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <label
-                      htmlFor="house-number"
-                      className="text-sm font-medium"
-                    >
-                      Nr. <span className="text-destructive">*</span>
-                    </label>
-                    <input
-                      id="house-number"
-                      type="text"
-                      placeholder="123"
-                      required
-                      value={houseNumber}
-                      onChange={(e) => setHouseNumber(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="address-line2"
-                    className="text-sm font-medium"
-                  >
-                    Adresszusatz
-                  </label>
-                  <input
-                    id="address-line2"
-                    type="text"
-                    placeholder="Wohnung, Etage, etc. (optional)"
-                    value={addressLine2}
-                    onChange={(e) => setAddressLine2(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="grid gap-2">
-                    <label
-                      htmlFor="postal-code"
-                      className="text-sm font-medium"
-                    >
-                      PLZ <span className="text-destructive">*</span>
-                    </label>
-                    <input
-                      id="postal-code"
-                      type="text"
-                      placeholder="12345"
-                      required
-                      value={postalCode}
-                      onChange={(e) => setPostalCode(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                  </div>
-
-                  <div className="col-span-2 grid gap-2">
-                    <label htmlFor="city" className="text-sm font-medium">
-                      Stadt <span className="text-destructive">*</span>
-                    </label>
-                    <input
-                      id="city"
-                      type="text"
-                      placeholder="Musterstadt"
-                      required
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <label htmlFor="state" className="text-sm font-medium">
-                      Bundesland
-                    </label>
-                    <input
-                      id="state"
-                      type="text"
-                      placeholder="Bayern (optional)"
-                      value={state}
-                      onChange={(e) => setState(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <label htmlFor="country" className="text-sm font-medium">
-                      Land <span className="text-destructive">*</span>
-                    </label>
-                    <select
-                      id="country"
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      required
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <option value="DE">Deutschland</option>
-                      <option value="AT">Österreich</option>
-                      <option value="CH">Schweiz</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  {/* Country Code Input */}
-                  <div className="grid gap-2">
-                    <label
-                      htmlFor="country_code"
-                      className="text-sm font-medium"
-                    >
-                      Vorwahl
-                    </label>
-                    <input
-                      id="country_code"
-                      type="text"
-                      value={countryCode}
-                      onChange={(e) => setCountryCode(e.target.value)}
-                      placeholder="+49"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-center font-medium ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    />
-                  </div>
-
-                  {/* Phone Number Input */}
-                  <div className="col-span-2 grid gap-2">
-                    <label htmlFor="phone" className="text-sm font-medium">
-                      Telefonnummer
-                    </label>
-                    <input
-                      id="phone"
-                      type="tel"
-                      placeholder="123 456789"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                  </div>
-                </div>
-
-                <p className="text-xs text-muted-foreground -mt-2">
-                  Vorwahl wird automatisch basierend auf dem Land vorgeschlagen
-                </p>
               </div>
 
-              {error && (
-                <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20">
-                  <p className="text-sm text-destructive">{error}</p>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
-                disabled={isLoading}
+              <select
+                id="country"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                required
+                className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 text-gray-700 appearance-none cursor-pointer"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 1rem center",
+                }}
               >
-                {isLoading ? "Konto wird erstellt..." : "Jetzt registrieren"}
-              </button>
+                <option value="">Land*</option>
+                <option value="DE">Deutschland</option>
+                <option value="AT">Österreich</option>
+                <option value="CH">Schweiz</option>
+              </select>
+
+              <input
+                id="dateOfBirth"
+                type="date"
+                placeholder="Geburtsdatum"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400 text-gray-700"
+              />
+
+              <div className="grid grid-cols-3 gap-3">
+                <input
+                  id="countryCode"
+                  type="text"
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  placeholder="Vorwahl"
+                  className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400 text-center"
+                />
+
+                <div className="col-span-2">
+                  <input
+                    id="phone"
+                    type="tel"
+                    placeholder="Telefonnummer"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full h-12 px-4 text-sm bg-slate-100 border-0 rounded-full focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="mt-4 text-center text-sm">
-              Bereits ein Konto?{" "}
-              <Link href="/auth/login" className="underline underline-offset-4">
-                Anmelden
-              </Link>
+            {error && (
+              <div className="p-4 rounded bg-red-50 border border-red-200">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
+            >
+              {isLoading ? "Wird registriert..." : "JETZT REGISTRIEREN"}
+            </button>
+
+            {/* Login Link */}
+            <div className="text-center">
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );
