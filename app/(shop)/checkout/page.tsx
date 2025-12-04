@@ -32,7 +32,9 @@ export default function CheckoutPage() {
 
   // Stripe state
   const [clientSecret, setClientSecret] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [paymentIntentId, setPaymentIntentId] = useState<string>("");
+  const [orderNumber, setOrderNumber] = useState<string>(""); // Store order number for redirect
   const stripePromise = getStripe();
 
   // Load shipping and payment methods from database
@@ -378,21 +380,12 @@ export default function CheckoutPage() {
     return basicDataValid;
   };
 
-  // Create Stripe Payment Intent
+  // Create Stripe Payment Intent AND create the order
   const createPaymentIntent = async () => {
     try {
       // Get the selected payment method's Stripe type
       const selectedPaymentMethod = paymentMethods.find(
-        (m) => m.code === formData.paymentMethod // ✅ Use code, not id
-      );
-
-      console.log("=== Payment Intent Debug ===");
-      console.log("formData.paymentMethod:", formData.paymentMethod);
-      console.log("All payment methods:", paymentMethods);
-      console.log("Selected payment method:", selectedPaymentMethod);
-      console.log(
-        "Stripe payment method type:",
-        selectedPaymentMethod?.stripe_payment_method_type
+        (m) => m.code === formData.paymentMethod
       );
 
       const response = await fetch("/api/create-payment-intent", {
@@ -423,17 +416,22 @@ export default function CheckoutPage() {
         throw new Error(data.error || "Failed to create payment intent");
       }
 
-      console.log(
-        "Payment Intent created with method types:",
-        data.paymentMethodTypes
-      );
-      console.log(
-        "Selected payment method type:",
-        selectedPaymentMethod?.stripe_payment_method_type
-      );
-
       setClientSecret(data.clientSecret);
       setPaymentIntentId(data.paymentIntentId);
+
+      // Create the order in database with the payment intent ID
+      // This way, when the webhook fires, the order will already exist
+      try {
+        const createdOrderNumber = await createOrderInDatabase(
+          data.paymentIntentId
+        );
+        if (createdOrderNumber) {
+          setOrderNumber(createdOrderNumber);
+        }
+      } catch (orderError) {
+        console.error("Error creating order:", orderError);
+        throw orderError;
+      }
     } catch (error) {
       console.error("Error creating payment intent:", error);
       alert(
@@ -442,12 +440,8 @@ export default function CheckoutPage() {
     }
   };
 
-  const handlePlaceOrder = async () => {
-    if (!formData.acceptTerms || !formData.acceptPrivacy) {
-      alert("Bitte akzeptieren Sie die AGB und Datenschutzbestimmungen");
-      return;
-    }
-
+  // Create order in database with payment intent ID
+  const createOrderInDatabase = async (paymentIntentId: string) => {
     try {
       // Generate unique order number
       const orderNumber = `ORD-${Date.now()}-${Math.random()
@@ -497,37 +491,8 @@ export default function CheckoutPage() {
       const taxAmount = (subtotal + calculatedShippingCost) * 0.19; // 19% MwSt
       const totalAmount = subtotal + calculatedShippingCost;
 
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          order_number: orderNumber,
-          user_id: user?.id || null,
-          guest_email: user?.id ? null : formData.email,
-          guest_first_name: user?.id ? null : formData.firstName,
-          guest_last_name: user?.id ? null : formData.lastName,
-          status: "pending",
-          payment_status: "paid", // Changed to "paid" since payment was confirmed
-          billing_address: billingAddress,
-          shipping_address: shippingAddress,
-          subtotal: subtotal,
-          shipping_cost: calculatedShippingCost,
-          tax_amount: taxAmount,
-          discount_amount: 0,
-          total_amount: totalAmount,
-          shipping_method: formData.shippingMethod,
-          payment_method: "stripe_card", // Set to stripe payment method
-          payment_transaction_id: paymentIntentId, // Save Stripe Payment Intent ID
-          customer_notes: formData.customerNotes || null,
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order items
+      // Prepare order items
       const orderItems = items.map((item) => ({
-        order_id: order.id,
         product_id: item.product_id,
         variant_id: item.variant_id,
         product_name: item.product_name,
@@ -537,22 +502,47 @@ export default function CheckoutPage() {
         total_price: item.price * item.quantity,
       }));
 
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
+      // Create order via API (server-side to bypass RLS)
+      const response = await fetch("/api/create-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderNumber,
+          userId: user?.id,
+          guestEmail: formData.email,
+          guestFirstName: formData.firstName,
+          guestLastName: formData.lastName,
+          billingAddress,
+          shippingAddress,
+          subtotal,
+          shippingCost: calculatedShippingCost,
+          taxAmount,
+          totalAmount,
+          shippingMethod: formData.shippingMethod,
+          paymentMethod: "stripe_card",
+          paymentTransactionId: paymentIntentId,
+          customerNotes: formData.customerNotes,
+          orderItems,
+        }),
+      });
 
-      if (itemsError) throw itemsError;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create order");
+      }
 
-      // Clear cart
-      await clearCart();
+      await response.json(); // Consume response
 
-      // Redirect to order confirmation
-      router.push(`/order-success?order=${orderNumber}`);
+      // Return the order number for later use
+      return orderNumber;
     } catch (error) {
-      console.error("Error placing order:", error);
+      console.error("Error creating order:", error);
       alert(
         "Es gab einen Fehler beim Erstellen Ihrer Bestellung. Bitte versuchen Sie es erneut."
       );
+      throw error;
     }
   };
 
@@ -1235,22 +1225,8 @@ export default function CheckoutPage() {
 
               {currentStep === "review" && (
                 <div className="p-6 space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Anmerkungen zur Bestellung (optional)
-                    </label>
-                    <textarea
-                      name="customerNotes"
-                      value={formData.customerNotes}
-                      onChange={handleInputChange}
-                      rows={3}
-                      placeholder="Besondere Wünsche oder Hinweise..."
-                      className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-
                   {/* Stripe Payment Form */}
-                  <div className="pt-4 border-t">
+                  <div>
                     <h3 className="font-semibold mb-4">Zahlung abschließen</h3>
 
                     {/* Selected Payment Method Display */}
@@ -1318,6 +1294,21 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
+                    {/* Customer Notes - Optional */}
+                    <div className="mb-6">
+                      <label className="block text-sm font-medium mb-2">
+                        Anmerkungen zur Bestellung (optional)
+                      </label>
+                      <textarea
+                        name="customerNotes"
+                        value={formData.customerNotes}
+                        onChange={handleInputChange}
+                        rows={3}
+                        placeholder="Besondere Wünsche oder Hinweise..."
+                        className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+
                     {!clientSecret ? (
                       <div className="text-center py-8">
                         <p className="text-muted-foreground mb-4">
@@ -1337,17 +1328,17 @@ export default function CheckoutPage() {
                         }}
                       >
                         <StripePaymentForm
-                          onSuccess={(paymentIntentId: string) => {
-                            // Save the payment intent ID and create order
-                            setPaymentIntentId(paymentIntentId);
-                            handlePlaceOrder();
+                          onSuccess={async () => {
+                            // Payment succeeded! Order was already created, webhook will update it to "paid"
+                            await clearCart();
+                            window.location.href = `/order-success?order=${orderNumber}`;
                           }}
                           disabled={
                             !formData.acceptTerms || !formData.acceptPrivacy
                           }
                           paymentMethodType={
                             paymentMethods.find(
-                              (m) => m.code === formData.paymentMethod // ✅ Use code, not id
+                              (m) => m.code === formData.paymentMethod
                             )?.stripe_payment_method_type || undefined
                           }
                           amount={
@@ -1476,13 +1467,21 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>
-                    Versand (
-                    {
-                      shippingMethods.find(
-                        (m) => m.id === formData.shippingMethod
-                      )?.name
-                    }
-                    )
+                    Versand
+                    {shippingMethods.find(
+                      (m) => m.id === formData.shippingMethod
+                    )?.name && (
+                      <>
+                        {" "}
+                        (
+                        {
+                          shippingMethods.find(
+                            (m) => m.id === formData.shippingMethod
+                          )?.name
+                        }
+                        )
+                      </>
+                    )}
                   </span>
                   <span>
                     {shippingCost === 0

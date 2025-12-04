@@ -93,17 +93,26 @@ export function WishlistSection() {
       return;
     }
 
-    await addToCart(
-      variant.id,
-      product.id,
-      product.name || "Produkt",
-      variant.name || "",
-      Number(variant.price),
-      product.primary_image_url || null,
-      variant.stock_quantity || 0,
-      1
-    );
-    alert(`${product.name} wurde zum Warenkorb hinzugefügt!`);
+    try {
+      await addToCart(
+        variant.id,
+        product.id,
+        product.name || "Produkt",
+        variant.name || "",
+        Number(variant.price),
+        product.primary_image_url || null,
+        variant.stock_quantity || 0,
+        1
+      );
+
+      // Remove from wishlist after successfully adding to cart
+      removeFromWishlist(product.id);
+
+      alert(`${product.name} wurde zum Warenkorb hinzugefügt!`);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Fehler beim Hinzufügen zum Warenkorb");
+    }
   };
 
   const handleRemove = (productId: string | null) => {
@@ -169,11 +178,13 @@ export function WishlistSection() {
         {products.map((product) => (
           <div
             key={product.id}
-            className="bg-card rounded-xl border shadow-sm overflow-hidden group hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => setSelectedProduct(product)}
+            className="bg-card rounded-xl border shadow-sm overflow-hidden group hover:shadow-md transition-shadow"
           >
-            {/* Product Image */}
-            <div className="aspect-square relative bg-muted">
+            {/* Product Image - clickable area */}
+            <div
+              className="aspect-square relative bg-muted cursor-pointer"
+              onClick={() => setSelectedProduct(product)}
+            >
               {product.primary_image_url ? (
                 <img
                   src={product.primary_image_url}
@@ -191,7 +202,7 @@ export function WishlistSection() {
                   e.stopPropagation();
                   handleRemove(product.id);
                 }}
-                className="absolute top-2 right-2 p-2 bg-white/90 hover:bg-white rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100 hover:cursor-pointer"
+                className="absolute top-2 right-2 p-2 bg-white/90 hover:bg-white rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100 hover:cursor-pointer z-10"
                 title="Von Wunschliste entfernen"
               >
                 <svg
@@ -212,27 +223,33 @@ export function WishlistSection() {
 
             {/* Product Info */}
             <div className="p-4">
-              <h3 className="font-semibold line-clamp-2 mb-2">
-                {product.name}
-              </h3>
-              {product.min_price && (
-                <p className="text-sm font-medium text-primary">
-                  Ab {Number(product.min_price).toFixed(2)} €
-                </p>
-              )}
-              {product.starting_variant_name && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {product.starting_variant_name}
-                </p>
-              )}
+              <div
+                className="cursor-pointer"
+                onClick={() => setSelectedProduct(product)}
+              >
+                <h3 className="font-semibold line-clamp-2 mb-2">
+                  {product.name}
+                </h3>
+                {product.min_price && (
+                  <p className="text-sm font-medium text-primary">
+                    Ab {Number(product.min_price).toFixed(2)} €
+                  </p>
+                )}
+                {product.starting_variant_name && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {product.starting_variant_name}
+                  </p>
+                )}
+              </div>
 
-              {/* Add to Cart Button */}
+              {/* Add to Cart Button - NOT inside clickable area */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   handleAddToCart(product);
                 }}
-                className="mt-3 w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 py-2 hover:cursor-pointer"
+                className="mt-3 w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 py-2 cursor-pointer relative z-10"
               >
                 <svg
                   className="h-4 w-4"

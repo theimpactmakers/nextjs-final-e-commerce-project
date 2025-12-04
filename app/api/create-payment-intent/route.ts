@@ -29,15 +29,6 @@ export async function POST(request: NextRequest) {
       paymentMethodType?: string;
     };
 
-    console.log("=== Payment Intent API Debug ===");
-    console.log("Received paymentMethodType:", paymentMethodType);
-    console.log("Type of paymentMethodType:", typeof paymentMethodType);
-    console.log("Full body:", {
-      items: items.length,
-      shippingMethod,
-      paymentMethodType,
-    });
-
     // Validate items exist
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "No items in cart" }, { status: 400 });
@@ -75,8 +66,6 @@ export async function POST(request: NextRequest) {
     const totalAmount = subtotal + shippingCost;
     const amountInCents = Math.round(totalAmount * 100);
 
-    console.log("Creating PaymentIntent with method type:", paymentMethodType);
-
     // Create Payment Intent with specific payment method type
     // Default to 'card' if no method type specified
     const paymentIntent = await stripe.paymentIntents.create({
@@ -89,13 +78,6 @@ export async function POST(request: NextRequest) {
         total: totalAmount.toFixed(2),
         payment_method_type: paymentMethodType || "card",
       },
-    });
-
-    console.log("PaymentIntent created successfully:", {
-      id: paymentIntent.id,
-      amount: paymentIntent.amount,
-      currency: paymentIntent.currency,
-      payment_method_types: paymentIntent.payment_method_types,
     });
 
     return NextResponse.json({

@@ -100,7 +100,7 @@ export default function StripePaymentForm({
       {/* Amount Display */}
       <div className="flex justify-between items-center p-4 bg-muted/30 rounded-lg">
         <span className="font-semibold">Zu zahlender Betrag:</span>
-        <span className="text-xl font-bold text-primary">
+        <span className="text-xl font-bold text-green-600">
           {amount.toFixed(2)} €
         </span>
       </div>
