@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
@@ -36,10 +36,22 @@ interface PromotionData {
 }
 
 export default function SingleProductView({ product }: SingleProductViewProps) {
+  const searchParams = useSearchParams();
+  const variantIdFromUrl = searchParams.get('variant');
+  
+  // Finde die initiale Variante basierend auf URL-Parameter oder nehme die erste
+  const getInitialVariant = () => {
+    if (variantIdFromUrl) {
+      const variantFromUrl = product.product_variants.find(
+        v => v.id === variantIdFromUrl
+      );
+      if (variantFromUrl) return variantFromUrl;
+    }
+    return product.product_variants[0];
+  };
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState(
-    product.product_variants[0]
-  );
+  const [selectedVariant, setSelectedVariant] = useState(getInitialVariant());
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<
     "description" | "ingredients" | "feeding" | "reviews"
@@ -48,12 +60,28 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
   const [promotionData, setPromotionData] = useState<PromotionData | null>(
     null
   );
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const router = useRouter();
 
   const inWishlist = isInWishlist(product.id);
+
+  // Update selected variant nur beim ersten Laden basierend auf URL-Parameter
+  useEffect(() => {
+    if (!hasInitialized && variantIdFromUrl) {
+      const variantFromUrl = product.product_variants.find(
+        v => v.id === variantIdFromUrl
+      );
+      if (variantFromUrl) {
+        setSelectedVariant(variantFromUrl);
+      }
+      setHasInitialized(true);
+    } else if (!hasInitialized) {
+      setHasInitialized(true);
+    }
+  }, [variantIdFromUrl, product.product_variants, hasInitialized]);
 
   // Sort images by display_order, add placeholder if no images
   const sortedImages =
