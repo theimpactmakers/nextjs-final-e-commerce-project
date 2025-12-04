@@ -10,6 +10,7 @@ import React, {
 import { createClient } from "@/lib/supabase/client";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { CartItem, DbCartItem, CartContextType } from "@/types";
+import { toast } from "sonner";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -329,6 +330,53 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       saveLocalCart(localCart);
       setItems(localCart);
     }
+
+    // Show success toast with animated checkmark
+    toast.custom(
+      () => (
+        <div className="flex items-center gap-3 bg-card border-2 border-primary/20 rounded-lg p-4 shadow-xl animate-slide-in-right">
+          <div className="shrink-0">
+            <div className="relative">
+              <svg
+                className="w-10 h-10 text-primary"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  fill="none"
+                  className="animate-circle"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M9 12l2 2 4-4"
+                  fill="none"
+                  className="animate-checkmark"
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="flex-1">
+            <p className="font-bold text-primary text-base">
+              Zum Warenkorb hinzugefügt!
+            </p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {productName} {variantName && `- ${variantName}`}
+            </p>
+          </div>
+        </div>
+      ),
+      {
+        duration: 3000,
+      }
+    );
   };
 
   // Update quantity

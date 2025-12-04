@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +29,19 @@ export default function RootLayout({
               <Header />
               <main className="grow">{children}</main>
               <Footer />
+              <Toaster
+                position="top-center"
+                expand={false}
+                richColors
+                closeButton
+                toastOptions={{
+                  style: {
+                    background: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    color: "hsl(var(--foreground))",
+                  },
+                }}
+              />
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>

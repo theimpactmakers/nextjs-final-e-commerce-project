@@ -1,6 +1,6 @@
 /* stylelint-disable at-rule-no-unknown */
 /* stylelint-disable function-no-unknown */
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @plugin 'tailwindcss-animate';
 
@@ -62,9 +62,8 @@
   --color-popover-foreground: hsl(27 38% 10%);
   /* Dunkelbraun - Popover-Text */
 
-  
   /* === BRAND-FARBEN === */
-  
+
   /* Primary - Dunkelbraun (Elite Dog Treats Hauptfarbe) */
   --color-primary: hsl(27 38% 36%);
   /* #7F5539 - Dunkelbraun */
@@ -88,7 +87,6 @@
   /* #BB6B00 - Gold/Orange Akzent */
   --color-accent-foreground: hsl(0 0% 98%);
   /* Fast Weiß - Text auf Accent */
-
 
   /* === SYSTEM-FARBEN === */
   /* Destructive - Rot für Fehler */
@@ -158,7 +156,7 @@
 
 /* Allow parent hover to trigger child glow */
 @utility brown-glow {
-  transition: color .15s ease;
+  transition: color 0.15s ease;
 }
 
 @utility brown-color-hover {
@@ -187,9 +185,7 @@
   }
 }
 
-
 @media (min-width: 768px) and (max-width: 919px) {
-
   /* target the header search input by id */
   #header-search {
     width: 10rem;
@@ -221,9 +217,8 @@
 
 /* Extra small phone tweaks (mobile-first: improve layout on tiny handsets) */
 @media (max-width: 375px) {
-
   /* reduce header height so content fits better on very small screens */
-  header>.relative.z-10 {
+  header > .relative.z-10 {
     height: 4rem;
     /* 64px */
     padding-left: 0.5rem;
@@ -261,7 +256,7 @@
 
 /* Ultra-small phones (e.g. older 320px devices) */
 @media (max-width: 360px) {
-  header>.relative.z-10 {
+  header > .relative.z-10 {
     height: 3.5rem;
     /* 56px */
     padding-left: 0.25rem;
@@ -280,9 +275,95 @@
   }
 
   /* make sure any potential padding/margins on header controls are reduced */
-  .md\:hidden+.logo-md-narrow,
+  .md\:hidden + .logo-md-narrow,
   .col-start-3 {
     padding-left: 0;
     padding-right: 0;
   }
+}
+
+/* === TOAST ANIMATIONS === */
+
+/* Checkmark animation for cart toasts */
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 20;
+    opacity: 0;
+  }
+  15% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Circle draw animation */
+@keyframes drawCircle {
+  0% {
+    stroke-dashoffset: 63;
+  }
+  10% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Heart beat animation for wishlist */
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  5%, 15% {
+    transform: scale(1.2);
+  }
+  10%, 20% {
+    transform: scale(1);
+  }
+  25%, 35% {
+    transform: scale(1.15);
+  }
+  30%, 40% {
+    transform: scale(1);
+  }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  10% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-checkmark {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  animation: checkmark 3s ease-out 0.3s forwards;
+}
+
+.animate-circle {
+  stroke-dasharray: 63;
+  stroke-dashoffset: 63;
+  animation: drawCircle 3s ease-out forwards;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 3s ease-in-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 3s ease-out;
 }
