@@ -1,52 +1,27 @@
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import type { Database } from "@/types";
+import { HeroSlider } from "../components/HeroSlider";
+import { SLIDES_DATA } from "./(data)/slideData";
+import { BestsellerCarousel } from "../components/BestsellerCarouselWrapper";
+import Button from "@/components/Button";
 
-// Use static generation with ISR for better performance
-export const revalidate = 60;
+// Choose your rendering strategy:
+// Option 1: ISR (Incremental Static Regeneration) - RECOMMENDED
+export const revalidate = 60; // Rebuild every 60 seconds
 
-type ProductWithImage =
-  Database["public"]["Views"]["products_with_primary_image"]["Row"];
+// Option 2: Dynamic (Always fresh, but slower)
+// export const dynamic = 'force-dynamic';
+
+// Option 3: Static (Only rebuild on deployment)
+// Remove both lines above
 
 export default async function Home() {
-  const supabase = createClient();
-
-  // Use the new view that includes primary image data
-  const { data: products, error } = (await supabase
-    .from("products_with_primary_image")
-    .select("*")
-    .order("created_at", { ascending: false })) as {
-    data: ProductWithImage[] | null;
-    error: Error | null;
-  };
-
-  if (error) {
-    console.error(error);
-    return <p>Fehler beim Laden der Produkte.</p>;
-  }
   return (
     <div className="w-full">
       {/* 1. Hero / Banner Sektion (Volle Breite) */}
-      <section className="h-96 bg-[hsl(var(--muted-foreground))] flex items-center justify-center mb-12">
-        <div className="text-center p-8 bg-background/80 rounded-lg shadow-2xl">
-          <h1 className="text-4xl font-extrabold text-primary mb-2">
-            Die Jagd ist eröffnet
-          </h1>
-          <p className="text-lg text-foreground/80">
-            Qualität, die man riechen kann!
-          </p>
-          <Link
-            href="/shop"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 mt-4"
-          >
-            Jetzt Shoppen
-          </Link>
-        </div>
-      </section>
+      <HeroSlider slides={SLIDES_DATA} />
 
       {/* 2. Hauptinhalt - Zentriert und begrenzt (Container) */}
       <main className="container max-w-7xl px-4 flex flex-col gap-16">
-        {/* 3. Feature-Leiste (Wolfsblut-Elemente) */}
+        {/* 3. Feature-Leiste */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             "Gratis Versand",
@@ -63,58 +38,28 @@ export default async function Home() {
           ))}
         </div>
 
-        {/* 4. Produktauswahl/Kategorie-Bereich */}
+        {/* 4. Bestseller Bereich mit Carousel */}
         <section>
-          <h2 className="text-3xl font-bold mb-6 text-foreground">
-            Bestseller im Sortiment
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {products?.map((p) => (
-              <div
-                key={p.id}
-                className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
-              >
-                <div className="h-48 bg-muted flex items-center justify-center overflow-hidden">
-                  <img
-                    src={p.primary_image_url || "/images/placeholder.jpg"}
-                    alt={p.primary_image_alt || p.name || "Product image"}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex flex-col space-y-1.5 p-6">
-                  <h3 className="text-2xl font-semibold leading-none tracking-tight">
-                    {p.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {p.description}
-                  </p>
-                </div>
-                <div className="p-6 pt-0 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-destructive">
-                      {p.price} €
-                    </span>
-                    <Link
-                      href={`/products/${p.slug}`}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                    >
-                      Zum Produkt
-                    </Link>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Fleischsorte: {p.meat_type} / Altersgruppe: {p.age_group}
-                  </p>
-                </div>
-              </div>
-            ))}
+          <div className="px-12 md:px-16 mb-6">
+            <h2 className="text-3xl font-bold text-foreground mb-2">
+              Bestseller im Sortiment
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              Entdecken Sie unsere beliebtesten Futtersorten, die bei
+              Vierbeinern am besten ankommen!
+            </p>
           </div>
+
+          {/* Carousel fetches its own bestseller data */}
+          <BestsellerCarousel />
         </section>
 
-        {/* 5. Community / Newsletter Sektion (mit abgerundeten Ecken) */}
+        {/* 5. Community / Newsletter */}
         <section className="bg-card p-10 rounded-xl shadow-lg border">
           <h2 className="text-2xl font-bold text-center mb-4">
             Werde Teil unserer Community
           </h2>
+
           <div className="flex justify-center space-x-4 mb-6">
             <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-full h-12 w-12 text-lg">
               FB
@@ -123,15 +68,14 @@ export default async function Home() {
               IG
             </button>
           </div>
+
           <div className="max-w-md mx-auto flex gap-2">
             <input
               type="email"
               placeholder="E-Mail für Newsletter"
               className="grow p-3 border rounded-lg focus:ring-primary focus:border-primary"
             />
-            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-              Anmelden
-            </button>
+            <Button variant="secondary">Anmelden</Button>
           </div>
         </section>
       </main>

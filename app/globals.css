@@ -43,6 +43,7 @@
   --breakpoint-xxl: 2000px;
 
   /* === HAUPT-FARBEN === */
+
   /* Hintergrund & Text */
   --color-background: hsl(0 0% 100%);
   /* Weiß - Haupthintergrund */
@@ -63,6 +64,7 @@
 
   
   /* === BRAND-FARBEN === */
+  
   /* Primary - Dunkelbraun (Elite Dog Treats Hauptfarbe) */
   --color-primary: hsl(27 38% 36%);
   /* #7F5539 - Dunkelbraun */
@@ -129,7 +131,9 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-
+  :root {
+    --app-radius: 0.3125rem; /* Shared corner radius for buttons/controls */
+  }
   *,
   ::after,
   ::before,
@@ -184,12 +188,17 @@
 }
 
 
-@media (min-width: 768px) and (max-width: 886px) {
+@media (min-width: 768px) and (max-width: 919px) {
 
   /* target the header search input by id */
   #header-search {
     width: 10rem;
     /* ~160px */
+    font-size: 0.8125rem; /* 13px */
+  }
+
+  #header-search::placeholder {
+    font-size: 0.75rem; /* 12px */
   }
 
   /* if other elements need smaller spacing, slightly reduce form margin */
@@ -235,6 +244,11 @@
   #header-search {
     width: 9rem;
     /* ~144px */
+    font-size: 0.75rem; /* 12px */
+  }
+
+  #header-search::placeholder {
+    font-size: 0.6875rem; /* 11px */
   }
 
   /* mobile overlay logo slightly smaller */

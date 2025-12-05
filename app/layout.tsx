@@ -4,6 +4,8 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/contexts/CartContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { WishlistProvider } from "@/contexts/WishlistContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,11 +22,15 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className={inter.className}>
-        <CartProvider>
-          <Header />
-          <main className="grow">{children}</main>
-          <Footer />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <Header />
+              <main className="grow">{children}</main>
+              <Footer />
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

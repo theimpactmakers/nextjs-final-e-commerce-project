@@ -7,6 +7,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^5.4.1",
+    "@stripe/stripe-js": "^8.5.3",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "clsx": "^2.1.1",
@@ -15,6 +17,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-multi-carousel": "^2.8.6",
+    "stripe": "^20.0.0",
     "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {

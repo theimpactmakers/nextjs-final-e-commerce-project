@@ -16,6 +16,20 @@ export default function CartPage() {
     clearCart,
   } = useCart();
 
+  // Calculate promotion savings
+  const promotionSavings = items.reduce((total, item) => {
+    if (item.original_price && item.original_price > item.price) {
+      return total + (item.original_price - item.price) * item.quantity;
+    }
+    return total;
+  }, 0);
+
+  // Calculate shipping savings (if free shipping applies)
+  const shippingSavings = totalPrice >= 50 ? 4.99 : 0;
+
+  // Total savings
+  const totalSavings = promotionSavings + shippingSavings;
+
   if (isLoading) {
     return (
       <div className="container max-w-6xl px-4 py-16 mx-auto">
@@ -100,9 +114,16 @@ export default function CartPage() {
                 <p className="text-sm text-muted-foreground">
                   {item.variant_name}
                 </p>
-                <p className="text-lg font-bold text-primary mt-1">
-                  {item.price.toFixed(2)} €
-                </p>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <p className="text-lg font-bold text-primary">
+                    {item.price.toFixed(2)} €
+                  </p>
+                  {item.original_price && item.original_price > item.price && (
+                    <p className="text-sm text-muted-foreground line-through">
+                      {item.original_price.toFixed(2)} €
+                    </p>
+                  )}
+                </div>
 
                 {/* Stock Warning */}
                 {item.stock_quantity < 5 && item.stock_quantity > 0 && (
@@ -187,10 +208,34 @@ export default function CartPage() {
 
             <div className="flex justify-between text-lg font-bold pt-4 border-t">
               <span>Gesamt</span>
-              <span className="text-primary">
+              <span className="text-green-600">
                 {(totalPrice + (totalPrice >= 50 ? 0 : 4.99)).toFixed(2)} €
               </span>
             </div>
+
+            {/* Total Savings Display */}
+            {totalSavings > 0 && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <p className="text-sm text-green-800 font-medium text-center">
+                  🎉 Sie sparen{" "}
+                  <span className="font-bold">{totalSavings.toFixed(2)} €</span>
+                  {promotionSavings > 0 && shippingSavings > 0 && (
+                    <span className="text-xs block mt-1">
+                      ({promotionSavings.toFixed(2)} € Rabatt +{" "}
+                      {shippingSavings.toFixed(2)} € Versand)
+                    </span>
+                  )}
+                  {promotionSavings > 0 && shippingSavings === 0 && (
+                    <span className="text-xs block mt-1">(Rabatt)</span>
+                  )}
+                  {promotionSavings === 0 && shippingSavings > 0 && (
+                    <span className="text-xs block mt-1">
+                      (Kostenloser Versand)
+                    </span>
+                  )}
+                </p>
+              </div>
+            )}
 
             <Link
               href="/checkout"

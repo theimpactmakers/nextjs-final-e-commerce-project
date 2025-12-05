@@ -1,3 +1,5 @@
+import Button from "@/components/Button";
+
 export default function KontaktPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">
@@ -109,12 +111,9 @@ export default function KontaktPage() {
                     ></textarea>
                   </div>
 
-                  <button
-                    type="submit"
-                    className="w-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] py-3 rounded-lg hover:bg-[hsl(var(--primary))]/90 transition-colors font-semibold"
-                  >
+                  <Button type="submit" variant="secondary" className="w-full">
                     Nachricht senden
-                  </button>
+                  </Button>
                 </form>
               </div>
             </div>

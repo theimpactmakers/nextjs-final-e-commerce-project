@@ -1,0 +1,136 @@
+"use client";
+
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { ProfileSection } from "@/components/profile/ProfileSection";
+import { AddressesSection } from "@/components/profile/AddressesSection";
+import { WishlistSection } from "@/components/profile/WishlistSection";
+import { OrdersSection } from "@/components/profile/OrdersSection";
+
+function UserProfileContent() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "addresses" | "wishlist" | "orders"
+  >("profile");
+
+  // Read tab from URL parameter on mount
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (
+      tabParam === "wishlist" ||
+      tabParam === "addresses" ||
+      tabParam === "profile" ||
+      tabParam === "orders"
+    ) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push(
+        "/auth/login?message=Bitte melden Sie sich an um Ihr Profil zu sehen."
+      );
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+          <p className="mt-4 text-muted-foreground">Lädt...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Mein Profil</h1>
+        <p className="text-muted-foreground mt-2">
+          Verwalten Sie Ihre persönlichen Daten und Adressen
+        </p>
+      </div>
+
+      {/* Tabs */}
+      <div className="border-b border-border mb-8">
+        <nav className="flex space-x-8" aria-label="Tabs">
+          <button
+            onClick={() => setActiveTab("profile")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
+              activeTab === "profile"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+            }`}
+          >
+            Persönliche Daten
+          </button>
+          <button
+            onClick={() => setActiveTab("addresses")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
+              activeTab === "addresses"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+            }`}
+          >
+            Adressen
+          </button>
+          <button
+            onClick={() => setActiveTab("wishlist")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
+              activeTab === "wishlist"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+            }`}
+          >
+            Wunschliste
+          </button>
+          <button
+            onClick={() => setActiveTab("orders")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
+              activeTab === "orders"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+            }`}
+          >
+            Bestellungen
+          </button>
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      <div className="mt-6">
+        {activeTab === "profile" && <ProfileSection />}
+        {activeTab === "addresses" && <AddressesSection />}
+        {activeTab === "wishlist" && <WishlistSection />}
+        {activeTab === "orders" && <OrdersSection />}
+      </div>
+    </div>
+  );
+}
+
+export default function UserProfile() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+            <p className="mt-4 text-muted-foreground">Lädt...</p>
+          </div>
+        </div>
+      }
+    >
+      <UserProfileContent />
+    </Suspense>
+  );
+}

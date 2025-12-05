@@ -1,3 +1,5 @@
+import Button from "@/components/Button";
+
 export default function BeratungPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">
@@ -68,9 +70,9 @@ export default function BeratungPage() {
             </div>
 
             <div className="text-center">
-              <button className="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] px-8 py-4 rounded-lg hover:bg-[hsl(var(--primary))]/90 transition-colors text-lg font-semibold">
+              <Button variant="secondary" className="text-lg px-8 py-4">
                 Kostenlose Erstberatung vereinbaren
-              </button>
+              </Button>
             </div>
           </div>
 
