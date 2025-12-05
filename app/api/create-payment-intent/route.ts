@@ -2,8 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@/lib/supabase/server";
 
+// Validate Stripe secret key exists
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+if (!stripeSecretKey) {
+  throw new Error(
+    "STRIPE_SECRET_KEY is not set in environment variables. Please add it to your .env.local file and Vercel environment variables."
+  );
+}
+
 // Initialize Stripe with secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2025-11-17.clover",
 });
 
