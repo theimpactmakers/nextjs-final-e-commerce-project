@@ -3,14 +3,29 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@/lib/supabase/server";
 
+// Validate Stripe keys exist
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const webhookSecretEnv = process.env.STRIPE_WEBHOOK_SECRET;
+
+if (!stripeSecretKey) {
+  throw new Error(
+    "STRIPE_SECRET_KEY is not set in environment variables. Please add it to your .env.local file and Vercel environment variables."
+  );
+}
+
+if (!webhookSecretEnv) {
+  throw new Error(
+    "STRIPE_WEBHOOK_SECRET is not set in environment variables. Please add it to your .env.local file and Vercel environment variables."
+  );
+}
+
+// Type-safe constants after validation
+const webhookSecret: string = webhookSecretEnv;
+
 // Initialize Stripe with secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2025-11-17.clover",
 });
-
-// This is your Stripe CLI webhook secret for testing your endpoint locally.
-// You'll get this from Stripe Dashboard → Developers → Webhooks
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: Request) {
   try {
@@ -19,15 +34,18 @@ export async function POST(req: Request) {
 
     // Get the Stripe signature from headers
     const headersList = await headers();
-    const signature = headersList.get("stripe-signature");
+    const signatureOrNull = headersList.get("stripe-signature");
 
-    if (!signature) {
+    if (typeof signatureOrNull !== "string") {
       console.error("No Stripe signature found");
       return NextResponse.json(
         { error: "No signature found" },
         { status: 400 }
       );
     }
+
+    // Now TypeScript knows signatureOrNull is a string
+    const signature = signatureOrNull;
 
     // Verify the webhook signature to ensure it's from Stripe
     let event: Stripe.Event;
