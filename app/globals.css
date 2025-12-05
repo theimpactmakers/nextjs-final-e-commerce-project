@@ -357,3 +357,19 @@
 .animate-slide-in-right {
   animation: slideInRight 3s ease-out;
 }
+
+/* Slide up animation for cookie banner */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
