@@ -1,16 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error("Supabase URL oder Service Role Key ist nicht gesetzt.");
-}
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: { persistSession: false },
-});
+import { createClient } from "@/lib/supabase/server";
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -29,7 +18,10 @@ export async function POST(request: Request) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    const { data, error } = await supabaseAdmin
+    // Użyj server-side Supabase client zamiast service role
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
       .from("newsletter_subscriptions")
       .upsert(
         { email: normalizedEmail, source: "footer" },
