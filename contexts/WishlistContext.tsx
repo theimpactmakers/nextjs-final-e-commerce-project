@@ -166,11 +166,11 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     // Show success toast with heart animation
     toast.custom(
       () => (
-        <div className="flex items-center gap-3 bg-card border-2 border-red-200 rounded-lg p-4 shadow-xl animate-slide-in-right">
+        <div className="flex items-center gap-3 bg-card border-2 border-primary/20 rounded-lg p-4 shadow-xl animate-slide-in-right">
           <div className="shrink-0">
             <div className="relative">
               <svg
-                className="w-10 h-10 text-red-500 animate-heartbeat"
+                className="w-10 h-10 text-primary animate-heartbeat"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -179,7 +179,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="flex-1">
-            <p className="font-bold text-red-600 text-base">
+            <p className="font-bold text-primary text-base">
               Zur Wunschliste hinzugefügt!
             </p>
             <p className="text-sm text-muted-foreground mt-0.5">

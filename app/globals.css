@@ -284,50 +284,48 @@
 
 /* === TOAST ANIMATIONS === */
 
-/* Checkmark animation for cart toasts */
-@keyframes checkmark {
-  0% {
-    stroke-dashoffset: 20;
-    opacity: 0;
+/* Shopping cart bounce animation */
+@keyframes cartBounce {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
   }
+  5%,
   15% {
-    stroke-dashoffset: 0;
-    opacity: 1;
+    transform: scale(1.15) translateY(-3px);
   }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 1;
+  10%,
+  20% {
+    transform: scale(1) translateY(0);
   }
-}
-
-/* Circle draw animation */
-@keyframes drawCircle {
-  0% {
-    stroke-dashoffset: 63;
+  25% {
+    transform: scale(1.1) translateY(-2px);
   }
-  10% {
-    stroke-dashoffset: 0;
-  }
-  100% {
-    stroke-dashoffset: 0;
+  30% {
+    transform: scale(1) translateY(0);
   }
 }
 
 /* Heart beat animation for wishlist */
 @keyframes heartbeat {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
-  5%, 15% {
+  5%,
+  15% {
     transform: scale(1.2);
   }
-  10%, 20% {
+  10%,
+  20% {
     transform: scale(1);
   }
-  25%, 35% {
+  25%,
+  35% {
     transform: scale(1.15);
   }
-  30%, 40% {
+  30%,
+  40% {
     transform: scale(1);
   }
 }
@@ -348,16 +346,8 @@
   }
 }
 
-.animate-checkmark {
-  stroke-dasharray: 20;
-  stroke-dashoffset: 20;
-  animation: checkmark 3s ease-out 0.3s forwards;
-}
-
-.animate-circle {
-  stroke-dasharray: 63;
-  stroke-dashoffset: 63;
-  animation: drawCircle 3s ease-out forwards;
+.animate-cart-bounce {
+  animation: cartBounce 3s ease-in-out;
 }
 
 .animate-heartbeat {
