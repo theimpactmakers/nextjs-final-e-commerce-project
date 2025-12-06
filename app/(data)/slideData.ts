@@ -42,7 +42,7 @@ export const SLIDES_DATA: SlideData[] = [
     title: "100% Natur, 0% Kompromisse",
     description: "Entdecke unsere besten Rezepturen.",
     cta: "Zur Kollektion",
-    ctaLink: "/collection",
+    ctaLink: "/shop?meat=kaninchen",
   },
   {
     id: 3,
@@ -51,6 +51,6 @@ export const SLIDES_DATA: SlideData[] = [
     title: "Finde das perfekte Futter",
     description: "",
     cta: "Zum Futterberater",
-    ctaLink: "/advisor",
+    ctaLink: "/beratung",
   },
 ];
