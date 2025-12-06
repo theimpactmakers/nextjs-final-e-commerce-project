@@ -46,30 +46,30 @@
 
   /* Hintergrund & Text */
   --color-background: hsl(0 0% 100%);
-  /* Weiß - Haupthintergrund */
+  /* #FFFFFF - Weiß - Haupthintergrund */
   --color-foreground: hsl(27 38% 10%);
-  /* Dunkelbraun - Haupttext (#1F1310) */
+  /* #1F1310 - Dunkelbraun - Haupttext */
 
   /* Karten */
   --color-card: hsl(0 0% 100%);
-  /* Weiß - Karten-Hintergrund */
+  /* #FFFFFF - Weiß - Karten-Hintergrund */
   --color-card-foreground: hsl(27 38% 10%);
-  /* Dunkelbraun - Karten-Text */
+  /* #1F1310 - Dunkelbraun - Karten-Text */
 
   /* Popover/Tooltips */
   --color-popover: hsl(0 0% 100%);
-  /* Weiß - Popover-Hintergrund */
+  /* #FFFFFF - Weiß - Popover-Hintergrund */
   --color-popover-foreground: hsl(27 38% 10%);
-  /* Dunkelbraun - Popover-Text */
+  /* #1F1310 - Dunkelbraun - Popover-Text */
 
-  
+
   /* === BRAND-FARBEN === */
-  
+
   /* Primary - Dunkelbraun (Elite Dog Treats Hauptfarbe) */
   --color-primary: hsl(27 38% 36%);
   /* #7F5539 - Dunkelbraun */
   --color-primary-foreground: hsl(0 0% 98%);
-  /* Fast Weiß - Text auf Primary */
+  /* #FAFAFA - Fast Weiß - Text auf Primary */
 
   /* Secondary - Helles Beige */
   --color-secondary: hsl(26 18% 80%);
@@ -79,43 +79,44 @@
 
   /* Muted - Sehr helles Beige */
   --color-muted: hsl(26 18% 90%);
-  /* Sehr helles Beige - gedämpfte Bereiche */
+  /* #EBE6E2 - Sehr helles Beige - gedämpfte Bereiche */
+
   --color-muted-foreground: hsl(6 25% 25%);
-  /* Dunkles Rotbraun - gedämpfter Text */
+  /* #4D3630 - Dunkles Rotbraun - gedämpfter Text */
 
   /* Accent - Gold/Orange */
   --color-accent: hsl(33 100% 37%);
   /* #BB6B00 - Gold/Orange Akzent */
   --color-accent-foreground: hsl(0 0% 98%);
-  /* Fast Weiß - Text auf Accent */
+  /* #FAFAFA - Fast Weiß - Text auf Accent */
 
 
   /* === SYSTEM-FARBEN === */
   /* Destructive - Rot für Fehler */
   --color-destructive: hsl(0 84.2% 60.2%);
-  /* Rot - Fehler/Warnungen */
+  /* #F15B5B - Rot - Fehler/Warnungen */
   --color-destructive-foreground: hsl(0 0% 98%);
-  /* Weiß - Text auf Destructive */
+  /* #FAFAFA - Weiß - Text auf Destructive */
 
   /* Borders & Inputs */
   --color-border: hsl(26 18% 85%);
-  /* Helles Beige - Rahmen */
+  /* #DDD5CF - Helles Beige - Rahmen */
   --color-input: hsl(26 18% 85%);
-  /* Helles Beige - Input-Rahmen */
+  /* #DDD5CF - Helles Beige - Input-Rahmen */
   --color-ring: hsl(27 38% 36%);
   /* #7F5539 - Focus-Ring (Dunkelbraun) */
 
   /* === CHART-FARBEN === */
   --color-chart-1: hsl(12 76% 61%);
-  /* Koralle - Chart 1 */
+  /* #E8735B - Koralle - Chart 1 */
   --color-chart-2: hsl(173 58% 39%);
-  /* Türkis - Chart 2 */
+  /* #2A9D8F - Türkis - Chart 2 */
   --color-chart-3: hsl(197 37% 24%);
-  /* Dunkelblau - Chart 3 */
+  /* #264653 - Dunkelblau - Chart 3 */
   --color-chart-4: hsl(43 74% 66%);
-  /* Goldgelb - Chart 4 */
+  /* #E9C46A - Goldgelb - Chart 4 */
   --color-chart-5: hsl(27 87% 67%);
-  /* Hellorange - Chart 5 */
+  /* #F4A261 - Hellorange - Chart 5 */
 
   --radius-lg: 0.75rem;
   --radius-md: calc(0.75rem - 2px);
@@ -132,8 +133,10 @@
 */
 @layer base {
   :root {
-    --app-radius: 0.3125rem; /* Shared corner radius for buttons/controls */
+    --app-radius: 0.3125rem;
+    /* Shared corner radius for buttons/controls */
   }
+
   *,
   ::after,
   ::before,
@@ -145,6 +148,46 @@
   body {
     background-color: hsl(0 0% 100%);
     color: hsl(27 38% 10%);
+  }
+
+  @keyframes spinIn {
+    from {
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInUp {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes popIn {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-spin-in {
+    animation: spinIn 0.8s ease-out both;
   }
 }
 
@@ -194,11 +237,13 @@
   #header-search {
     width: 10rem;
     /* ~160px */
-    font-size: 0.8125rem; /* 13px */
+    font-size: 0.8125rem;
+    /* 13px */
   }
 
   #header-search::placeholder {
-    font-size: 0.75rem; /* 12px */
+    font-size: 0.75rem;
+    /* 12px */
   }
 
   /* if other elements need smaller spacing, slightly reduce form margin */
@@ -244,11 +289,13 @@
   #header-search {
     width: 9rem;
     /* ~144px */
-    font-size: 0.75rem; /* 12px */
+    font-size: 0.75rem;
+    /* 12px */
   }
 
   #header-search::placeholder {
-    font-size: 0.6875rem; /* 11px */
+    font-size: 0.6875rem;
+    /* 11px */
   }
 
   /* mobile overlay logo slightly smaller */

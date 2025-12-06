@@ -28,8 +28,8 @@ export interface HeroSliderProps {
 export const SLIDES_DATA: SlideData[] = [
   {
     id: 1,
-    imageMobile: "/images/slider/slide-1.svg",
-    imageDesktop: "/images/slider/slide-1.svg",
+    imageMobile: "/images/slider/slide-1.1.svg",
+    imageDesktop: "/images/slider/slide-1.1.svg",
     title: "Die Jagd ist eröffnet",
     description: "Qualität, die man riechen kann!",
     cta: "Jetzt Shoppen",
@@ -48,9 +48,9 @@ export const SLIDES_DATA: SlideData[] = [
     id: 3,
     imageMobile: "/images/slider/slide-3.svg",
     imageDesktop: "/images/slider/slide-3.svg",
-    title: "Lass dich beraten",
-    description: "Finde das perfekte Futter für deinen Liebling.",
-    cta: "Futterberater",
+    title: "Finde das perfekte Futter",
+    description: "",
+    cta: "Zum Futterberater",
     ctaLink: "/advisor",
   },
 ];
