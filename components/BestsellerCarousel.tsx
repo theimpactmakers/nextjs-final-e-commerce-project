@@ -146,8 +146,25 @@ export const BestsellerCarouselClient: React.FC<
 
   return (
     <div className="relative w-full px-12 md:px-16">
+      {/* Navigation Arrows - outside the product card area, vertically centered */}
+      <button
+        onClick={prevSlide}
+        aria-label="Previous products"
+        className="hidden md:flex absolute top-1/2 -left-8 -translate-y-1/2 p-2 text-accent hover:text-black transition-all cursor-pointer z-20 items-center justify-center"
+        style={{ transform: "translateY(-50%)" }}
+      >
+        <ChevronLeft className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />
+      </button>
+      <button
+        onClick={nextSlide}
+        aria-label="Next products"
+        className="hidden md:flex absolute top-1/2 -right-8 -translate-y-1/2 p-2 text-accent hover:text-black transition-all cursor-pointer z-20 items-center justify-center"
+        style={{ transform: "translateY(-50%)" }}
+      >
+        <ChevronRight className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />
+      </button>
       {/* Carousel Container */}
-      <div className="py-4 pb-8 overflow-hidden">
+      <div className="relative py-4 pb-8 overflow-hidden">
         <div
           className="flex transition-transform duration-500 ease-in-out"
           style={{
@@ -172,10 +189,12 @@ export const BestsellerCarouselClient: React.FC<
                     {/* Promotion Badge */}
                     {promo && (
                       <div className="absolute top-1 left-1 z-20">
-                        <span className="bg-red-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg animate-pulse">
-                          {promo.discountType === "percentage"
-                            ? `-${Math.round(promo.discountAmount)}%`
-                            : `-€${promo.discountAmount.toFixed(2)}`}
+                        <span className="bg-accent text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
+                          <span className="animate-pulse">
+                            {promo.discountType === "percentage"
+                              ? `-${Math.round(promo.discountAmount)}%`
+                              : `-€${promo.discountAmount.toFixed(2)}`}
+                          </span>
                         </span>
                       </div>
                     )}
@@ -253,7 +272,7 @@ export const BestsellerCarouselClient: React.FC<
                           </span>
                           {promo &&
                             promo.originalPrice !== promo.discountedPrice && (
-                              <span className="text-[10px] text-muted-foreground line-through">
+                              <span className="text-[10px] text-red-300 line-through">
                                 {promo.originalPrice.toFixed(2)} €
                               </span>
                             )}
@@ -290,23 +309,7 @@ export const BestsellerCarouselClient: React.FC<
         </div>
       </div>
 
-      {/* Navigation Arrows */}
-      <>
-        <button
-          onClick={prevSlide}
-          aria-label="Previous products"
-          className="absolute top-1/2 left-0 transform -translate-y-1/2 p-2 text-accent hover:text-black transition-all cursor-pointer z-10 flex items-center justify-center"
-        >
-          <ChevronLeft className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />
-        </button>
-        <button
-          onClick={nextSlide}
-          aria-label="Next products"
-          className="absolute top-1/2 right-0 transform -translate-y-1/2 p-2 text-accent hover:text-black transition-all cursor-pointer z-10 flex items-center justify-center"
-        >
-          <ChevronRight className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />
-        </button>
-      </>
+      {/* Navigation Arrows removed from here, now inside carousel container above */}
 
       {/* Pagination Dots */}
       {maxIndex > 0 && (

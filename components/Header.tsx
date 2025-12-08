@@ -715,14 +715,9 @@ export default function Header() {
                 className="relative p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer inline-block"
                 aria-label="Benutzerprofil"
               >
-                {!user && <User className="w-7 h-7 bold" strokeWidth={2} />}
-
-                {/* Grüner Online-Indikator wenn angemeldet */}
+                <User className="w-6 h-6 text-accent" strokeWidth={2} />
                 {user && (
-                  <>
-                    <User className="w-7 h-7 bold text-green-600" />
-                    <span className="absolute top-0 right-0.5 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
-                  </>
+                  <span className="absolute top-0 right-0.5 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
                 )}
               </Link>
 
@@ -818,10 +813,12 @@ export default function Header() {
                         setProfileDropdownOpen(false);
                         signOut();
                       }}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors cursor-pointer"
+                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] cursor-pointer"
                     >
                       <LogOut className="w-4 h-4 text-accent" />
-                      <span>Abmelden</span>
+                      <span className="text-accent hover:text-primary transition-colors">
+                        Abmelden
+                      </span>
                     </button>
                   ) : (
                     <>
@@ -903,15 +900,15 @@ export default function Header() {
             {/* Wishlist Icon */}
             <Link
               href="/userProfile?tab=wishlist"
-              className="relative p-1 rounded hover:bg-accent/10 group"
+              className="relative p-1 w-7 h-7 flex items-center justify-center rounded hover:bg-accent/10 group"
               aria-label="Wunschliste"
             >
               <Heart
-                className="w-6 h-6 text-accent group-hover:text-red-500 transition-colors"
+                className="w-9 h-9 text-accent group-hover:text-black transition-colors"
                 strokeWidth={2.3}
               />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1">
+                <span className="absolute -top-1 -right-1 bg-white text-accent text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1 border border-accent">
                   {wishlistCount}
                 </span>
               )}
@@ -927,7 +924,7 @@ export default function Header() {
                 strokeWidth={2}
               />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1">
+                <span className="absolute -top-1 -right-1 bg-accent text-white text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1">
                   {itemCount}
                 </span>
               )}
@@ -941,7 +938,7 @@ export default function Header() {
               aria-label="Wunschliste"
             >
               <Heart
-                className="w-5 h-5 text-accent group-active:text-red-500 transition-colors"
+                className="w-5 h-5 text-accent group-active:text-black-500 transition-colors"
                 strokeWidth={2}
               />
               {wishlistCount > 0 && (
@@ -973,8 +970,8 @@ export default function Header() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
+                width="16"
+                height="16"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

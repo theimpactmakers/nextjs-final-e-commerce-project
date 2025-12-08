@@ -184,7 +184,7 @@ export default async function Home() {
                 title: "Sofortversand",
                 desc: "In 1-3 Werktagen bei dir",
                 type: "image",
-                padding: "xlarge", 
+                padding: "xlarge",
               },
               {
                 icon: "/images/icons/fleisch.svg",
@@ -196,7 +196,7 @@ export default async function Home() {
               {
                 icon: "/images/icons/zufrieden.svg",
                 title: "Zufriedenheitsgarantie",
-                desc: "Dafür geben wir immer unser Bestes!",
+                desc: "Dafür geben wir unser Bestes!",
                 type: "image",
                 padding: "xlarge",
               },
@@ -222,12 +222,12 @@ export default async function Home() {
                     }
                   />
                 ) : (
-                  <span className="text-3xl mb-2"> {feature.icon}</span>
+                  <span className="text-2xl mb-2"> {feature.icon}</span>
                 )}
-                <h3 className="text-lg font-bold text-white mb-1">
+                <h3 className="text-base font-bold text-white mb-1">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-black/80 leading-relaxed">
+                <p className="text-xs text-black/80 leading-relaxed">
                   {feature.desc}
                 </p>
               </div>

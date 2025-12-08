@@ -222,9 +222,9 @@ export default function Footer() {
       {/* Footer-Bereich mit Navigation, Links und Copyright */}
       <footer className="w-full border-t bg-muted py-12 text-muted-foreground">
         <div className="container max-w-7xl px-6 sm:px-8 lg:px-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 w-full gap-56 justify-between">
             {/* Spalte 1: Shop */}
-            <div className="text-left">
+            <div className="text-left flex flex-col items-start w-full">
               <Link
                 href="/shop"
                 className="hover:text-primary hover:underline transition-colors"
@@ -259,7 +259,7 @@ export default function Footer() {
               </ul>
             </div>
             {/* Spalte 2: Home */}
-            <div className="text-left">
+            <div className="text-left flex flex-col items-start w-full">
               <Link
                 href="/"
                 className="hover:text-primary hover:underline transition-colors"
@@ -294,7 +294,7 @@ export default function Footer() {
               </ul>
             </div>
             {/* Spalte 3: Kategorien wie im Header, mit 'Alle Produkte' Link oben */}
-            <div className="text-left flex flex-col items-start">
+            <div className="text-left flex flex-col items-start w-full">
               <Link
                 href="/shop"
                 className="font-bold text-foreground mb-3 block hover:text-primary hover:underline transition-colors"
@@ -383,7 +383,7 @@ export default function Footer() {
               </ul>
             </div>
             {/* Spalte 4: Beratung */}
-            <div className="text-left">
+            <div className="text-left flex flex-col items-start w-full">
               <Link
                 href="/beratung"
                 className="hover:text-primary hover:underline transition-colors"
