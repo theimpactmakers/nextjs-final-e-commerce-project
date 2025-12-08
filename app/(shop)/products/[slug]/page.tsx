@@ -3,6 +3,7 @@ import { createClient as createStaticClient } from "@/lib/supabase/client";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import SingleProductView from "./SingleProductView";
+import { getProductReviews, getReviewStats } from "@/lib/supabase/reviews";
 
 export const revalidate = 60;
 
@@ -67,6 +68,12 @@ export default async function ProductPage(props: ProductPageProps) {
     notFound();
   }
 
+  // Fetch reviews and stats
+  const [reviews, reviewStats] = await Promise.all([
+    getProductReviews(product.id),
+    getReviewStats(product.id),
+  ]);
+
   return (
     <div className="container max-w-7xl px-4 py-8">
       {/* Breadcrumb */}
@@ -82,7 +89,7 @@ export default async function ProductPage(props: ProductPageProps) {
         <span className="text-foreground font-medium">{product.name}</span>
       </nav>
 
-      <SingleProductView product={product} />
+      <SingleProductView product={product} reviews={reviews} reviewStats={reviewStats} />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import CookieBanner from "@/components/CookieBanner";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
+import { ReviewProvider } from "@/contexts/ReviewContext";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,6 +28,7 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
+              <ReviewProvider>
               <Header />
               <main className="grow">{children}</main>
               <Footer />
@@ -44,6 +46,8 @@ export default function RootLayout({
                   },
                 }}
               />
+
+            </ReviewProvider>
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>
