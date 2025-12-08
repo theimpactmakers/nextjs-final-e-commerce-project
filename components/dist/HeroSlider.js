@@ -75,5 +75,12 @@ exports.HeroSlider = function (_a) {
                 react_1["default"].createElement("div", { className: index === currentSlide
                         ? "animate-[popIn_0.6s_ease-out_0.8s_both] animated-slide"
                         : "opacity-0 animated-slide", style: { willChange: 'transform, opacity', backfaceVisibility: 'hidden', transform: 'translateZ(0)' } },
-                    react_1["default"].createElement(Button_1["default"], { href: slide.ctaLink, className: "shadow-xl mt-2 text-sm md:text-base" }, slide.cta))))); }))));
+                    react_1["default"].createElement(Button_1["default"], { href: slide.ctaLink, className: "shadow-xl mt-2 text-sm md:text-base" }, slide.cta))))); })),
+        react_1["default"].createElement("button", { onClick: prevSlide, "aria-label": "Previous slide", className: "absolute top-1/2 left-1 md:left-4 transform -translate-y-1/2 p-3 bg-black/30 backdrop-blur-md hover:bg-black/50 hover:scale-90 text-white rounded-full transition-all shadow-md cursor-pointer", style: { willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translateZ(0)' } },
+            react_1["default"].createElement(ChevronLeft, { className: "w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" })),
+        react_1["default"].createElement("button", { onClick: nextSlide, "aria-label": "Next slide", className: "absolute top-1/2 right-1 md:right-4 transform -translate-y-1/2 p-3 bg-black/30 backdrop-blur-md hover:bg-black/50 hover:scale-90 text-white rounded-full transition-all shadow-md cursor-pointer", style: { willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translateZ(0)' } },
+            react_1["default"].createElement(ChevronRight, { className: "w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" })),
+        react_1["default"].createElement("div", { className: "absolute bottom-4 left-0 right-0 flex justify-center space-x-2" }, slides.map(function (_, index) { return (react_1["default"].createElement("button", { key: index, onClick: function () { return setCurrentSlide(index); }, "aria-label": "Go to slide " + (index + 1), className: "w-3.5 h-3.5 md:w-3 md:h-3 lg:w-2.5 lg:h-2.5 rounded-full transition-colors duration-300 cursor-pointer " + (index === currentSlide
+                ? "bg-accent shadow-md"
+                : "bg-white/70 hover:bg-white"), style: { willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translateZ(0)' } })); }))));
 };
