@@ -22,14 +22,18 @@ export default async function Home() {
           <a
             href="/promotions"
             className="relative rounded-3xl border overflow-hidden shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
-            style={{ backgroundColor: "#d7ab7f" }}
           >
+            {/* Dedicated Background Color Layer */}
+            <div
+              className="absolute inset-0"
+              style={{ backgroundColor: "#f3a26a", zIndex: 0 }}
+            />
             {/* Desktop Hintergrund */}
             <div
               className="absolute inset-0 bg-cover bg-center hidden md:block"
               style={{
                 backgroundImage: "url('/images/categories/sale.svg')",
-                backgroundColor: "#d7ab7f",
+                zIndex: 1,
               }}
             />
             {/* Mobile Hintergrund */}
@@ -37,7 +41,7 @@ export default async function Home() {
               className="absolute inset-0 bg-cover bg-center md:hidden"
               style={{
                 backgroundImage: "url('/images/categories/salemobile.svg')",
-                backgroundColor: "#d7ab7f",
+                zIndex: 1,
               }}
             />
             <div className="absolute inset-0 bg-black/20" />
