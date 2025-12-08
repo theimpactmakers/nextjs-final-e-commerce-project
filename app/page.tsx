@@ -11,7 +11,6 @@ export const revalidate = 60;
 export default async function Home() {
   return (
     <div className="w-full">
-      {" "}
       {/* Herosection */}
       <HeroSlider slides={SLIDES_DATA} />
       <main className="container max-w-7xl px-4 flex flex-col">
@@ -27,7 +26,7 @@ export default async function Home() {
               className="absolute inset-0"
               style={{ backgroundColor: "#e7a46d", zIndex: 0 }}
             />
-            {/* SVG Layer */}
+
             <div
               className="absolute inset-0 bg-cover bg-center hidden md:block"
               style={{
@@ -78,10 +77,9 @@ export default async function Home() {
                   backgroundImage:
                     "url('/images/categories/altersgruppen.svg')",
                 }}
-              />{" "}
+              />
               <div className="absolute inset-0 bg-black/30" />{" "}
               <div className="absolute inset-0 flex items-center justify-center">
-                {" "}
                 <span className="text-white text-xl font-bold tracking-wide text-center">
                   {" "}
                   ALLE <br /> ALTERSGRUPPEN{" "}
@@ -90,52 +88,44 @@ export default async function Home() {
             </a>{" "}
             {/* Fleischsorten */}
             <div className="grid grid-cols-2 gap-4">
-              {" "}
               <a
                 href="/marketing/specials"
                 className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
-                {" "}
                 <div
                   className="aspect-21/9 bg-cover bg-center"
                   style={{
                     backgroundImage: "url('/images/categories/sorten.svg')",
                   }}
-                />{" "}
-                <div className="absolute inset-0 bg-black/30" />{" "}
+                />
+                <div className="absolute inset-0 bg-black/30" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  {" "}
                   <span className="text-white text-lg font-bold tracking-wide text-center">
-                    {" "}
-                    FLEISCHSORTEN{" "}
-                  </span>{" "}
-                </div>{" "}
-              </a>{" "}
+                    FLEISCHSORTEN
+                  </span>
+                </div>
+              </a>
               <a
                 href="/specials"
                 className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
-                {" "}
                 <div
                   className="aspect-21/9 bg-cover bg-center"
                   style={{
                     backgroundImage:
                       "url('/images/categories/spezialfutter.svg')",
                   }}
-                />{" "}
-                <div className="absolute inset-0 bg-black/30" />{" "}
+                />
+                <div className="absolute inset-0 bg-black/30" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  {" "}
                   <span className="text-white text-lg font-bold tracking-wide">
-                    {" "}
-                    SPEZIALFUTTER{" "}
-                  </span>{" "}
-                </div>{" "}
-              </a>{" "}
-            </div>{" "}
-          </div>{" "}
+                    SPEZIALFUTTER
+                  </span>
+                </div>
+              </a>
+            </div>
+          </div>
         </section>
-
         {/* Bestseller Carousel  */}
         <section>
           <div className="w-full border-t border-muted-foreground/20 pb-16" />
