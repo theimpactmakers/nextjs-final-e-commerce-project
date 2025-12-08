@@ -163,7 +163,7 @@ export default function PromotionProductCard({
                   className="flex items-center justify-between p-2 bg-linear-to-r  rounded-md"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-white bg-linear-to-r from-[#a90329] to-[#c44848] px-2 py-1 rounded-[8px]">
+                    <span className="text-[10px] font-bold text-white bg-linear-to-r from-[#a90329] to-[#c44848] px-2 py-1 rounded-sm">
                       {formatWeight(variant.weight_grams)}
                     </span>
                   </div>

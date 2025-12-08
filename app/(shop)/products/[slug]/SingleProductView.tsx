@@ -5,8 +5,13 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useReviews } from "@/contexts/ReviewContext";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import RelatedProducts from "@/components/RelatedProducts";
+import ReviewStats from "@/components/ReviewStats";
+import ReviewList from "@/components/ReviewList";
+import ReviewForm from "@/components/ReviewForm";
 import {
   AddToCartButton,
   BuyNowButton,
@@ -23,8 +28,26 @@ type Product = Database["public"]["Tables"]["products"]["Row"] & {
   feeding_guidelines: Database["public"]["Tables"]["feeding_guidelines"]["Row"][];
 };
 
+type Review = Database["public"]["Tables"]["reviews"]["Row"] & {
+  profiles?: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+  };
+};
+
+type ReviewStats = {
+  averageRating: number;
+  totalReviews: number;
+  ratingDistribution: {
+    [key: number]: number;
+  };
+};
+
 interface SingleProductViewProps {
   product: Product;
+  reviews: Review[];
+  reviewStats: ReviewStats;
 }
 
 interface PromotionData {
@@ -35,7 +58,7 @@ interface PromotionData {
   discountType: "percentage" | "fixed_amount";
 }
 
-export default function SingleProductView({ product }: SingleProductViewProps) {
+export default function SingleProductView({ product, reviews: initialReviews, reviewStats }: SingleProductViewProps) {
   const searchParams = useSearchParams();
   const variantIdFromUrl = searchParams.get('variant');
   
@@ -61,9 +84,15 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
     null
   );
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [canReview, setCanReview] = useState(false);
+  const [productReviews, setProductReviews] = useState<Review[]>(initialReviews);
 
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { user } = useAuth();
+  const { deleteReview, getProductReviews, checkUserCanReview } = useReviews();
   const router = useRouter();
 
   const inWishlist = isInWishlist(product.id);
@@ -135,6 +164,50 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
 
     loadPromotion();
   }, [selectedVariant, product.id]);
+
+  // Check if user can leave a review
+  useEffect(() => {
+    const checkReviewPermission = async () => {
+      if (user) {
+        const result = await checkUserCanReview(product.id);
+        setCanReview(result.canReview);
+      }
+    };
+
+    checkReviewPermission();
+  }, [user, product.id, checkUserCanReview]);
+
+  // Refresh reviews when switching to reviews tab
+  useEffect(() => {
+    if (activeTab === "reviews") {
+      refreshReviews();
+    }
+  }, [activeTab]);
+
+  const refreshReviews = async () => {
+    const { data } = await getProductReviews(product.id);
+    if (data) {
+      setProductReviews(data);
+    }
+  };
+
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review);
+    setShowReviewForm(true);
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (confirm("Möchten Sie diese Bewertung wirklich löschen?")) {
+      await deleteReview(reviewId);
+      await refreshReviews();
+    }
+  };
+
+  const handleReviewSubmitted = async () => {
+    setShowReviewForm(false);
+    setEditingReview(null);
+    await refreshReviews();
+  };
 
   // Get the final price
   const finalPrice = promotionData
@@ -753,12 +826,63 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           )}
 
           {activeTab === "reviews" && (
-            <div
-              id="reviews-section"
-              className="text-center py-8 text-muted-foreground"
-            >
-              Noch keine Bewertungen vorhanden. Seien Sie der Erste, der dieses
-              Produkt bewertet!
+            <div id="reviews-section" className="space-y-6">
+              {/* Review Stats */}
+              {reviewStats.totalReviews > 0 && (
+                <ReviewStats stats={reviewStats} />
+              )}
+
+              {/* Write Review Button */}
+              {user && canReview && !showReviewForm && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => setShowReviewForm(true)}
+                    className="px-6 py-3 bg-linear-to-r from-amber-500 to-amber-600 text-white rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all shadow-md hover:shadow-lg"
+                  >
+                    Bewertung schreiben
+                  </button>
+                </div>
+              )}
+
+              {/* Review Form */}
+              {showReviewForm && (
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">
+                      {editingReview ? "Bewertung bearbeiten" : "Bewertung schreiben"}
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setShowReviewForm(false);
+                        setEditingReview(null);
+                      }}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <ReviewForm
+                    productId={product.id}
+                    existingReview={editingReview}
+                    onSuccess={handleReviewSubmitted}
+                    onCancel={() => {
+                      setShowReviewForm(false);
+                      setEditingReview(null);
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Review List */}
+              <ReviewList
+                productId={product.id}
+                initialReviews={productReviews}
+                currentUserId={user?.id}
+                onEditReview={handleEditReview}
+                onDeleteReview={handleDeleteReview}
+              />
             </div>
           )}
         </div>
