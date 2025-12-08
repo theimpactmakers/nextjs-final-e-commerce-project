@@ -379,9 +379,7 @@ export default function Header() {
                 href="/promotions"
                 className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
-                <span className="flex items-center gap-1">
-                  Angebote
-                </span>
+                <span className="flex items-center gap-1">Angebote</span>
                 <span
                   className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                   style={{
@@ -711,25 +709,22 @@ export default function Header() {
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <button
-                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="relative p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer"
+              <Link
+                href={user ? "/userProfile" : loginUrl}
+                onClick={() => setProfileDropdownOpen(false)}
+                className="relative p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer inline-block"
                 aria-label="Benutzerprofil"
-              > 
-
-                {!user && (
-                  <User className="w-7 h-7 bold" strokeWidth={2}/>
-                )}
+              >
+                {!user && <User className="w-7 h-7 bold" strokeWidth={2} />}
 
                 {/* Grüner Online-Indikator wenn angemeldet */}
                 {user && (
-                    <>
-                      <User className="w-7 h-7 bold text-green-600" />
-                      <span className="absolute top-0 right-0.5 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
-                    </>
-                  )
-                }
-              </button>
+                  <>
+                    <User className="w-7 h-7 bold text-green-600" />
+                    <span className="absolute top-0 right-0.5 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
+                  </>
+                )}
+              </Link>
 
               {profileDropdownOpen && (
                 <div className="absolute right-0 top-full mt-1 w-56 bg-white/98 backdrop-blur-sm border border-gray-200/30 rounded-md shadow-sm p-2 z-50">
@@ -994,7 +989,9 @@ export default function Header() {
               {user && (
                 <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
               )}
-              <span className="sr-only">{user ? "Benutzerprofil" : "Anmelden"}</span>
+              <span className="sr-only">
+                {user ? "Benutzerprofil" : "Anmelden"}
+              </span>
             </Link>
             {/* Hamburger menu */}
             <button
@@ -1127,7 +1124,11 @@ export default function Header() {
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2 text-lg font-medium hover:text-[hsl(var(--accent))]"
               >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
                 Angebote

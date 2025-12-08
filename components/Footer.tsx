@@ -16,7 +16,7 @@ function CategoryDropdown({
     <div>
       <button
         type="button"
-        className="w-full flex items-center justify-center md:justify-between text-foreground font-normal focus:outline-none hover:text-primary transition-colors cursor-pointer"
+        className="w-full flex items-center justify-start text-foreground font-normal focus:outline-none hover:text-primary transition-colors cursor-pointer"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls={`cat-dropdown-${label}`}
@@ -101,7 +101,7 @@ function NewsletterSection() {
   };
 
   return (
-    <section className="w-full relative overflow-visible mt-12 sm:mt-16 md:mt-20">
+    <section className="w-full relative overflow-visible mt-32 sm:mt-4 md:mt-24">
       {/* Brauner Hintergrund - volle Breite */}
       <div className="w-full bg-primary pt-6 sm:pt-8 md:pt-4 lg:pt-6 px-6 sm:px-8 lg:px-12 pb-0 overflow-visible">
         <div className="container max-w-7xl flex flex-col md:flex-row items-center md:items-center justify-between gap-6 sm:gap-8 md:gap-8 lg:gap-10 relative overflow-visible md:h-56 lg:h-60">
@@ -118,7 +118,7 @@ function NewsletterSection() {
           </div>
           {/* Text und Formular - auf mobil oben, auf desktop rechts und vertikal zentriert */}
           <div className="order-1 md:order-2 flex-1 max-w-xl flex flex-col justify-center items-center w-full px-4 sm:px-0">
-            <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 text-white text-center">
+            <h2 className="text-base sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 mt-2 sm:mb-3 md:mb-4 text-white text-center">
               Werde Teil unserer Community
             </h2>
 
@@ -126,7 +126,7 @@ function NewsletterSection() {
               Abonniere unseren Newsletter und verpasse keine Neuigkeiten!
             </div>
             <form
-              className="flex w-full max-w-lg gap-0 relative"
+              className="flex flex-col sm:flex-row w-full max-w-md gap-3 sm:gap-0 sm:relative"
               onSubmit={handleSubmit}
               noValidate
             >
@@ -135,7 +135,7 @@ function NewsletterSection() {
                 placeholder="Jetzt zum Newsletter anmelden..."
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="flex-1 w-full px-4 py-2.5 sm:px-4 sm:py-2.5 pr-24 sm:pr-32 text-xs sm:text-sm md:text-base border border-gray-300 rounded-full focus:outline-none bg-white"
+                className="flex-1 w-full px-4 py-2.5 sm:pr-32 text-xs sm:text-sm md:text-base border border-gray-300 rounded-(--app-radius) sm:rounded-full focus:outline-none bg-white"
                 aria-label="Newsletter abonnieren"
                 aria-invalid={status === "error" || status === "validation"}
               />
@@ -143,7 +143,7 @@ function NewsletterSection() {
                 type="submit"
                 variant="primary"
                 disabled={status === "loading"}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full hover:translate-x-1 hover:translate-y-[-50%] text-xs sm:text-sm md:text-base px-4 py-1.5 sm:right-2 sm:px-4 sm:py-1.5"
+                className="w-32 mx-auto sm:w-auto sm:absolute sm:right-2 sm:top-1/2 sm:-translate-y-1/2 sm:rounded-full sm:hover:translate-x-1 sm:hover:translate-y-[-50%] text-xs sm:text-sm md:text-base px-4 py-2.5 sm:py-1.5"
               >
                 {status === "loading" ? "Wird gesendet..." : "Abonnieren"}
               </Button>
@@ -159,7 +159,7 @@ function NewsletterSection() {
                 {feedback}
               </p>
             )}
-            <div className="flex items-center justify-center gap-4 text-white mb-4 mt-6">
+            <div className="flex items-center justify-center gap-4 text-white mt-6">
               <Link
                 href="https://www.facebook.com"
                 aria-label="Facebook"
@@ -294,31 +294,31 @@ export default function Footer() {
               </ul>
             </div>
             {/* Spalte 3: Kategorien wie im Header, mit 'Alle Produkte' Link oben */}
-            <div className="text-left">
+            <div className="text-left flex flex-col items-start">
               <Link
                 href="/shop"
                 className="font-bold text-foreground mb-3 block hover:text-primary hover:underline transition-colors"
               >
                 Alle Produkte
               </Link>
-              <ul className="space-y-2 text-sm">
+              <ul className="space-y-2 text-sm w-full">
                 <li>
                   <CategoryDropdown label="Alter">
                     <Link
                       href="/junior"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
                       Junior
                     </Link>
                     <Link
                       href="/adult"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
                       Adult
                     </Link>
                     <Link
                       href="/senior"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
                       Senior
                     </Link>
@@ -328,43 +328,43 @@ export default function Footer() {
                   <CategoryDropdown label="Fleischsorte">
                     <Link
                       href="/shop?meat=ente"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
                       Ente
                     </Link>
                     <Link
                       href="/shop?meat=rind"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
                       Rind
                     </Link>
                     <Link
                       href="/shop?meat=kaninchen"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
                       Kaninchen
                     </Link>
                     <Link
                       href="/shop?meat=lamm"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
                       Lamm
                     </Link>
                     <Link
                       href="/shop?meat=pferd"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
                       Pferd
                     </Link>
                     <Link
                       href="/shop?meat=wild"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
                       Wild
                     </Link>
                     <Link
                       href="/shop?meat=lachs"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
                       Lachs
                     </Link>
@@ -373,28 +373,10 @@ export default function Footer() {
                 <li>
                   <CategoryDropdown label="Spezialfutter">
                     <Link
-                      href="/shop?specials=diat"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
+                      href="/specials"
+                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Diätfutter
-                    </Link>
-                    <Link
-                      href="/shop?specials=hypoallergen"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
-                    >
-                      Hypoallergen
-                    </Link>
-                    <Link
-                      href="/shop?specials=darm"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
-                    >
-                      Darmgesundheit
-                    </Link>
-                    <Link
-                      href="/shop?specials=gelenk"
-                      className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-center md:text-left"
-                    >
-                      Gelenkfit
+                      Spezialfutter Übersicht
                     </Link>
                   </CategoryDropdown>
                 </li>
@@ -452,55 +434,49 @@ export default function Footer() {
               </Link>
               {/* Zahlungsmethoden Rechts */}
               <div className="flex items-center gap-3 order-2 md:order-0">
-                <div className="text-xs font-semibold text-foreground mr-2 hidden md:block">
+                <div className="text-xs font-semibold text-foreground mr-2 block">
                   Sichere Zahlung mit:
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* Visa */}
+                  {/* Kreditkarte */}
                   <div className="bg-white px-2 py-1 rounded border border-gray-200">
-                    <svg className="h-5 w-auto" viewBox="0 0 48 32" fill="none">
-                      <rect width="48" height="32" rx="4" fill="white" />
-                      <path
-                        d="M20.5 11h-3.2L14 21h2l.6-2h2.8l.3 2h2.3l-1.5-10zm-2.8 6l1-5 .5 5h-1.5zm6.8-6h-2l-2 10h2l2-10zm5 0h-1.8l-2.5 10h2l.5-2h2.4l.4 2h2l-3-10zm-.3 6h-1.5l.8-4 .7 4zm7.3-6h-2.2l-1 10h2l.4-4 1.5 4h2l-2-5.5 1.5-4.5h-2l-1 4-.2-4z"
-                        fill="#1434CB"
-                      />
-                    </svg>
-                  </div>
-                  {/* Mastercard */}
-                  <div className="bg-white px-2 py-1 rounded border border-gray-200">
-                    <svg className="h-5 w-auto" viewBox="0 0 48 32" fill="none">
-                      <rect width="48" height="32" rx="4" fill="white" />
-                      <circle cx="18" cy="16" r="7" fill="#EB001B" />
-                      <circle cx="30" cy="16" r="7" fill="#F79E1B" />
-                      <path
-                        d="M24 11.5a7 7 0 000 9 7 7 0 000-9z"
-                        fill="#FF5F00"
-                      />
-                    </svg>
+                    <Image
+                      src="/images/payment/creditcard.png"
+                      alt="Kreditkarte"
+                      width={40}
+                      height={25}
+                      className="h-5 w-auto"
+                    />
                   </div>
                   {/* PayPal */}
                   <div className="bg-white px-2 py-1 rounded border border-gray-200">
-                    <svg className="h-5 w-auto" viewBox="0 0 48 32" fill="none">
-                      <rect width="48" height="32" rx="4" fill="white" />
-                      <path
-                        d="M19 10h-3l-2 12h2l.5-3h2c2 0 3.5-1.5 3.5-3.5 0-2.5-1.5-5.5-3-5.5zm-.5 6h-1.5l.5-3h1c1 0 1.5 1 1.5 1.5s-.5 1.5-1.5 1.5zm8.5-6h-3l-2 12h2l.5-3h2c2 0 3.5-1.5 3.5-3.5 0-2.5-1.5-5.5-3-5.5zm-.5 6h-1.5l.5-3h1c1 0 1.5 1 1.5 1.5s-.5 1.5-1.5 1.5z"
-                        fill="#003087"
-                      />
-                      <path
-                        d="M35 10h-2l-2 12h2l2-12zm-5 4l1-4h-2l-3 12h2l1-5c.5-1 1.5-2 2.5-2l.5-1z"
-                        fill="#009CDE"
-                      />
-                    </svg>
+                    <Image
+                      src="/images/payment/paypal.png"
+                      alt="PayPal"
+                      width={40}
+                      height={25}
+                      className="h-5 w-auto"
+                    />
                   </div>
                   {/* Klarna */}
                   <div className="bg-white px-2 py-1 rounded border border-gray-200">
-                    <svg className="h-5 w-auto" viewBox="0 0 48 32" fill="none">
-                      <rect width="48" height="32" rx="4" fill="white" />
-                      <path
-                        d="M14 10h2v12h-2V10zm5 0h2v5l3-5h2.5l-3.5 5.5 4 6.5h-2.5l-3-5v5h-2V10zm9 0v12h2v-4h1c2 0 3-1.5 3-4s-1-4-3-4h-3zm2 2h1c1 0 1.5.5 1.5 2s-.5 2-1.5 2h-1v-4z"
-                        fill="#FFB3C7"
-                      />
-                    </svg>
+                    <Image
+                      src="/images/payment/klarna.webp"
+                      alt="Klarna"
+                      width={40}
+                      height={25}
+                      className="h-5 w-auto"
+                    />
+                  </div>
+                  {/* SEPA */}
+                  <div className="bg-white px-2 py-1 rounded border border-gray-200">
+                    <Image
+                      src="/images/payment/sepa.jpg"
+                      alt="SEPA"
+                      width={40}
+                      height={25}
+                      className="h-5 w-auto"
+                    />
                   </div>
                 </div>
               </div>

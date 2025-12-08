@@ -34,8 +34,9 @@ export default function ProductCard({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [promotionData, setPromotionData] = useState<PromotionData | null>(null);
-  const [loadingPromotion, setLoadingPromotion] = useState(true);
+  const [promotionData, setPromotionData] = useState<PromotionData | null>(
+    null
+  );
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
@@ -49,14 +50,12 @@ export default function ProductCard({
   // Load promotion data when variant changes
   useEffect(() => {
     const loadPromotion = async () => {
-      setLoadingPromotion(true);
       const promo = await calculatePromotionDiscount(
         product.id,
         selectedVariant.id,
         selectedVariant.price
       );
       setPromotionData(promo);
-      setLoadingPromotion(false);
     };
 
     loadPromotion();
@@ -86,12 +85,6 @@ export default function ProductCard({
             selectedVariant.compare_at_price) *
             100
         )
-      : 0;
-
-  // Calculate promotion discount percentage
-  const promotionDiscountPercentage =
-    promotionData && promotionData.discountType === "percentage"
-      ? Math.round(promotionData.discountAmount)
       : 0;
 
   // Get the final price (promotion takes precedence)
@@ -125,8 +118,7 @@ export default function ProductCard({
         1
       );
 
-      // Optional: Show success message
-      alert("Produkt wurde zum Warenkorb hinzugefügt!");
+      // Toast notification is shown by CartContext
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Fehler beim Hinzufügen zum Warenkorb");
@@ -185,9 +177,7 @@ export default function ProductCard({
         >
           <Heart
             className={`h-5 w-5 transition-colors ${
-              inWishlist
-                ? "fill-red-500 stroke-red-500"
-                : "stroke-gray-600"
+              inWishlist ? "fill-red-500 stroke-red-500" : "stroke-gray-600"
             }`}
             strokeWidth={2}
           />

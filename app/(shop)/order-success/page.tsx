@@ -48,7 +48,7 @@ function OrderSuccessContent() {
             Weiter einkaufen
           </Link>
           <Link
-            href="/userProfile"
+            href="/userProfile?tab=orders"
             className="px-6 py-3 transition-colors border rounded-lg hover:bg-muted"
           >
             Meine Bestellungen

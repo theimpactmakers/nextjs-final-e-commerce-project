@@ -60,13 +60,13 @@ interface PromotionData {
 
 export default function SingleProductView({ product, reviews: initialReviews, reviewStats }: SingleProductViewProps) {
   const searchParams = useSearchParams();
-  const variantIdFromUrl = searchParams.get('variant');
-  
+  const variantIdFromUrl = searchParams.get("variant");
+
   // Finde die initiale Variante basierend auf URL-Parameter oder nehme die erste
   const getInitialVariant = () => {
     if (variantIdFromUrl) {
       const variantFromUrl = product.product_variants.find(
-        v => v.id === variantIdFromUrl
+        (v) => v.id === variantIdFromUrl
       );
       if (variantFromUrl) return variantFromUrl;
     }
@@ -101,7 +101,7 @@ export default function SingleProductView({ product, reviews: initialReviews, re
   useEffect(() => {
     if (!hasInitialized && variantIdFromUrl) {
       const variantFromUrl = product.product_variants.find(
-        v => v.id === variantIdFromUrl
+        (v) => v.id === variantIdFromUrl
       );
       if (variantFromUrl) {
         setSelectedVariant(variantFromUrl);
@@ -241,9 +241,6 @@ export default function SingleProductView({ product, reviews: initialReviews, re
         selectedVariant.stock_quantity || 0,
         quantity
       );
-
-      // Show success message
-      alert("Produkt wurde zum Warenkorb hinzugefügt!");
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Fehler beim Hinzufügen zum Warenkorb");
