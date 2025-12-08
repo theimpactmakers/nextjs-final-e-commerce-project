@@ -24,11 +24,25 @@ function CategoryDropdown({
         <span className="flex items-center">
           {label}
           <span
-            className={`ml-2 h-5 w-5 flex items-center justify-center text-lg font-normal transition-transform ${
-              open ? "rotate-45 text-primary" : "text-foreground"
+            className={`ml-2 h-5 w-5 flex items-center justify-center transition-transform ${
+              open ? "rotate-180 text-primary" : "text-foreground"
             }`}
           >
-            +
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
           </span>
         </span>
       </button>
@@ -308,19 +322,19 @@ export default function Footer() {
                       href="/junior"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Junior
+                      - Junior
                     </Link>
                     <Link
                       href="/adult"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Adult
+                      - Adult
                     </Link>
                     <Link
                       href="/senior"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Senior
+                      - Senior
                     </Link>
                   </CategoryDropdown>
                 </li>
@@ -330,43 +344,43 @@ export default function Footer() {
                       href="/shop?meat=ente"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Ente
+                      - Ente
                     </Link>
                     <Link
                       href="/shop?meat=rind"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Rind
+                      - Rind
                     </Link>
                     <Link
                       href="/shop?meat=kaninchen"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Kaninchen
+                      - Kaninchen
                     </Link>
                     <Link
                       href="/shop?meat=lamm"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Lamm
+                      - Lamm
                     </Link>
                     <Link
                       href="/shop?meat=pferd"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Pferd
+                      - Pferd
                     </Link>
                     <Link
                       href="/shop?meat=wild"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Wild
+                      - Wild
                     </Link>
                     <Link
                       href="/shop?meat=lachs"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Lachs
+                      - Lachs
                     </Link>
                   </CategoryDropdown>
                 </li>
@@ -376,7 +390,7 @@ export default function Footer() {
                       href="/specials"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Spezialfutter Übersicht
+                      - Übersicht
                     </Link>
                   </CategoryDropdown>
                 </li>
