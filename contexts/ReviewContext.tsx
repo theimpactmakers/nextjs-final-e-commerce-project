@@ -146,16 +146,18 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      // Check if user has purchased this product
+      // Check if user has purchased this specific product
       const { data: orderData } = await supabase
         .from("order_items")
         .select(`
           id,
+          product_id,
           orders!inner (
             user_id,
             status
           )
         `)
+        .eq("product_id", productId)
         .eq("orders.user_id", user.id)
         .eq("orders.status", "delivered")
         .limit(1);
@@ -173,7 +175,7 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
       const hasReviewed = !!reviewData;
 
       return {
-        canReview: !hasReviewed,
+        canReview: hasPurchased && !hasReviewed,
         hasPurchased,
         hasReviewed,
       };
