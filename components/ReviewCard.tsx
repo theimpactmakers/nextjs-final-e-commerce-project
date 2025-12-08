@@ -1,7 +1,6 @@
 "use client";
 
 import { format } from "date-fns";
-import { de } from "date-fns/locale/de";
 import type { Database } from "@/types";
 
 type Review = Database["public"]["Tables"]["reviews"]["Row"] & {
@@ -25,7 +24,7 @@ export default function ReviewCard({ review, onEdit, onDelete, isOwnReview }: Re
     : "Anonymer Nutzer";
 
   const createdDate = review.created_at
-    ? format(new Date(review.created_at), "dd. MMMM yyyy", { locale: de })
+    ? format(new Date(review.created_at), "dd. MMMM yyyy")
     : "";
 
   return (
