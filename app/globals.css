@@ -1,6 +1,6 @@
 /* stylelint-disable at-rule-no-unknown */
 /* stylelint-disable function-no-unknown */
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @plugin 'tailwindcss-animate';
 
@@ -89,7 +89,6 @@
   /* #BB6B00 - Gold/Orange Akzent */
   --color-accent-foreground: hsl(0 0% 98%);
   /* #FAFAFA - Fast Weiß - Text auf Accent */
-
 
   /* === SYSTEM-FARBEN === */
   /* Destructive - Rot für Fehler */
@@ -201,7 +200,7 @@
 
 /* Allow parent hover to trigger child glow */
 @utility brown-glow {
-  transition: color .15s ease;
+  transition: color 0.15s ease;
 }
 
 @utility brown-color-hover {
@@ -230,9 +229,7 @@
   }
 }
 
-
 @media (min-width: 768px) and (max-width: 919px) {
-
   /* target the header search input by id */
   #header-search {
     width: 10rem;
@@ -266,9 +263,8 @@
 
 /* Extra small phone tweaks (mobile-first: improve layout on tiny handsets) */
 @media (max-width: 375px) {
-
   /* reduce header height so content fits better on very small screens */
-  header>.relative.z-10 {
+  header > .relative.z-10 {
     height: 4rem;
     /* 64px */
     padding-left: 0.5rem;
@@ -308,7 +304,7 @@
 
 /* Ultra-small phones (e.g. older 320px devices) */
 @media (max-width: 360px) {
-  header>.relative.z-10 {
+  header > .relative.z-10 {
     height: 3.5rem;
     /* 56px */
     padding-left: 0.25rem;
@@ -327,9 +323,155 @@
   }
 
   /* make sure any potential padding/margins on header controls are reduced */
-  .md\:hidden+.logo-md-narrow,
+  .md\:hidden + .logo-md-narrow,
   .col-start-3 {
     padding-left: 0;
     padding-right: 0;
+  }
+}
+
+/* === TOAST ANIMATIONS === */
+
+/* Shopping cart bounce animation */
+@keyframes cartBounce {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+  }
+  5%,
+  15% {
+    transform: scale(1.15) translateY(-3px);
+  }
+  10%,
+  20% {
+    transform: scale(1) translateY(0);
+  }
+  25% {
+    transform: scale(1.1) translateY(-2px);
+  }
+  30% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Heart beat animation for wishlist */
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  5%,
+  15% {
+    transform: scale(1.2);
+  }
+  10%,
+  20% {
+    transform: scale(1);
+  }
+  25%,
+  35% {
+    transform: scale(1.15);
+  }
+  30%,
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  10% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-cart-bounce {
+  animation: cartBounce 3s ease-in-out;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 3s ease-in-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 3s ease-out;
+}
+
+/* Slide up animation for cookie banner */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Cookie Banner Mobile Optimizations - Override global media queries */
+@media (max-width: 639px) {
+  /* Ensure cookie banner maintains proper sizing on mobile */
+  .cookie-banner-container {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+  }
+
+  .cookie-banner-heading {
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+  }
+
+  .cookie-banner-small-text {
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+  }
+
+  .cookie-banner-button {
+    font-size: 11px !important;
+    padding: 0.625rem 0.5rem !important;
+    line-height: 1.2 !important;
+    min-width: 0 !important;
+  }
+
+  .cookie-banner-icon {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Prevent horizontal scroll on mobile only */
+  .cookie-banner-wrapper {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .cookie-banner-wrapper > div {
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+
+  body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
+  html {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
   }
 }

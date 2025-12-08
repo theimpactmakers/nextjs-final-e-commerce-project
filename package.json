@@ -16,7 +16,8 @@
     "next": "^16.0.7",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-multi-carousel": "^2.8.5",
+    "react-multi-carousel": "^2.8.6",
+    "sonner": "^2.0.7",
     "stripe": "^20.0.0",
     "tailwind-merge": "^3.3.0"
   },

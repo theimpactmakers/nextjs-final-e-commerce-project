@@ -107,8 +107,6 @@ export function WishlistSection() {
 
       // Remove from wishlist after successfully adding to cart
       removeFromWishlist(product.id);
-
-      alert(`${product.name} wurde zum Warenkorb hinzugefügt!`);
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Fehler beim Hinzufügen zum Warenkorb");

@@ -118,8 +118,7 @@ export default function ProductCard({
         1
       );
 
-      // Optional: Show success message
-      alert("Produkt wurde zum Warenkorb hinzugefügt!");
+      // Toast notification is shown by CartContext
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Fehler beim Hinzufügen zum Warenkorb");

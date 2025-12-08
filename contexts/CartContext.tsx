@@ -10,6 +10,7 @@ import React, {
 import { createClient } from "@/lib/supabase/client";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { CartItem, DbCartItem, CartContextType } from "@/types";
+import { toast } from "sonner";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -329,6 +330,42 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       saveLocalCart(localCart);
       setItems(localCart);
     }
+
+    // Show success toast with animated checkmark
+    toast.custom(
+      () => (
+        <div className="flex items-center gap-3 bg-card border-2 border-primary/20 rounded-lg p-4 shadow-xl animate-slide-in-right">
+          <div className="shrink-0">
+            <div className="relative">
+              <svg
+                className="w-10 h-10 text-primary animate-cart-bounce"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="flex-1">
+            <p className="font-bold text-primary text-base">
+              Zum Warenkorb hinzugefügt!
+            </p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {productName} {variantName && `- ${variantName}`}
+            </p>
+          </div>
+        </div>
+      ),
+      {
+        duration: 3000,
+      }
+    );
   };
 
   // Update quantity
