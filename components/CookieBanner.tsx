@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { X, Settings } from "lucide-react";
 
 export default function CookieBanner() {
+  const pathname = usePathname();
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [preferences, setPreferences] = useState({
@@ -15,7 +17,17 @@ export default function CookieBanner() {
     marketing: false,
   });
 
+  // Hide banner on privacy policy and cookie settings pages
+  const isPrivacyPage =
+    pathname === "/datenschutz" || pathname === "/cookieeinstellungen";
+
   useEffect(() => {
+    // Don't show banner on privacy/cookie pages
+    if (isPrivacyPage) {
+      setShowBanner(false);
+      return;
+    }
+
     // Sprawdź czy użytkownik już zaakceptował/odrzucił cookies
     const consent = localStorage.getItem("cookie-consent");
     if (!consent) {
@@ -33,7 +45,7 @@ export default function CookieBanner() {
         console.error("Error parsing cookie preferences:", e);
       }
     }
-  }, []);
+  }, [isPrivacyPage]);
 
   const savePreferences = (prefs: typeof preferences) => {
     localStorage.setItem("cookie-consent", JSON.stringify(prefs));
@@ -112,6 +124,8 @@ export default function CookieBanner() {
                   Weitere Informationen finden Sie in unserer{" "}
                   <Link
                     href="/datenschutz"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-primary hover:underline font-medium underline"
                   >
                     Datenschutzerklärung
@@ -119,6 +133,8 @@ export default function CookieBanner() {
                   und den{" "}
                   <Link
                     href="/cookieeinstellungen"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-primary hover:underline font-medium underline"
                   >
                     Cookie-Einstellungen
