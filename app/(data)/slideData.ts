@@ -28,29 +28,29 @@ export interface HeroSliderProps {
 export const SLIDES_DATA: SlideData[] = [
   {
     id: 1,
-    imageMobile: "https://placehold.co/720x400/1e293b/ffffff?text=Jagd+Mobile",
-    imageDesktop: "https://placehold.co/1600x600/1e293b/ffffff?text=Jagd+Desktop",
+    imageMobile: "/images/slider/slide-1.1.svg",
+    imageDesktop: "/images/slider/slide-1.1.svg",
     title: "Die Jagd ist eröffnet",
     description: "Qualität, die man riechen kann!",
     cta: "Jetzt Shoppen",
-    ctaLink: "/shop"
+    ctaLink: "/shop",
   },
   {
     id: 2,
-    imageMobile: "https://placehold.co/720x400/0f172a/ffffff?text=Natur+Mobile",
-    imageDesktop: "https://placehold.co/1600x600/0f172a/ffffff?text=Natur+Desktop",
+    imageMobile: "/images/slider/slide-2.svg",
+    imageDesktop: "/images/slider/slide-2.svg",
     title: "100% Natur, 0% Kompromisse",
     description: "Entdecke unsere besten Rezepturen.",
     cta: "Zur Kollektion",
-    ctaLink: "/collection"
+    ctaLink: "/shop?meat=kaninchen",
   },
   {
     id: 3,
-    imageMobile: "https://placehold.co/720x400/334155/ffffff?text=Abenteuer+Mobile",
-    imageDesktop: "https://placehold.co/1600x600/334155/ffffff?text=Abenteuer+Desktop",
-    title: "Für jedes Abenteuer bereit",
-    description: "Finde das perfekte Futter für deinen Liebling.",
-    cta: "Futterberater",
-    ctaLink: "/advisor"
+    imageMobile: "/images/slider/slide-3.svg",
+    imageDesktop: "/images/slider/slide-3.svg",
+    title: "Finde das perfekte Futter",
+    description: "",
+    cta: "Zum Futterberater",
+    ctaLink: "/beratung",
   },
 ];
