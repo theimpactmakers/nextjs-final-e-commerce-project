@@ -69,13 +69,15 @@ export const BestsellerCarouselClient: React.FC<
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
-  const [promotions, setPromotions] = useState<Record<string, PromotionData>>({});
+  const [promotions, setPromotions] = useState<Record<string, PromotionData>>(
+    {}
+  );
 
   // Load promotions for all products
   useEffect(() => {
     const loadPromotions = async () => {
       const promoMap: Record<string, PromotionData> = {};
-      
+
       for (const product of products) {
         if (product.id && product.min_price) {
           const promo = await calculatePromotionDiscount(
@@ -88,7 +90,7 @@ export const BestsellerCarouselClient: React.FC<
           }
         }
       }
-      
+
       setPromotions(promoMap);
     };
 
@@ -152,9 +154,7 @@ export const BestsellerCarouselClient: React.FC<
         >
           {products.map((p) => {
             const promo = p.id ? promotions[p.id] : null;
-            const displayPrice = promo
-              ? promo.discountedPrice
-              : p.min_price;
+            const displayPrice = promo ? promo.discountedPrice : p.min_price;
 
             return (
               <div
@@ -202,7 +202,7 @@ export const BestsellerCarouselClient: React.FC<
                         className={`h-4 w-4 transition-colors ${
                           p.id && isInWishlist(p.id)
                             ? "fill-red-500 stroke-red-500"
-                            : "stroke-gray-600"
+                            : "stroke-accent"
                         }`}
                         strokeWidth={2}
                       />
@@ -245,11 +245,12 @@ export const BestsellerCarouselClient: React.FC<
                           <span className="text-base font-bold text-foreground">
                             ab {displayPrice?.toFixed(2) || "N/A"} €
                           </span>
-                          {promo && promo.originalPrice !== promo.discountedPrice && (
-                            <span className="text-[10px] text-muted-foreground line-through">
-                              {promo.originalPrice.toFixed(2)} €
-                            </span>
-                          )}
+                          {promo &&
+                            promo.originalPrice !== promo.discountedPrice && (
+                              <span className="text-[10px] text-muted-foreground line-through">
+                                {promo.originalPrice.toFixed(2)} €
+                              </span>
+                            )}
                         </div>
                         {p.starting_variant_name && (
                           <span className="text-[10px] text-muted-foreground">
@@ -288,14 +289,14 @@ export const BestsellerCarouselClient: React.FC<
         <button
           onClick={prevSlide}
           aria-label="Previous products"
-          className="absolute top-1/2 left-0 transform -translate-y-1/2 p-3 text-foreground hover:opacity-70 transition-all cursor-pointer z-10"
+          className="absolute top-1/2 left-0 transform -translate-y-1/2 p-3 text-accent hover:text-black transition-all cursor-pointer z-10"
         >
           <ChevronLeft className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" />
         </button>
         <button
           onClick={nextSlide}
           aria-label="Next products"
-          className="absolute top-1/2 right-0 transform -translate-y-1/2 p-3 text-foreground hover:opacity-70 transition-all cursor-pointer z-10"
+          className="absolute top-1/2 right-0 transform -translate-y-1/2 p-3 text-accent hover:text-black transition-all cursor-pointer z-10"
         >
           <ChevronRight className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" />
         </button>
