@@ -377,36 +377,9 @@ export default function SingleProductView({ product, reviews: initialReviews, re
 
         {/* Right: Product Info */}
         <div className="space-y-6">
-          {/* Title & Rating */}
+          {/* Title */}
           <div>
-            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            {/* Star Rating */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex text-yellow-500">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <svg
-                    key={star}
-                    className="w-4 h-4 fill-current"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                  </svg>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("reviews");
-                  setTimeout(() => {
-                    const el = document.getElementById("reviews-section");
-                    el?.scrollIntoView({ behavior: "smooth" });
-                  }, 0);
-                }}
-                className="text-xs text-muted-foreground underline hover:text-foreground cursor-pointer hover:no-underline"
-              >
-                4,2 (10) Produktbewertungen
-              </button>
-            </div>
+            <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
           </div>
 
           {/* Key Features */}
