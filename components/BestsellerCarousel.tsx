@@ -29,8 +29,8 @@ const ChevronLeft: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     {...props}
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
+    width="40"
+    height="40"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -46,8 +46,8 @@ const ChevronRight: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     {...props}
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
+    width="40"
+    height="40"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -100,7 +100,9 @@ export const BestsellerCarouselClient: React.FC<
   // Responsive: Adjust items per view based on screen size
   useEffect(() => {
     const updateItemsPerView = () => {
-      if (window.innerWidth >= 1024) {
+      if (window.innerWidth >= 1280) {
+        setItemsPerView(5); // xl: 5 items
+      } else if (window.innerWidth >= 1024) {
         setItemsPerView(4); // lg: 4 items
       } else if (window.innerWidth >= 768) {
         setItemsPerView(3); // md: 3 items
@@ -191,7 +193,11 @@ export const BestsellerCarouselClient: React.FC<
                           }
                         }
                       }}
-                      className="absolute top-2 right-2 z-10 p-1.5 bg-white/90 hover:bg-white rounded-full shadow-md transition-all hover:scale-110"
+                      className={`absolute top-2 right-2 z-10 p-1.5 rounded-full shadow-md transition-all ${
+                        p.id && isInWishlist(p.id)
+                          ? "bg-accent"
+                          : "bg-white/90 hover:bg-white"
+                      } cursor-pointer group`}
                       title={
                         p.id && isInWishlist(p.id)
                           ? "Von Wunschliste entfernen"
@@ -199,9 +205,9 @@ export const BestsellerCarouselClient: React.FC<
                       }
                     >
                       <Heart
-                        className={`h-4 w-4 transition-colors ${
+                        className={`h-4 w-4 transition-colors group-active:scale-125 ${
                           p.id && isInWishlist(p.id)
-                            ? "fill-red-500 stroke-red-500"
+                            ? "fill-white stroke-white"
                             : "stroke-accent"
                         }`}
                         strokeWidth={2}
@@ -289,16 +295,16 @@ export const BestsellerCarouselClient: React.FC<
         <button
           onClick={prevSlide}
           aria-label="Previous products"
-          className="absolute top-1/2 left-0 transform -translate-y-1/2 p-3 text-accent hover:text-black transition-all cursor-pointer z-10"
+          className="absolute top-1/2 left-0 transform -translate-y-1/2 p-2 text-accent hover:text-black transition-all cursor-pointer z-10 flex items-center justify-center"
         >
-          <ChevronLeft className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" />
+          <ChevronLeft className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />
         </button>
         <button
           onClick={nextSlide}
           aria-label="Next products"
-          className="absolute top-1/2 right-0 transform -translate-y-1/2 p-3 text-accent hover:text-black transition-all cursor-pointer z-10"
+          className="absolute top-1/2 right-0 transform -translate-y-1/2 p-2 text-accent hover:text-black transition-all cursor-pointer z-10 flex items-center justify-center"
         >
-          <ChevronRight className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" />
+          <ChevronRight className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />
         </button>
       </>
 

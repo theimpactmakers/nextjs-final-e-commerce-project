@@ -118,11 +118,11 @@ function NewsletterSection() {
           </div>
           {/* Text und Formular - auf mobil oben, auf desktop rechts und vertikal zentriert */}
           <div className="order-1 md:order-2 flex-1 max-w-xl flex flex-col justify-center items-center w-full px-4 sm:px-0">
-            <h2 className="text-base sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 mt-2 sm:mb-3 md:mb-4 text-white text-center">
+            <h2 className="text-base sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 mt-2 sm:mb-3 md:mb-4 text-white/90 text-center">
               Werde Teil unserer Community
             </h2>
 
-            <div className="text-xs sm:text-sm md:text-base text-white/90 mb-3 sm:mb-4 md:mb-5 text-center">
+            <div className="text-xs sm:text-sm md:text-base text-black/90 mb-3 sm:mb-4 md:mb-5 text-center">
               Abonniere unseren Newsletter und verpasse keine Neuigkeiten!
             </div>
             <form
