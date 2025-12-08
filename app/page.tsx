@@ -22,48 +22,44 @@ export default async function Home() {
           <a
             href="/promotions"
             className="relative rounded-3xl border overflow-hidden shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
+            style={{ backgroundColor: "#d7ab7f" }}
           >
             {/* Desktop Hintergrund */}
             <div
               className="absolute inset-0 bg-cover bg-center hidden md:block"
               style={{
                 backgroundImage: "url('/images/categories/sale.svg')",
+                backgroundColor: "#d7ab7f",
               }}
-            />{" "}
+            />
             {/* Mobile Hintergrund */}
             <div
               className="absolute inset-0 bg-cover bg-center md:hidden"
               style={{
                 backgroundImage: "url('/images/categories/salemobile.svg')",
+                backgroundColor: "#d7ab7f",
               }}
-            />{" "}
-            <div className="absolute inset-0 bg-black/20" />{" "}
+            />
+            <div className="absolute inset-0 bg-black/20" />
             <div className="absolute top-3 left-3 rounded-full bg-white/80 text-black text-xs font-semibold mt-8 ml-2 px-2.5 py-1 z-20">
-              {" "}
-              SALE{" "}
-            </div>{" "}
+              SALE
+            </div>
             <div className="relative z-10 flex flex-col gap-2 text-black p-3 md:p-4">
-              {" "}
               <h3 className="text-xl font-bold mt-20">
-                {" "}
-                Feiere Angebote mit deinem Vierbeiner{" "}
-              </h3>{" "}
+                Feiere Angebote mit deinem Vierbeiner
+              </h3>
               <p className="text-black/90 text-xs">
-                {" "}
-                Bis zu 20% Rabatt – nur für kurze Zeit !{" "}
-              </p>{" "}
+                Bis zu 20% Rabatt – nur für kurze Zeit !
+              </p>
               <div className="mt-2">
-                {" "}
                 <span className="inline-block hover:brightness-110 hover:scale-95 transition-all pointer-events-auto">
-                  {" "}
                   <Button variant="secondary" className="text-sm py-2">
-                    {" "}
-                    Zu den Angeboten{" "}
-                  </Button>{" "}
-                </span>{" "}
-              </div>{" "}
-            </div>{" "}
-          </a>{" "}
+                    Zu den Angeboten
+                  </Button>
+                </span>
+              </div>
+            </div>
+          </a>
           {/* Rechte Säule: */}
           <div className="md:col-span-2 grid gap-4">
             {" "}
@@ -167,7 +163,7 @@ export default async function Home() {
           <AgeCategories />{" "}
         </section>
         {/* Feature-Leiste */}
-        <section className="relative overflow-hidden rounded-3xl border bg-linear-to-br from-primary/90 via-primary/80 to-primary/90 p-8 md:p-24 max-w-4xl mx-auto">
+        <section className="relative overflow-hidden rounded-3xl border bg-linear-to-br from-primary/90 via-primary/80 to-primary/90 p-8 md:p-24 max-w-7xl px-4 mx-auto">
           {" "}
           <div className="text-center mb-12">
             {" "}
