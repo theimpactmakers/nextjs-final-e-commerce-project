@@ -152,7 +152,40 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
           </div>
         ))}
       </div>
-      {/* ...existing code... */}
+      {/* Navigationspfeile (Außerhalb der Slides, überlagert) - Sichtbar auf allen Geräten */}
+      <button
+        onClick={prevSlide}
+        aria-label="Previous slide"
+        className="absolute top-1/2 left-1 md:left-4 transform -translate-y-1/2 p-3 bg-black/30 backdrop-blur-md hover:bg-black/50 hover:scale-90 text-white rounded-full transition-all shadow-md cursor-pointer"
+        style={{ willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+      >
+        <ChevronLeft className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" />
+      </button>
+      <button
+        onClick={nextSlide}
+        aria-label="Next slide"
+        className="absolute top-1/2 right-1 md:right-4 transform -translate-y-1/2 p-3 bg-black/30 backdrop-blur-md hover:bg-black/50 hover:scale-90 text-white rounded-full transition-all shadow-md cursor-pointer"
+        style={{ willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+      >
+        <ChevronRight className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" />
+      </button>
+
+      {/* Navigationspunkte (Dots) - Sichtbar auf allen Geräten */}
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentSlide(index)}
+            aria-label={`Go to slide ${index + 1}`}
+            className={`w-3.5 h-3.5 md:w-3 md:h-3 lg:w-2.5 lg:h-2.5 rounded-full transition-colors duration-300 cursor-pointer ${
+              index === currentSlide
+                ? "bg-accent shadow-md"
+                : "bg-white/70 hover:bg-white"
+            }`}
+            style={{ willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+          />
+        ))}
+      </div>
     </section>
   );
 };
