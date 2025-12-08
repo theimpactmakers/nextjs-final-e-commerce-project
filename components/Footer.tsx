@@ -24,11 +24,25 @@ function CategoryDropdown({
         <span className="flex items-center">
           {label}
           <span
-            className={`ml-2 h-5 w-5 flex items-center justify-center text-lg font-normal transition-transform ${
-              open ? "rotate-45 text-primary" : "text-foreground"
+            className={`ml-2 h-5 w-5 flex items-center justify-center transition-transform ${
+              open ? "rotate-180 text-primary" : "text-foreground"
             }`}
           >
-            +
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
           </span>
         </span>
       </button>
@@ -118,11 +132,11 @@ function NewsletterSection() {
           </div>
           {/* Text und Formular - auf mobil oben, auf desktop rechts und vertikal zentriert */}
           <div className="order-1 md:order-2 flex-1 max-w-xl flex flex-col justify-center items-center w-full px-4 sm:px-0">
-            <h2 className="text-base sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 mt-2 sm:mb-3 md:mb-4 text-white text-center">
+            <h2 className="text-base sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 mt-2 sm:mb-3 md:mb-4 text-white/90 text-center">
               Werde Teil unserer Community
             </h2>
 
-            <div className="text-xs sm:text-sm md:text-base text-white/90 mb-3 sm:mb-4 md:mb-5 text-center">
+            <div className="text-xs sm:text-sm md:text-base text-black/90 mb-3 sm:mb-4 md:mb-5 text-center">
               Abonniere unseren Newsletter und verpasse keine Neuigkeiten!
             </div>
             <form
@@ -222,9 +236,9 @@ export default function Footer() {
       {/* Footer-Bereich mit Navigation, Links und Copyright */}
       <footer className="w-full border-t bg-muted py-12 text-muted-foreground">
         <div className="container max-w-7xl px-6 sm:px-8 lg:px-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 w-full gap-56 justify-between">
             {/* Spalte 1: Shop */}
-            <div className="text-left">
+            <div className="text-left flex flex-col items-start w-full">
               <Link
                 href="/shop"
                 className="hover:text-primary hover:underline transition-colors"
@@ -259,7 +273,7 @@ export default function Footer() {
               </ul>
             </div>
             {/* Spalte 2: Home */}
-            <div className="text-left">
+            <div className="text-left flex flex-col items-start w-full">
               <Link
                 href="/"
                 className="hover:text-primary hover:underline transition-colors"
@@ -294,7 +308,7 @@ export default function Footer() {
               </ul>
             </div>
             {/* Spalte 3: Kategorien wie im Header, mit 'Alle Produkte' Link oben */}
-            <div className="text-left flex flex-col items-start">
+            <div className="text-left flex flex-col items-start w-full">
               <Link
                 href="/shop"
                 className="font-bold text-foreground mb-3 block hover:text-primary hover:underline transition-colors"
@@ -308,19 +322,19 @@ export default function Footer() {
                       href="/junior"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Junior
+                      - Junior
                     </Link>
                     <Link
                       href="/adult"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Adult
+                      - Adult
                     </Link>
                     <Link
                       href="/senior"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Senior
+                      - Senior
                     </Link>
                   </CategoryDropdown>
                 </li>
@@ -330,43 +344,43 @@ export default function Footer() {
                       href="/shop?meat=ente"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Ente
+                      - Ente
                     </Link>
                     <Link
                       href="/shop?meat=rind"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Rind
+                      - Rind
                     </Link>
                     <Link
                       href="/shop?meat=kaninchen"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Kaninchen
+                      - Kaninchen
                     </Link>
                     <Link
                       href="/shop?meat=lamm"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Lamm
+                      - Lamm
                     </Link>
                     <Link
                       href="/shop?meat=pferd"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Pferd
+                      - Pferd
                     </Link>
                     <Link
                       href="/shop?meat=wild"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Wild
+                      - Wild
                     </Link>
                     <Link
                       href="/shop?meat=lachs"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Lachs
+                      - Lachs
                     </Link>
                   </CategoryDropdown>
                 </li>
@@ -376,14 +390,14 @@ export default function Footer() {
                       href="/specials"
                       className="block px-4 py-1 hover:text-primary hover:underline transition-colors text-left"
                     >
-                      Spezialfutter Übersicht
+                      - Übersicht
                     </Link>
                   </CategoryDropdown>
                 </li>
               </ul>
             </div>
             {/* Spalte 4: Beratung */}
-            <div className="text-left">
+            <div className="text-left flex flex-col items-start w-full">
               <Link
                 href="/beratung"
                 className="hover:text-primary hover:underline transition-colors"
