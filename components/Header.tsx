@@ -25,6 +25,8 @@ export default function Header() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [activePromotions, setActivePromotions] = useState<Promotion[]>([]);
   const { itemCount } = useCart();
+  // Debug: Log itemCount on every render (after hook)
+  console.log("[DEBUG][Header] itemCount:", itemCount);
   const { wishlistCount } = useWishlist();
   const { user, signOut } = useAuth();
   const pathname = usePathname();

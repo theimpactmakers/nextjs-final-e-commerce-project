@@ -254,6 +254,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     stockQuantity: number,
     quantity: number = 1
   ) => {
+    console.log("addToCart called", { variantId, productId, quantity, userId });
     if (userId) {
       // Add to database for logged-in users
       try {
@@ -290,16 +291,61 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               .update({ quantity: existingItem.quantity + quantity })
               .eq("id", existingItem.id);
           } else {
-            // Insert new item
-            await supabase.from("cart_items").insert({
+            // Insert new item, handle 409 conflict by updating instead
+            const { error } = await supabase.from("cart_items").insert({
               cart_id: cart.id,
               variant_id: variantId,
               quantity,
               price_at_add: price,
             });
+            if (error && error.code === "409") {
+              // If conflict, update quantity instead
+              const { data: retryItem } = await supabase
+                .from("cart_items")
+                .select("id, quantity")
+                .eq("cart_id", cart.id)
+                .eq("variant_id", variantId)
+                .single();
+              if (retryItem) {
+                await supabase
+                  .from("cart_items")
+                  .update({ quantity: retryItem.quantity + quantity })
+                  .eq("id", retryItem.id);
+              }
+            }
           }
 
-          await loadDatabaseCart(userId);
+          // Reload cart and force state update with a new array
+          // Reload cart and setItems with the latest DB state
+          const reload = async () => {
+            const itemsFromDb = await (async () => {
+              let { data: cart } = await supabase
+                .from("carts")
+                .select("id")
+                .eq("user_id", userId)
+                .eq("status", "OPEN")
+                .single();
+              if (!cart) return [];
+              const { data: cartItems } = await supabase
+                .from("cart_items")
+                .select("*")
+                .eq("cart_id", cart.id);
+              return cartItems || [];
+            })();
+            setItems([...itemsFromDb]);
+            setTimeout(() => {
+              const sum = itemsFromDb.reduce(
+                (acc, item) => acc + item.quantity,
+                0
+              );
+              console.log(
+                "[DEBUG] itemCount after DB update:",
+                sum,
+                itemsFromDb
+              );
+            }, 100);
+          };
+          reload();
         }
       } catch (error) {
         console.error("Error adding to cart:", error);
@@ -313,6 +359,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       if (existingItemIndex > -1) {
         localCart[existingItemIndex].quantity += quantity;
+        // Force new array reference for React
+        saveLocalCart([...localCart]);
+        setItems([...localCart]);
+        console.log(
+          "[DEBUG] Updated existing localCart item quantity:",
+          localCart[existingItemIndex]
+        );
       } else {
         localCart.push({
           id: `local-${Date.now()}-${variantId}`,
@@ -328,7 +381,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
 
       saveLocalCart(localCart);
-      setItems(localCart);
+      // Force new array reference for React
+      saveLocalCart([...localCart]);
+      setItems([...localCart]);
+      console.log("Cart updated from localStorage", localCart);
+      // Debug: Log itemCount after localStorage update
+      setTimeout(() => {
+        const sum = localCart.reduce((acc, item) => acc + item.quantity, 0);
+        console.log(
+          "[DEBUG] itemCount after localStorage update:",
+          sum,
+          localCart
+        );
+      }, 100);
     }
 
     // Show success toast with animated checkmark
@@ -442,6 +507,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Calculate totals
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  useEffect(() => {
+    console.log("[DEBUG] CartContext items changed:", items);
+    console.log("[DEBUG] CartContext itemCount:", itemCount);
+  }, [items, itemCount]);
   const totalPrice = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0

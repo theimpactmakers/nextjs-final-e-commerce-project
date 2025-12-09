@@ -111,6 +111,7 @@ export default function ProductCard({
 
   // Handle add to cart
   const handleAddToCart = async () => {
+    console.log("handleAddToCart called", { quantity, selectedVariant });
     if (
       !selectedVariant ||
       !selectedVariant.stock_quantity ||
@@ -123,6 +124,9 @@ export default function ProductCard({
     setShowCartPlus(true);
     setIsAddingToCart(true);
     try {
+      // Ensure quantity is always a number
+      const safeQuantity =
+        typeof quantity === "string" ? parseInt(quantity, 10) : quantity;
       await addToCart(
         selectedVariant?.id ?? "",
         product.id,
@@ -131,7 +135,7 @@ export default function ProductCard({
         finalPrice,
         sortedImages[0]?.image_url || null,
         selectedVariant?.stock_quantity || 0,
-        quantity
+        safeQuantity
       );
 
       // Toast notification is shown by CartContext
@@ -321,7 +325,7 @@ export default function ProductCard({
               href={`/products/${product.slug || product.id}`}
               className="text-accent font-medium text-sm underline hover:no-underline flex items-center gap-1 transition-all"
             >
-              Zum Produkt
+              Produktdetails
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-4 h-4"
@@ -451,7 +455,7 @@ export default function ProductCard({
                 <button
                   type="button"
                   aria-label="Menge verringern"
-                  className="w-8 h-8 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
+                  className="w-8 h-9 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   disabled={quantity <= 1}
                 >
@@ -477,7 +481,7 @@ export default function ProductCard({
                 <button
                   type="button"
                   aria-label="Menge erhöhen"
-                  className="w-8 h-8 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
+                  className="w-8 h-9 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
                   onClick={() =>
                     setQuantity((q) =>
                       selectedVariant?.stock_quantity
