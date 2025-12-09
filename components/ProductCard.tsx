@@ -8,6 +8,7 @@ import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { Database } from "@/types";
 import { Heart } from "lucide-react";
 import Image from "next/image";
+import { AddToCartButton } from "./Button";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type ProductImage = Database["public"]["Tables"]["product_images"]["Row"];
@@ -37,7 +38,11 @@ export default function ProductCard({
     variants && variants.length > 0 ? variants[0] : undefined
   );
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const [promotionData, setPromotionData] = useState<PromotionData | null>(
+    null
+  );
+  const [selectedWeight, setSelectedWeight] = useState<"3kg" | "6kg" | null>(
     null
   );
   const { addToCart } = useCart();
@@ -123,7 +128,7 @@ export default function ProductCard({
         finalPrice,
         sortedImages[0]?.image_url || null,
         selectedVariant?.stock_quantity || 0,
-        1
+        quantity
       );
 
       // Toast notification is shown by CartContext
@@ -139,18 +144,15 @@ export default function ProductCard({
     <div className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 group">
       {/* Image Slider */}
       <div className="relative h-56 bg-muted overflow-hidden">
-        {/* Badges */}
+        {/* Badges + Alter/Fleischsorte */}
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-          {product.is_new && (
-            <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-              NEU
-            </span>
-          )}
           {promotionData && (
-            <span className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
-              {promotionData.discountType === "percentage"
-                ? `AKTION -${Math.round(promotionData.discountAmount)}%`
-                : `AKTION -€${promotionData.discountAmount.toFixed(2)}`}
+            <span className="bg-accent text-white px-2 py-1 rounded-full text-xs font-bold text-center shadow-lg inline-block w-auto">
+              <span className="animate-pulse">
+                {promotionData.discountType === "percentage"
+                  ? `AKTION -${Math.round(promotionData.discountAmount)}%`
+                  : `AKTION -€${promotionData.discountAmount.toFixed(2)}`}
+              </span>
             </span>
           )}
           {variantDiscountPercentage > 0 && !promotionData && (
@@ -163,6 +165,19 @@ export default function ProductCard({
               SALE
             </span>
           )}
+          {/* Alter und Fleischsorte Badges */}
+          <div className="flex gap-1 mt-1">
+            {product.age_group && (
+              <span className="bg-muted-foreground text-white px-2 rounded text-xs font-medium shadow">
+                {product.age_group}
+              </span>
+            )}
+            {product.meat_type && (
+              <span className="bg-muted-foreground text-white px-2 rounded text-xs font-medium shadow">
+                {product.meat_type}
+              </span>
+            )}
+          </div>
         </div>
         {/* Wishlist Button */}
         <button
@@ -175,7 +190,8 @@ export default function ProductCard({
               await addToWishlist(product.id);
             }
           }}
-          className="absolute top-3 right-3 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-md transition-all hover:scale-110"
+          className={`absolute top-3 right-3 z-10 p-2 rounded-full shadow-md transition-all hover:scale-110 cursor-pointer
+            ${inWishlist ? "bg-accent" : "bg-white/90 hover:bg-white"}`}
           title={
             inWishlist
               ? "Von Wunschliste entfernen"
@@ -184,7 +200,9 @@ export default function ProductCard({
         >
           <Heart
             className={`h-5 w-5 transition-colors ${
-              inWishlist ? "fill-red-500 stroke-red-500" : "stroke-gray-600"
+              inWishlist
+                ? "fill-white stroke-white"
+                : "stroke-accent group-hover:fill-accent/20"
             }`}
             strokeWidth={2}
           />
@@ -274,18 +292,39 @@ export default function ProductCard({
       </div>
       {/* Product Info */}
       <div className="flex flex-col p-6">
-        {/* Product Name */}
-        <h3 className="text-xl font-bold leading-tight tracking-tight line-clamp-2 min-h-12 mb-0">
-          {product.name}
-        </h3>
-        {/* Category/Type Badges (now under title) */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground -mt-0.5 mb-3">
-          {product.age_group && (
-            <span className="bg-muted px-2 rounded">{product.age_group}</span>
-          )}
-          {product.meat_type && (
-            <span className="bg-muted px-2 rounded">{product.meat_type}</span>
-          )}
+        {/* Product Name & Weight Selection Row */}
+        <div className="flex items-start justify-between mb-0">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-bold leading-tight tracking-tight line-clamp-2 min-h-10 mb-0">
+              {product.name}
+            </h3>
+            {/* Category/Type Badges entfernt, jetzt im Bild */}
+          </div>
+          {/* Weight selection right-aligned */}
+          <div className="flex items-center gap-2 ml-4 mt-1">
+            <button
+              type="button"
+              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+                selectedWeight === "3kg"
+                  ? "bg-muted-foreground text-white border-muted-foreground"
+                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
+              }`}
+              onClick={() => setSelectedWeight("3kg")}
+            >
+              3kg
+            </button>
+            <button
+              type="button"
+              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+                selectedWeight === "6kg"
+                  ? "bg-muted-foreground text-white border-muted-foreground"
+                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
+              }`}
+              onClick={() => setSelectedWeight("6kg")}
+            >
+              6kg
+            </button>
+          </div>
         </div>
         {/* Description */}
         {product.description && (
@@ -294,7 +333,7 @@ export default function ProductCard({
           </p>
         )}
         {/* Details Link: below description, left-aligned */}
-        <div className="mt-2 mb-2 flex justify-start">
+        <div className="mt-2 mb-4 flex justify-start">
           <Link
             href={`/products/${product.slug || product.id}`}
             className="text-accent font-medium text-sm underline hover:no-underline flex items-center gap-1 transition-all"
@@ -339,28 +378,82 @@ export default function ProductCard({
           </div>
         )}
         {/* Price & Stock Info */}
-        <div className="space-y-2">
-          <div className="flex items-baseline w-full">
-            {promotionData && (
-              <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-semibold">
-                {promotionData.promotion.name}
-              </span>
-            )}
-            <div className="flex flex-col items-end ml-auto">
-              <span className="text-base font-bold text-black">
-                €{finalPrice?.toFixed(2)}
-              </span>
-              {originalPrice !== finalPrice && (
-                <span className="text-sm text-muted-foreground line-through">
-                  €{originalPrice.toFixed(2)}
+        <div className="space-y-2 mb-2">
+          <div className="flex items-baseline w-full justify-between">
+            {/* Price/Promotion left-aligned, strikethrough price right of current (no promotion name badge here) */}
+            <div className="flex flex-col items-start">
+              <div className="flex items-baseline gap-2">
+                <span className="text-base font-bold text-black">
+                  {selectedWeight === "3kg"
+                    ? `€${(finalPrice * 1).toFixed(2)}`
+                    : selectedWeight === "6kg"
+                    ? `€${(finalPrice * 2).toFixed(2)}`
+                    : `€${finalPrice?.toFixed(2)}`}
                 </span>
-              )}
+                {originalPrice !== finalPrice && (
+                  <span className="text-sm text-red-300 line-through">
+                    {selectedWeight === "3kg"
+                      ? `€${(originalPrice * 1).toFixed(2)}`
+                      : selectedWeight === "6kg"
+                      ? `€${(originalPrice * 2).toFixed(2)}`
+                      : `€${originalPrice.toFixed(2)}`}
+                  </span>
+                )}
+              </div>
+            </div>
+            {/* Quantity Input right-aligned */}
+            <div className="flex items-center ml-auto">
+              <button
+                type="button"
+                aria-label="Menge verringern"
+                className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
+              >
+                <span className="font-bold select-none">-</span>
+              </button>
+              <input
+                type="number"
+                min={1}
+                max={selectedVariant?.stock_quantity || 99}
+                value={quantity}
+                onChange={(e) => {
+                  let val = parseInt(e.target.value, 10);
+                  if (isNaN(val) || val < 1) val = 1;
+                  if (
+                    selectedVariant?.stock_quantity &&
+                    val > selectedVariant.stock_quantity
+                  )
+                    val = selectedVariant.stock_quantity;
+                  setQuantity(val);
+                }}
+                className="w-10 h-6 mx-1 text-center border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none hide-number-spin"
+              />
+              <button
+                type="button"
+                aria-label="Menge erhöhen"
+                className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
+                onClick={() =>
+                  setQuantity((q) =>
+                    selectedVariant?.stock_quantity
+                      ? Math.min(q + 1, selectedVariant.stock_quantity)
+                      : q + 1
+                  )
+                }
+                disabled={
+                  selectedVariant?.stock_quantity
+                    ? quantity >= selectedVariant.stock_quantity
+                    : false
+                }
+              >
+                <span className="font-bold select-none">+</span>
+              </button>
             </div>
           </div>
         </div>
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
-          <button
+          <AddToCartButton
             onClick={handleAddToCart}
             disabled={
               !selectedVariant ||
@@ -368,54 +461,8 @@ export default function ProductCard({
               selectedVariant.stock_quantity === 0 ||
               isAddingToCart
             }
-            className="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          >
-            {isAddingToCart ? (
-              <>
-                <svg
-                  className="w-4 h-4 animate-spin"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Wird hinzugefügt...
-              </>
-            ) : (
-              <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-                  />
-                </svg>
-                In den Warenkorb
-              </>
-            )}
-          </button>
+            isLoading={isAddingToCart}
+          />
         </div>
         {/* Stock Status below cart button, centered (only here!) */}
         <div className="w-full flex justify-center mt-2">
@@ -423,7 +470,7 @@ export default function ProductCard({
             {selectedVariant &&
             typeof selectedVariant.stock_quantity === "number" ? (
               selectedVariant.stock_quantity > 0 ? (
-                <span className="text-green-600 font-medium">
+                <span className="text-primary font-medium">
                   ✓ Auf Lager ({selectedVariant.stock_quantity} verfügbar)
                 </span>
               ) : (
