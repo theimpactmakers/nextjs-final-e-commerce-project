@@ -80,6 +80,21 @@ async function ShopContent({
     );
   }
 
+  // Load variants for all products
+  const productIds = products?.map((p) => p.id).filter(Boolean) || [];
+  const { data: variants } = await supabase
+    .from("product_variants")
+    .select("*")
+    .in("product_id", productIds);
+
+  // Attach variants to products
+  const productsWithVariants =
+    products?.map((product) => ({
+      ...product,
+      product_variants:
+        variants?.filter((v) => v.product_id === product.id) || [],
+    })) || [];
+
   // Titel basierend auf Filtern
   const getPageTitle = () => {
     const parts = [];
@@ -134,9 +149,9 @@ async function ShopContent({
         <FilterPanel />
 
         {/* Products Grid */}
-        {products && products.length > 0 ? (
+        {productsWithVariants && productsWithVariants.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((p) => (
+            {productsWithVariants.map((p) => (
               <ShopProductCard key={p.id} product={p} />
             ))}
           </div>
