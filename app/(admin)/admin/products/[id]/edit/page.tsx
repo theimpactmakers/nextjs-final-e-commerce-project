@@ -1,18 +1,21 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { ProductForm } from "../../ProductForm";
 
 export default async function EditProductPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const supabase = await createClient();
 
+  // Fetch product with images and variants
   const { data: product } = await supabase
     .from("products")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!product) {
@@ -33,6 +36,20 @@ export default async function EditProductPage({
     );
   }
 
+  // Fetch images
+  const { data: images } = await supabase
+    .from("product_images")
+    .select("*")
+    .eq("product_id", id)
+    .order("display_order", { ascending: true });
+
+  // Fetch variants
+  const { data: variants } = await supabase
+    .from("product_variants")
+    .select("*")
+    .eq("product_id", id)
+    .order("weight_grams", { ascending: true });
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -49,46 +66,11 @@ export default async function EditProductPage({
         </div>
       </div>
 
-      {/* Form Placeholder */}
-      <div className="rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-xl font-semibold text-gray-900">
-          Product Details
-        </h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Product Name
-            </label>
-            <p className="mt-1 text-gray-900">{product.name}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Meat Type
-            </label>
-            <p className="mt-1 text-gray-900">{product.meat_type || "—"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Age Group
-            </label>
-            <p className="mt-1 text-gray-900">{product.age_group || "—"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Description
-            </label>
-            <p className="mt-1 text-gray-600">{product.description || "—"}</p>
-          </div>
-        </div>
-        <div className="mt-6">
-          <p className="text-sm text-gray-500">
-            Product editing form coming soon...
-          </p>
-          <p className="mt-2 text-sm text-gray-500">
-            For now, products can be edited directly in the Supabase dashboard.
-          </p>
-        </div>
-      </div>
+      <ProductForm
+        product={product}
+        existingImages={images || []}
+        existingVariants={variants || []}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { ProductForm } from "../ProductForm";
 
 export default function NewProductPage() {
   return (
@@ -20,16 +21,7 @@ export default function NewProductPage() {
         </div>
       </div>
 
-      {/* Form Placeholder */}
-      <div className="rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-xl font-semibold text-gray-900">
-          Product Information
-        </h2>
-        <p className="text-gray-600">Product creation form coming soon...</p>
-        <p className="mt-2 text-sm text-gray-500">
-          For now, products can be managed directly in the Supabase dashboard.
-        </p>
-      </div>
+      <ProductForm />
     </div>
   );
 }

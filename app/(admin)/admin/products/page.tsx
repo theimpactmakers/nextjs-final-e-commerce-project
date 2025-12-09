@@ -3,12 +3,12 @@ import Link from "next/link";
 import {
   Plus,
   Edit,
-  Trash2,
   Eye,
   ChevronLeft,
   ChevronRight,
   Search,
 } from "lucide-react";
+import { ProductDeleteButton } from "./ProductDeleteButton";
 
 async function getProducts(
   page: number = 1,
@@ -191,12 +191,10 @@ export default async function ProductsPage({
                       >
                         <Edit className="h-4 w-4" />
                       </Link>
-                      <button
-                        className="rounded p-1 text-red-600 hover:bg-red-50"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <ProductDeleteButton
+                        productId={product.id}
+                        productName={product.name}
+                      />
                     </div>
                   </td>
                 </tr>
