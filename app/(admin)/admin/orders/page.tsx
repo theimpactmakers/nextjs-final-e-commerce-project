@@ -1,26 +1,72 @@
-import { createClient } from "@/lib/supabase/server";
-import { Package, Clock, CheckCircle, XCircle } from "lucide-react";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
+import {
+  Package,
+  Clock,
+  CheckCircle,
+  XCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import Link from "next/link";
 
-async function getOrders() {
+async function getOrders(page: number = 1, perPage: number = 25) {
   const supabase = await createClient();
+  const adminClient = createServiceRoleClient();
+
+  const from = (page - 1) * perPage;
+  const to = from + perPage - 1;
+
+  // Get total count
+  const { count } = await supabase
+    .from("orders")
+    .select("*", { count: "exact", head: true });
 
   const { data: orders } = await supabase
     .from("orders")
     .select(
       `
       *,
-      profiles!user_id(email, full_name),
-      shipping_methods(name),
-      payment_methods(name)
+      profiles!user_id(first_name, last_name)
     `
     )
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
-  return orders || [];
+  // Get user emails from auth.users for each order
+  const ordersWithEmails = await Promise.all(
+    (orders || []).map(async (order) => {
+      if (order.user_id) {
+        const {
+          data: { user },
+        } = await adminClient.auth.admin.getUserById(order.user_id);
+        return { ...order, userEmail: user?.email };
+      }
+      return order;
+    })
+  );
+
+  return {
+    orders: ordersWithEmails || [],
+    totalCount: count || 0,
+    currentPage: page,
+    perPage,
+    totalPages: Math.ceil((count || 0) / perPage),
+  };
 }
 
-export default async function OrdersPage() {
-  const orders = await getOrders();
+export default async function OrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const page = parseInt(params.page || "1");
+  const {
+    orders: ordersWithEmails,
+    totalCount,
+    currentPage,
+    totalPages,
+  } = await getOrders(page);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -63,12 +109,17 @@ export default async function OrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {orders.map((order) => {
-                const customerEmail = Array.isArray(order.profiles)
-                  ? order.profiles[0]?.email
-                  : order.guest_email;
-                const customerName = Array.isArray(order.profiles)
-                  ? order.profiles[0]?.full_name
+              {ordersWithEmails.map((order) => {
+                const customerEmail = order.userEmail || order.guest_email;
+                const profile = Array.isArray(order.profiles)
+                  ? order.profiles[0]
+                  : order.profiles;
+                const customerName = profile
+                  ? `${profile.first_name || ""} ${
+                      profile.last_name || ""
+                    }`.trim()
+                  : order.guest_first_name && order.guest_last_name
+                  ? `${order.guest_first_name} ${order.guest_last_name}`
                   : null;
 
                 return (
@@ -131,12 +182,84 @@ export default async function OrdersPage() {
           </table>
         </div>
 
-        {orders.length === 0 && (
+        {ordersWithEmails.length === 0 && (
           <div className="py-12 text-center">
             <p className="text-gray-500">No orders found</p>
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between rounded-lg bg-white px-6 py-4 shadow">
+          <div className="text-sm text-gray-600">
+            Showing {(currentPage - 1) * 25 + 1} to{" "}
+            {Math.min(currentPage * 25, totalCount)} of {totalCount} orders
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/admin/orders?page=${currentPage - 1}`}
+              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm ${
+                currentPage === 1
+                  ? "cursor-not-allowed bg-gray-100 text-gray-400"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+              aria-disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Link>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (pageNum) => {
+                  // Show first, last, current, and adjacent pages
+                  if (
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    Math.abs(pageNum - currentPage) <= 1
+                  ) {
+                    return (
+                      <Link
+                        key={pageNum}
+                        href={`/admin/orders?page=${pageNum}`}
+                        className={`rounded-lg px-3 py-2 text-sm ${
+                          pageNum === currentPage
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                      >
+                        {pageNum}
+                      </Link>
+                    );
+                  } else if (
+                    pageNum === currentPage - 2 ||
+                    pageNum === currentPage + 2
+                  ) {
+                    return (
+                      <span key={pageNum} className="px-2 text-gray-500">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                }
+              )}
+            </div>
+            <Link
+              href={`/admin/orders?page=${currentPage + 1}`}
+              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm ${
+                currentPage === totalPages
+                  ? "cursor-not-allowed bg-gray-100 text-gray-400"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+              aria-disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

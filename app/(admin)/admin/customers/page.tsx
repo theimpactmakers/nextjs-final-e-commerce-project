@@ -30,7 +30,17 @@ async function getCustomers() {
     )
     .order("created_at", { ascending: false });
 
-  return profiles || [];
+  // Get emails from auth.users for each profile
+  const profilesWithEmails = await Promise.all(
+    (profiles || []).map(async (profile) => {
+      const {
+        data: { user },
+      } = await adminClient.auth.admin.getUserById(profile.id);
+      return { ...profile, email: user?.email };
+    })
+  );
+
+  return profilesWithEmails || [];
 }
 
 export default async function CustomersPage() {

@@ -1,8 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { Package, ShoppingCart, Users, Euro } from "lucide-react";
 
 async function getAdminStats() {
   const supabase = await createClient();
+  const adminClient = createServiceRoleClient();
 
   // Fetch all stats in parallel
   const [
@@ -34,19 +35,40 @@ async function getAdminStats() {
       status, 
       payment_status, 
       guest_email, 
-      user_id,
-      profiles!user_id(email)
+      user_id
     `
     )
     .order("created_at", { ascending: false })
     .limit(5);
+
+  // Get emails from auth.users for orders with user_id
+  const ordersWithEmails: Array<{
+    id: string;
+    created_at: string;
+    total_amount: number;
+    status: string;
+    payment_status: string;
+    guest_email: string | null;
+    user_id: string | null;
+    userEmail?: string;
+  }> = await Promise.all(
+    (recentOrders || []).map(async (order) => {
+      if (order.user_id) {
+        const {
+          data: { user },
+        } = await adminClient.auth.admin.getUserById(order.user_id);
+        return { ...order, userEmail: user?.email };
+      }
+      return order;
+    })
+  );
 
   return {
     totalProducts: totalProducts || 0,
     totalOrders: totalOrders || 0,
     totalCustomers: totalCustomers || 0,
     totalRevenue,
-    recentOrders: recentOrders || [],
+    recentOrders: ordersWithEmails || [],
   };
 }
 
@@ -139,9 +161,7 @@ export default async function AdminDashboard() {
                     {order.id.slice(0, 8)}...
                   </td>
                   <td className="py-3">
-                    {Array.isArray(order.profiles)
-                      ? order.profiles[0]?.email || order.guest_email || "Guest"
-                      : order.guest_email || "Guest"}
+                    {order.userEmail || order.guest_email || "Guest"}
                   </td>
                   <td className="py-3 font-semibold">
                     €{order.total_amount.toFixed(2)}

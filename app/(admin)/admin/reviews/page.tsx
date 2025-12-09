@@ -1,8 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { Star, CheckCircle, XCircle, Clock } from "lucide-react";
 
 async function getReviews() {
   const supabase = await createClient();
+  const adminClient = createServiceRoleClient();
 
   const { data: reviews } = await supabase
     .from("reviews")
@@ -10,12 +11,22 @@ async function getReviews() {
       `
       *,
       products(name, slug),
-      profiles(email, full_name)
+      profiles(first_name, last_name)
     `
     )
     .order("created_at", { ascending: false });
 
-  return reviews || [];
+  // Get emails from auth.users for each review
+  const reviewsWithEmails = await Promise.all(
+    (reviews || []).map(async (review) => {
+      const {
+        data: { user },
+      } = await adminClient.auth.admin.getUserById(review.user_id);
+      return { ...review, userEmail: user?.email };
+    })
+  );
+
+  return reviewsWithEmails || [];
 }
 
 export default async function ReviewsPage() {
