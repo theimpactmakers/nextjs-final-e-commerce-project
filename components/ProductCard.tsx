@@ -7,6 +7,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { Database } from "@/types";
 import { Heart } from "lucide-react";
+import Image from "next/image";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type ProductImage = Database["public"]["Tables"]["product_images"]["Row"];
@@ -32,7 +33,9 @@ export default function ProductCard({
   variants,
 }: ProductCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState(variants[0]);
+  const [selectedVariant, setSelectedVariant] = useState(() =>
+    variants && variants.length > 0 ? variants[0] : undefined
+  );
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [promotionData, setPromotionData] = useState<PromotionData | null>(
     null
@@ -50,6 +53,10 @@ export default function ProductCard({
   // Load promotion data when variant changes
   useEffect(() => {
     const loadPromotion = async () => {
+      if (!selectedVariant) {
+        setPromotionData(null);
+        return;
+      }
       const promo = await calculatePromotionDiscount(
         product.id,
         selectedVariant.id,
@@ -79,7 +86,7 @@ export default function ProductCard({
 
   // Calculate discount percentage from compare_at_price
   const variantDiscountPercentage =
-    selectedVariant.compare_at_price && selectedVariant.price
+    selectedVariant && selectedVariant.compare_at_price && selectedVariant.price
       ? Math.round(
           ((selectedVariant.compare_at_price - selectedVariant.price) /
             selectedVariant.compare_at_price) *
@@ -90,15 +97,16 @@ export default function ProductCard({
   // Get the final price (promotion takes precedence)
   const finalPrice = promotionData
     ? promotionData.discountedPrice
-    : selectedVariant.price;
+    : selectedVariant?.price ?? 0;
 
   const originalPrice = promotionData
     ? promotionData.originalPrice
-    : selectedVariant.compare_at_price || selectedVariant.price;
+    : selectedVariant?.compare_at_price || selectedVariant?.price || 0;
 
   // Handle add to cart
   const handleAddToCart = async () => {
     if (
+      !selectedVariant ||
       !selectedVariant.stock_quantity ||
       selectedVariant.stock_quantity === 0
     ) {
@@ -108,13 +116,13 @@ export default function ProductCard({
     setIsAddingToCart(true);
     try {
       await addToCart(
-        selectedVariant.id,
+        selectedVariant?.id ?? "",
         product.id,
         product.name || "Product",
-        selectedVariant.name || "Default",
+        selectedVariant?.name || "Default",
         finalPrice,
         sortedImages[0]?.image_url || null,
-        selectedVariant.stock_quantity || 0,
+        selectedVariant?.stock_quantity || 0,
         1
       );
 
@@ -130,7 +138,7 @@ export default function ProductCard({
   return (
     <div className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 group">
       {/* Image Slider */}
-      <div className="relative h-64 bg-muted overflow-hidden">
+      <div className="relative h-56 bg-muted overflow-hidden">
         {/* Badges */}
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
           {product.is_new && (
@@ -156,7 +164,6 @@ export default function ProductCard({
             </span>
           )}
         </div>
-
         {/* Wishlist Button */}
         <button
           onClick={async (e) => {
@@ -182,20 +189,22 @@ export default function ProductCard({
             strokeWidth={2}
           />
         </button>
-
         {/* Main Image */}
         {sortedImages.length > 0 ? (
           <>
-            <img
+            <Image
               src={sortedImages[currentImageIndex].image_url}
               alt={
                 sortedImages[currentImageIndex].alt_text ||
                 product.name ||
                 "Product"
               }
+              width={400}
+              height={400}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              priority={currentImageIndex === 0}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             />
-
             {/* Navigation Arrows (only if multiple images) */}
             {sortedImages.length > 1 && (
               <>
@@ -239,7 +248,6 @@ export default function ProductCard({
                     />
                   </svg>
                 </button>
-
                 {/* Image Indicators */}
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
                   {sortedImages.map((_, index) => (
@@ -263,48 +271,52 @@ export default function ProductCard({
             Kein Bild verfügbar
           </div>
         )}
-
-        {/* Image Counter */}
-        {sortedImages.length > 1 && (
-          <div className="absolute top-3 right-3 bg-background/80 text-foreground px-2 py-1 rounded text-xs font-medium">
-            {currentImageIndex + 1} / {sortedImages.length}
-          </div>
-        )}
       </div>
-
       {/* Product Info */}
-      <div className="flex flex-col space-y-1.5 p-6">
-        {/* Category/Type Info */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-          {product.age_group && (
-            <span className="bg-muted px-2 py-0.5 rounded">
-              {product.age_group}
-            </span>
-          )}
-          {product.meat_type && (
-            <span className="bg-muted px-2 py-0.5 rounded">
-              {product.meat_type}
-            </span>
-          )}
-        </div>
-
+      <div className="flex flex-col p-6">
         {/* Product Name */}
-        <h3 className="text-xl font-bold leading-tight tracking-tight line-clamp-2 min-h-12">
+        <h3 className="text-xl font-bold leading-tight tracking-tight line-clamp-2 min-h-12 mb-0">
           {product.name}
         </h3>
-
+        {/* Category/Type Badges (now under title) */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground -mt-0.5 mb-3">
+          {product.age_group && (
+            <span className="bg-muted px-2 rounded">{product.age_group}</span>
+          )}
+          {product.meat_type && (
+            <span className="bg-muted px-2 rounded">{product.meat_type}</span>
+          )}
+        </div>
         {/* Description */}
         {product.description && (
           <p className="text-sm text-muted-foreground line-clamp-2 min-h-10">
             {product.description}
           </p>
         )}
-      </div>
-
-      {/* Variants & Price */}
-      <div className="px-6 pb-6 space-y-3">
-        {/* Size Variants */}
-        {variants.length > 1 && (
+        {/* Details Link: below description, left-aligned */}
+        <div className="mt-2 mb-2 flex justify-start">
+          <Link
+            href={`/products/${product.slug || product.id}`}
+            className="text-accent font-medium text-sm underline hover:no-underline flex items-center gap-1 transition-all"
+          >
+            Zum Produkt
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </Link>
+        </div>
+        {variants && variants.length > 1 && selectedVariant && (
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-2 block">
               Größe wählen:
@@ -315,7 +327,7 @@ export default function ProductCard({
                   key={variant.id}
                   onClick={() => setSelectedVariant(variant)}
                   className={`flex-1 px-3 py-2 rounded-md border-2 text-sm font-medium transition-all ${
-                    selectedVariant.id === variant.id
+                    selectedVariant?.id === variant.id
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border hover:border-primary/50"
                   }`}
@@ -326,52 +338,32 @@ export default function ProductCard({
             </div>
           </div>
         )}
-
         {/* Price & Stock Info */}
         <div className="space-y-2">
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-primary">
-              €{finalPrice?.toFixed(2)}
-            </span>
-            {originalPrice !== finalPrice && (
-              <span className="text-sm text-muted-foreground line-through">
-                €{originalPrice.toFixed(2)}
-              </span>
-            )}
+          <div className="flex items-baseline w-full">
             {promotionData && (
               <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-semibold">
                 {promotionData.promotion.name}
               </span>
             )}
-          </div>
-
-          {/* Stock Status */}
-          {selectedVariant.stock_quantity !== null && (
-            <div className="text-xs">
-              {selectedVariant.stock_quantity > 0 ? (
-                <span className="text-green-600 font-medium">
-                  ✓ Auf Lager ({selectedVariant.stock_quantity} verfügbar)
-                </span>
-              ) : (
-                <span className="text-destructive font-medium">
-                  ✗ Nicht verfügbar
+            <div className="flex flex-col items-end ml-auto">
+              <span className="text-base font-bold text-black">
+                €{finalPrice?.toFixed(2)}
+              </span>
+              {originalPrice !== finalPrice && (
+                <span className="text-sm text-muted-foreground line-through">
+                  €{originalPrice.toFixed(2)}
                 </span>
               )}
             </div>
-          )}
+          </div>
         </div>
-
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
-          <Link
-            href={`/products/${product.slug || product.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-          >
-            Details
-          </Link>
           <button
             onClick={handleAddToCart}
             disabled={
+              !selectedVariant ||
               !selectedVariant.stock_quantity ||
               selectedVariant.stock_quantity === 0 ||
               isAddingToCart
@@ -385,6 +377,8 @@ export default function ProductCard({
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="4"
                 >
                   <circle
                     className="opacity-25"
@@ -422,6 +416,23 @@ export default function ProductCard({
               </>
             )}
           </button>
+        </div>
+        {/* Stock Status below cart button, centered (only here!) */}
+        <div className="w-full flex justify-center mt-2">
+          <div className="text-xs text-center">
+            {selectedVariant &&
+            typeof selectedVariant.stock_quantity === "number" ? (
+              selectedVariant.stock_quantity > 0 ? (
+                <span className="text-green-600 font-medium">
+                  ✓ Auf Lager ({selectedVariant.stock_quantity} verfügbar)
+                </span>
+              ) : (
+                <span className="text-destructive font-medium">
+                  ✗ Nicht verfügbar
+                </span>
+              )
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

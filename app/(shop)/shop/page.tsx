@@ -80,7 +80,7 @@ async function ShopContent({
     );
   }
 
-  // Erstelle Titel basierend auf Filtern
+  // Titel basierend auf Filtern
   const getPageTitle = () => {
     const parts = [];
 
@@ -109,10 +109,10 @@ async function ShopContent({
     }
 
     if (parts.length > 0) {
-      return `Hundefutter - ${parts.join(" & ")}`;
+      return `Alle Produkte - ${parts.join(" & ")}`;
     }
 
-    return "Hundefutter";
+    return "Alle Produkte";
   };
 
   return (
