@@ -1,5 +1,6 @@
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { Star, CheckCircle, XCircle, Clock } from "lucide-react";
+import { ReviewActions } from "./ReviewActions";
 
 async function getReviews() {
   const supabase = await createClient();
@@ -94,9 +95,13 @@ export default async function ReviewsPage() {
           const productName = Array.isArray(review.products)
             ? review.products[0]?.name
             : "Unknown Product";
-          const customerName = Array.isArray(review.profiles)
-            ? review.profiles[0]?.full_name || review.profiles[0]?.email
-            : "Unknown Customer";
+          const profile = Array.isArray(review.profiles)
+            ? review.profiles[0]
+            : review.profiles;
+          const customerName =
+            profile?.first_name || profile?.last_name
+              ? `${profile.first_name || ""} ${profile.last_name || ""}`.trim()
+              : review.userEmail || "Unknown Customer";
 
           return (
             <div key={review.id} className="rounded-lg bg-white p-6 shadow">
@@ -147,7 +152,7 @@ export default async function ReviewsPage() {
                   </div>
                 </div>
 
-                <div className="ml-4 flex items-center gap-2">
+                <div className="ml-4 flex items-center gap-3">
                   {review.is_approved ? (
                     <span className="flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
                       <CheckCircle className="h-4 w-4" />
@@ -159,12 +164,10 @@ export default async function ReviewsPage() {
                       Pending
                     </span>
                   )}
-                  <button
-                    className="rounded p-2 text-red-600 hover:bg-red-50"
-                    title="Delete"
-                  >
-                    <XCircle className="h-5 w-5" />
-                  </button>
+                  <ReviewActions
+                    reviewId={review.id}
+                    isApproved={review.is_approved}
+                  />
                 </div>
               </div>
             </div>

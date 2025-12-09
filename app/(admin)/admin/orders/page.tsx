@@ -8,6 +8,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
+import { OrderStatusSelect, PaymentStatusSelect } from "./OrderStatusSelects";
 
 async function getOrders(page: number = 1, perPage: number = 25) {
   const supabase = await createClient();
@@ -152,23 +153,16 @@ export default async function OrdersPage({
                       €{order.total_amount.toFixed(2)}
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`rounded-full px-2 py-1 text-xs font-medium ${
-                          order.payment_status === "paid"
-                            ? "bg-green-100 text-green-800"
-                            : order.payment_status === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {order.payment_status}
-                      </span>
+                      <PaymentStatusSelect
+                        orderId={order.id}
+                        currentStatus={order.payment_status}
+                      />
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(order.status)}
-                        <span className="capitalize">{order.status}</span>
-                      </div>
+                      <OrderStatusSelect
+                        orderId={order.id}
+                        currentStatus={order.status}
+                      />
                     </td>
                     <td className="px-6 py-4 text-gray-600">
                       {Array.isArray(order.shipping_methods)
