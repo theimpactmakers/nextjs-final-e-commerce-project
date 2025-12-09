@@ -35,9 +35,16 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Fetch user profile with role if user is authenticated
-  const { data: profile } = user
+  const { data: profile, error: profileError } = user
     ? await supabase.from("profiles").select("role").eq("id", user.id).single()
-    : { data: null };
+    : { data: null, error: null };
+
+  // Debug logging
+  if (user) {
+    console.log("🔍 Middleware - User ID:", user.id);
+    console.log("🔍 Middleware - Profile:", profile);
+    console.log("🔍 Middleware - Profile Error:", profileError);
+  }
 
   // Admin routes protection
   const adminRoutes = ["/admin"];
