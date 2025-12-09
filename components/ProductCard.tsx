@@ -37,6 +37,8 @@ export default function ProductCard({
     variants && variants.length > 0 ? variants[0] : undefined
   );
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [cartClicked, setCartClicked] = useState(false);
+  const [showCartPlus, setShowCartPlus] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [promotionData, setPromotionData] = useState<PromotionData | null>(
     null
@@ -117,6 +119,8 @@ export default function ProductCard({
       return;
     }
 
+    setCartClicked(true);
+    setShowCartPlus(true);
     setIsAddingToCart(true);
     try {
       await addToCart(
@@ -136,6 +140,8 @@ export default function ProductCard({
       alert("Fehler beim Hinzufügen zum Warenkorb");
     } finally {
       setIsAddingToCart(false);
+      setTimeout(() => setCartClicked(false), 250);
+      setTimeout(() => setShowCartPlus(false), 350);
     }
   };
 
@@ -146,7 +152,7 @@ export default function ProductCard({
         {/* Badges + Alter/Fleischsorte */}
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
           {promotionData && (
-            <span className="bg-accent text-white px-2 py-1 rounded-full text-xs font-bold text-center shadow-lg inline-block w-auto">
+            <span className="bg-accent/80 text-white px-2 py-1 rounded text-xs font-bold text-center shadow-lg inline-block w-auto">
               <span className="animate-pulse">
                 {promotionData.discountType === "percentage"
                   ? `AKTION -${Math.round(promotionData.discountAmount)}%`
@@ -166,13 +172,9 @@ export default function ProductCard({
           )}
           {/* Alter und Fleischsorte Badges */}
           <div className="flex gap-1 mt-1">
-            {product.age_group && (
-              <span className="bg-muted-foreground text-white px-2 rounded text-xs font-medium shadow">
-                {product.age_group}
-              </span>
-            )}
+            {/* Age group badge removed, now shown above name */}
             {product.meat_type && (
-              <span className="bg-muted-foreground text-white px-2 rounded text-xs font-medium shadow">
+              <span className="bg-muted-foreground/70 text-white px-2 rounded text-xs font-medium shadow">
                 {product.meat_type}
               </span>
             )}
@@ -291,6 +293,12 @@ export default function ProductCard({
       </div>
       {/* Product Info */}
       <div className="flex flex-col p-6">
+        {/* Age group above product name, smaller */}
+        {product.age_group && (
+          <span className="text-sm text-muted-foreground font-normal mb-1">
+            {product.age_group}
+          </span>
+        )}
         {/* Product Name & Weight Selection Row */}
         <div className="flex items-start justify-between mb-0">
           <div className="flex-1 min-w-0">
@@ -307,27 +315,64 @@ export default function ProductCard({
           </p>
         )}
         {/* Details Link: below description, left-aligned */}
-        <div className="mt-2 mb-2 flex justify-start">
-          <Link
-            href={`/products/${product.slug || product.id}`}
-            className="text-accent font-medium text-sm underline hover:no-underline flex items-center gap-1 transition-all"
-          >
-            Zum Produkt
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
+        <div className="mt-2 mb-2 flex items-center justify-between w-full">
+          <div className="relative w-full">
+            <Link
+              href={`/products/${product.slug || product.id}`}
+              className="text-accent font-medium text-sm underline hover:no-underline flex items-center gap-1 transition-all"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </Link>
+              Zum Produkt
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
+            <button
+              onClick={handleAddToCart}
+              disabled={
+                !selectedVariant ||
+                !selectedVariant.stock_quantity ||
+                selectedVariant.stock_quantity === 0 ||
+                isAddingToCart
+              }
+              className={`absolute right-0 top-2 rounded-full p-3 flex items-center justify-center shadow-lg shadow-accent/30 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
+                ${
+                  cartClicked
+                    ? "border-2 border-accent bg-white"
+                    : "bg-accent border-2 border-transparent"
+                }
+              `}
+              aria-label="In den Warenkorb"
+              style={{ marginBottom: 0 }}
+            >
+              <span className="relative inline-block group">
+                <ShoppingCart
+                  className={`w-6 h-6 transition-colors ${
+                    cartClicked ? "text-accent" : "text-white"
+                  }`}
+                />
+                {/* Show black + when clicked, white + on hover */}
+                {showCartPlus && (
+                  <span className="absolute -top-4 -right-1 bg-transparent text-black text-base font-normal select-none pointer-events-none">
+                    +
+                  </span>
+                )}
+                <span className="absolute -top-4 -right-2 bg-transparent text-white text-lg font-bold select-none pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                  +
+                </span>
+              </span>
+            </button>
+          </div>
         </div>
         {variants && variants.length > 1 && selectedVariant && (
           <div>
@@ -352,52 +397,40 @@ export default function ProductCard({
           </div>
         )}
         {/* Action Row: Gewicht links, Warenkorb rechts */}
-        <div className="flex items-center justify-between gap-2 pt-2">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
-                selectedWeight === "3kg"
-                  ? "bg-muted-foreground text-white border-muted-foreground"
-                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
-              }`}
-              onClick={() => setSelectedWeight("3kg")}
-            >
-              3kg
-            </button>
-            <button
-              type="button"
-              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
-                selectedWeight === "6kg"
-                  ? "bg-muted-foreground text-white border-muted-foreground"
-                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
-              }`}
-              onClick={() => setSelectedWeight("6kg")}
-            >
-              6kg
-            </button>
-          </div>
+        <div className="flex items-center gap-2 pt-2 mb-4">
+          <span className="text-sm text-muted-foreground font-medium mr-1 mb-3 mt-4 inline-block">
+            Varianten:
+          </span>
           <button
-            onClick={handleAddToCart}
-            disabled={
-              !selectedVariant ||
-              !selectedVariant.stock_quantity ||
-              selectedVariant.stock_quantity === 0 ||
-              isAddingToCart
-            }
-            className={`rounded-full p-3 bg-accent text-white flex items-center justify-center shadow-md transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
-            aria-label="In den Warenkorb"
+            type="button"
+            className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+              selectedWeight === "3kg"
+                ? "bg-muted-foreground text-white border-muted-foreground"
+                : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
+            }`}
+            onClick={() => setSelectedWeight("3kg")}
           >
-            <ShoppingCart className="w-6 h-6" />
+            3kg
+          </button>
+          <button
+            type="button"
+            className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+              selectedWeight === "6kg"
+                ? "bg-muted-foreground text-white border-muted-foreground"
+                : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
+            }`}
+            onClick={() => setSelectedWeight("6kg")}
+          >
+            6kg
           </button>
         </div>
         {/* Price & Stock Info */}
         <div className="space-y-2 mb-2">
           <div className="flex items-baseline w-full justify-between">
-            {/* Price/Promotion left-aligned, strikethrough price right of current (no promotion name badge here) */}
-            <div className="flex flex-col items-start">
-              <div className="flex items-baseline gap-2">
-                <span className="text-base font-bold text-black">
+            {/* Price/Promotion and Quantity Input aligned bottom */}
+            <div className="flex items-end w-full justify-between">
+              <div className="flex items-end gap-2">
+                <span className="text-xl font-bold text-black">
                   {selectedWeight === "3kg"
                     ? `€${(finalPrice * 1).toFixed(2)}`
                     : selectedWeight === "6kg"
@@ -414,54 +447,53 @@ export default function ProductCard({
                   </span>
                 )}
               </div>
-            </div>
-            {/* Quantity Input right-aligned */}
-            <div className="flex items-center ml-auto">
-              <button
-                type="button"
-                aria-label="Menge verringern"
-                className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                disabled={quantity <= 1}
-              >
-                <span className="font-bold select-none">-</span>
-              </button>
-              <input
-                type="number"
-                min={1}
-                max={selectedVariant?.stock_quantity || 99}
-                value={quantity}
-                onChange={(e) => {
-                  let val = parseInt(e.target.value, 10);
-                  if (isNaN(val) || val < 1) val = 1;
-                  if (
-                    selectedVariant?.stock_quantity &&
-                    val > selectedVariant.stock_quantity
-                  )
-                    val = selectedVariant.stock_quantity;
-                  setQuantity(val);
-                }}
-                className="w-10 h-6 mx-1 text-center border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none hide-number-spin"
-              />
-              <button
-                type="button"
-                aria-label="Menge erhöhen"
-                className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
-                onClick={() =>
-                  setQuantity((q) =>
+              <div className="flex items-end ml-auto">
+                <button
+                  type="button"
+                  aria-label="Menge verringern"
+                  className="w-8 h-8 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  disabled={quantity <= 1}
+                >
+                  <span className="font-bold select-none">-</span>
+                </button>
+                <input
+                  type="number"
+                  min={1}
+                  max={selectedVariant?.stock_quantity || 99}
+                  value={quantity}
+                  onChange={(e) => {
+                    let val = parseInt(e.target.value, 10);
+                    if (isNaN(val) || val < 1) val = 1;
+                    if (
+                      selectedVariant?.stock_quantity &&
+                      val > selectedVariant.stock_quantity
+                    )
+                      val = selectedVariant.stock_quantity;
+                    setQuantity(val);
+                  }}
+                  className="w-16 h-9 mx-1 text-lg text-center border border-gray-300 rounded font-semibold focus:outline-none focus:border-accent transition-all hide-number-spin"
+                />
+                <button
+                  type="button"
+                  aria-label="Menge erhöhen"
+                  className="w-8 h-8 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
+                  onClick={() =>
+                    setQuantity((q) =>
+                      selectedVariant?.stock_quantity
+                        ? Math.min(q + 1, selectedVariant.stock_quantity)
+                        : q + 1
+                    )
+                  }
+                  disabled={
                     selectedVariant?.stock_quantity
-                      ? Math.min(q + 1, selectedVariant.stock_quantity)
-                      : q + 1
-                  )
-                }
-                disabled={
-                  selectedVariant?.stock_quantity
-                    ? quantity >= selectedVariant.stock_quantity
-                    : false
-                }
-              >
-                <span className="font-bold select-none">+</span>
-              </button>
+                      ? quantity >= selectedVariant.stock_quantity
+                      : false
+                  }
+                >
+                  <span className="font-bold select-none">+</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -470,15 +502,16 @@ export default function ProductCard({
           <div className="text-xs text-center">
             {selectedVariant &&
             typeof selectedVariant.stock_quantity === "number" ? (
-              selectedVariant.stock_quantity > 0 ? (
+              selectedVariant.stock_quantity > 0 &&
+              selectedVariant.stock_quantity < 5 ? (
                 <span className="text-primary font-medium">
                   ✓ Auf Lager ({selectedVariant.stock_quantity} verfügbar)
                 </span>
-              ) : (
+              ) : selectedVariant.stock_quantity === 0 ? (
                 <span className="text-destructive font-medium">
                   ✗ Nicht verfügbar
                 </span>
-              )
+              ) : null
             ) : null}
           </div>
         </div>
