@@ -33,9 +33,8 @@ export default function ProductCard({
   variants,
 }: ProductCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState(() =>
-    variants && variants.length > 0 ? variants[0] : undefined
-  );
+  const selectedVariant =
+    variants && variants.length > 0 ? variants[0] : undefined;
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [cartClicked, setCartClicked] = useState(false);
   const [showCartPlus, setShowCartPlus] = useState(false);
@@ -296,7 +295,7 @@ export default function ProductCard({
         )}
       </div>
       {/* Product Info */}
-      <div className="flex flex-col p-6">
+      <div className="flex flex-col p-6 pb-4">
         {/* Age group above product name, smaller */}
         {product.age_group && (
           <span className="text-sm text-muted-foreground font-normal mb-1">
@@ -306,8 +305,13 @@ export default function ProductCard({
         {/* Product Name & Weight Selection Row */}
         <div className="flex items-start justify-between mb-0">
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold leading-tight tracking-tight line-clamp-2 min-h-10 mb-0">
-              {product.name}
+            <h3 className="text-lg font-bold leading-tight tracking-tight line-clamp-2 min-h-10 mb-1">
+              <Link
+                href={`/products/${product.slug || product.id}`}
+                className="transition-colors duration-200 group-hover:text-accent hover:text-black hover:underline"
+              >
+                {product.name}
+              </Link>
             </h3>
             {/* Category/Type Badges entfernt, jetzt im Bild */}
           </div>
@@ -349,7 +353,7 @@ export default function ProductCard({
                 selectedVariant.stock_quantity === 0 ||
                 isAddingToCart
               }
-              className={`absolute right-0 top-2 rounded-full p-3 flex items-center justify-center shadow-lg shadow-accent/30 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
+              className={`absolute right-0 top-4 rounded-full p-2 flex items-center justify-center shadow-lg shadow-accent/30 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
                 ${
                   cartClicked
                     ? "border-2 border-accent bg-white"
@@ -361,7 +365,7 @@ export default function ProductCard({
             >
               <span className="relative inline-block group">
                 <ShoppingCart
-                  className={`w-6 h-6 transition-colors ${
+                  className={`w-5 h-5 transition-colors ${
                     cartClicked ? "text-accent" : "text-white"
                   }`}
                 />
@@ -371,39 +375,18 @@ export default function ProductCard({
                     +
                   </span>
                 )}
-                <span className="absolute -top-4 -right-2 bg-transparent text-white text-lg font-bold select-none pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                <span className="absolute -top-4 -right-1 bg-transparent text-white text-lg select-none pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                   +
                 </span>
               </span>
             </button>
           </div>
         </div>
-        {variants && variants.length > 1 && selectedVariant && (
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-2 block">
-              Größe wählen:
-            </label>
-            <div className="flex gap-2">
-              {variants.map((variant) => (
-                <button
-                  key={variant.id}
-                  onClick={() => setSelectedVariant(variant)}
-                  className={`flex-1 px-3 py-2 rounded-md border-2 text-sm font-medium transition-all ${
-                    selectedVariant?.id === variant.id
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                >
-                  {variant.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Removed 'Größe wählen:' label and button row as requested */}
         {/* Action Row: Gewicht links, Warenkorb rechts */}
         <div className="flex items-center gap-2 pt-2 mb-4">
-          <span className="text-sm text-muted-foreground font-medium mr-1 mb-3 mt-4 inline-block">
-            Varianten:
+          <span className="text-sm text-black font-medium mr-1 mb-3 mt-4 inline-block">
+            Variante wählen:
           </span>
           <button
             type="button"
@@ -429,7 +412,7 @@ export default function ProductCard({
           </button>
         </div>
         {/* Price & Stock Info */}
-        <div className="space-y-2 mb-2">
+        <div className="space-y-2">
           <div className="flex items-baseline w-full justify-between">
             {/* Price/Promotion and Quantity Input aligned bottom */}
             <div className="flex items-end w-full justify-between">
@@ -476,7 +459,7 @@ export default function ProductCard({
                       val = selectedVariant.stock_quantity;
                     setQuantity(val);
                   }}
-                  className="w-16 h-9 mx-1 text-lg text-center border border-gray-300 rounded font-semibold focus:outline-none focus:border-accent transition-all hide-number-spin"
+                  className="w-12 h-9 mx-1 text-lg text-center border border-gray-300 rounded font-semibold focus:outline-none focus:border-accent transition-all hide-number-spin"
                 />
                 <button
                   type="button"
@@ -502,7 +485,7 @@ export default function ProductCard({
           </div>
         </div>
         {/* Stock Status below cart button, centered (only here!) */}
-        <div className="w-full flex justify-center mt-2">
+        <div className="w-full flex justify-center mt-2 mb-0">
           <div className="text-xs text-center">
             {selectedVariant &&
             typeof selectedVariant.stock_quantity === "number" ? (

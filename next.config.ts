@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "imgur.com",
+      },
     ],
   },
   // Cache-Headers für statische Assets und API-Routen
