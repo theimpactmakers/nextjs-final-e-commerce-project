@@ -169,7 +169,7 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
 
       console.log("Order check for product:", productId, "User:", user.id, "Result:", orderData);
 
-      const hasPurchased = orderData && orderData.length > 0;
+      const hasPurchased = !!(orderData && orderData.length > 0);
 
       // Check if user already reviewed this product
       const { data: reviewData, error: reviewError } = await supabase
