@@ -6,9 +6,8 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { Database } from "@/types";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
-import { AddToCartButton } from "./Button";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type ProductImage = Database["public"]["Tables"]["product_images"]["Row"];
@@ -300,31 +299,6 @@ export default function ProductCard({
             </h3>
             {/* Category/Type Badges entfernt, jetzt im Bild */}
           </div>
-          {/* Weight selection right-aligned */}
-          <div className="flex items-center gap-2 ml-4 mt-1">
-            <button
-              type="button"
-              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
-                selectedWeight === "3kg"
-                  ? "bg-muted-foreground text-white border-muted-foreground"
-                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
-              }`}
-              onClick={() => setSelectedWeight("3kg")}
-            >
-              3kg
-            </button>
-            <button
-              type="button"
-              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
-                selectedWeight === "6kg"
-                  ? "bg-muted-foreground text-white border-muted-foreground"
-                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
-              }`}
-              onClick={() => setSelectedWeight("6kg")}
-            >
-              6kg
-            </button>
-          </div>
         </div>
         {/* Description */}
         {product.description && (
@@ -333,7 +307,7 @@ export default function ProductCard({
           </p>
         )}
         {/* Details Link: below description, left-aligned */}
-        <div className="mt-2 mb-4 flex justify-start">
+        <div className="mt-2 mb-2 flex justify-start">
           <Link
             href={`/products/${product.slug || product.id}`}
             className="text-accent font-medium text-sm underline hover:no-underline flex items-center gap-1 transition-all"
@@ -377,6 +351,46 @@ export default function ProductCard({
             </div>
           </div>
         )}
+        {/* Action Row: Gewicht links, Warenkorb rechts */}
+        <div className="flex items-center justify-between gap-2 pt-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+                selectedWeight === "3kg"
+                  ? "bg-muted-foreground text-white border-muted-foreground"
+                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
+              }`}
+              onClick={() => setSelectedWeight("3kg")}
+            >
+              3kg
+            </button>
+            <button
+              type="button"
+              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+                selectedWeight === "6kg"
+                  ? "bg-muted-foreground text-white border-muted-foreground"
+                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
+              }`}
+              onClick={() => setSelectedWeight("6kg")}
+            >
+              6kg
+            </button>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={
+              !selectedVariant ||
+              !selectedVariant.stock_quantity ||
+              selectedVariant.stock_quantity === 0 ||
+              isAddingToCart
+            }
+            className={`rounded-full p-3 bg-accent text-white flex items-center justify-center shadow-md transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
+            aria-label="In den Warenkorb"
+          >
+            <ShoppingCart className="w-6 h-6" />
+          </button>
+        </div>
         {/* Price & Stock Info */}
         <div className="space-y-2 mb-2">
           <div className="flex items-baseline w-full justify-between">
@@ -450,19 +464,6 @@ export default function ProductCard({
               </button>
             </div>
           </div>
-        </div>
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
-          <AddToCartButton
-            onClick={handleAddToCart}
-            disabled={
-              !selectedVariant ||
-              !selectedVariant.stock_quantity ||
-              selectedVariant.stock_quantity === 0 ||
-              isAddingToCart
-            }
-            isLoading={isAddingToCart}
-          />
         </div>
         {/* Stock Status below cart button, centered (only here!) */}
         <div className="w-full flex justify-center mt-2">

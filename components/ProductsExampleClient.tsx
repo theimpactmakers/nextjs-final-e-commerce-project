@@ -16,15 +16,11 @@ export default function ProductsExampleClient() {
   const [showAll, setShowAll] = useState(false);
   const visibleProducts = showAll ? products : products.slice(0, 9);
 
-
-
   useEffect(() => {
     async function fetchProducts() {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from("products")
-        .select(
-          `
+      const { data, error } = await supabase.from("products").select(
+        `
           *,
           product_images (
             id,
@@ -43,7 +39,7 @@ export default function ProductsExampleClient() {
             is_active
           )
         `
-        );
+      );
       if (error) {
         setError(error);
       } else {
@@ -54,12 +50,16 @@ export default function ProductsExampleClient() {
   }, []);
 
   if (error) {
-    return <div className="text-destructive">Fehler beim Laden der Produkte</div>;
+    return (
+      <div className="text-destructive">Fehler beim Laden der Produkte</div>
+    );
   }
 
   return (
     <div className="container max-w-7xl px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8 text-foreground">Unsere Produkte</h1>
+      <h1 className="text-4xl font-bold mb-8 text-foreground">
+        Unsere Produkte
+      </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {visibleProducts.map((product) => (
           <ProductCard
