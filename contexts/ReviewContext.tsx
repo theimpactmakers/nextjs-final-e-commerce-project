@@ -9,13 +9,28 @@ type Review = Database["public"]["Tables"]["reviews"]["Row"];
 type ReviewInsert = Database["public"]["Tables"]["reviews"]["Insert"];
 
 interface ReviewContextType {
-  createReview: (review: ReviewInsert) => Promise<{ data: Review | null; error: Error | null }>;
-  updateReview: (id: string, updates: Partial<ReviewInsert>) => Promise<{ data: Review | null; error: Error | null }>;
+  createReview: (
+    review: ReviewInsert
+  ) => Promise<{ data: Review | null; error: Error | null }>;
+  updateReview: (
+    id: string,
+    updates: Partial<ReviewInsert>
+  ) => Promise<{ data: Review | null; error: Error | null }>;
   deleteReview: (id: string) => Promise<{ error: Error | null }>;
-  getProductReviews: (productId: string) => Promise<{ data: Review[] | null; error: Error | null }>;
+  getProductReviews: (
+    productId: string
+  ) => Promise<{ data: Review[] | null; error: Error | null }>;
   getUserReviews: () => Promise<{ data: Review[] | null; error: Error | null }>;
-  getUserReviewForProduct: (productId: string) => Promise<{ data: Review | null; error: Error | null }>;
-  checkUserCanReview: (productId: string) => Promise<{ canReview: boolean; hasPurchased: boolean; hasReviewed: boolean }>;
+  getUserReviewForProduct: (
+    productId: string
+  ) => Promise<{ data: Review | null; error: Error | null }>;
+  checkUserCanReview: (
+    productId: string
+  ) => Promise<{
+    canReview: boolean;
+    hasPurchased: boolean;
+    hasReviewed: boolean;
+  }>;
 }
 
 const ReviewContext = createContext<ReviewContextType | undefined>(undefined);
@@ -59,10 +74,7 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
 
   const deleteReview = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from("reviews")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("reviews").delete().eq("id", id);
 
       if (error) throw error;
       return { error: null };
@@ -76,14 +88,16 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from("reviews")
-        .select(`
+        .select(
+          `
           *,
           profiles:user_id (
             id,
             first_name,
             last_name
           )
-        `)
+        `
+        )
         .eq("product_id", productId)
         .eq("is_approved", true)
         .order("created_at", { ascending: false });
@@ -102,14 +116,16 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from("reviews")
-        .select(`
+        .select(
+          `
           *,
           products (
             id,
             name,
             slug
           )
-        `)
+        `
+        )
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
@@ -150,14 +166,16 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
       // User must have an order containing this product (any status except cancelled/failed)
       const { data: orderData, error: orderError } = await supabase
         .from("order_items")
-        .select(`
+        .select(
+          `
           id,
           product_id,
           orders!inner (
             user_id,
             status
           )
-        `)
+        `
+        )
         .eq("product_id", productId)
         .eq("orders.user_id", user.id)
         .not("orders.status", "in", "(cancelled,failed,refunded)")
@@ -167,9 +185,16 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
         console.error("Error fetching order data:", orderError);
       }
 
-      console.log("Order check for product:", productId, "User:", user.id, "Result:", orderData);
+      console.log(
+        "Order check for product:",
+        productId,
+        "User:",
+        user.id,
+        "Result:",
+        orderData
+      );
 
-      const hasPurchased = orderData && orderData.length > 0;
+      const hasPurchased = !!(orderData && orderData.length > 0);
 
       // Check if user already reviewed this product
       const { data: reviewData, error: reviewError } = await supabase
@@ -190,13 +215,13 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
         userId: user.id,
         hasPurchased,
         hasReviewed,
-        canReview: hasPurchased && !hasReviewed
+        canReview: hasPurchased && !hasReviewed,
       });
 
       return {
-        canReview: hasPurchased && !hasReviewed,
-        hasPurchased,
-        hasReviewed,
+        canReview: hasPurchased && !hasReviewed ? true : false,
+        hasPurchased: hasPurchased ? true : false,
+        hasReviewed: hasReviewed ? true : false,
       };
     } catch (error) {
       console.error("Error checking review permission:", error);

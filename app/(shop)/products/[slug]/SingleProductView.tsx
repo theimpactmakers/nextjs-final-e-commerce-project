@@ -297,11 +297,11 @@ export default function SingleProductView({
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 sm:space-y-10 md:space-y-12 px-2 sm:px-4">
       {/* Main Product Section */}
-      <div className="grid grid-cols-1 md:grid-cols-[2fr_0.8fr] gap-3 lg:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_0.8fr] gap-6 md:gap-8">
         {/* Left: Image Gallery */}
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8">
           {/* Thumbnail Gallery - Left Side (desktop/tablet) */}
           {sortedImages.length > 0 && (
             <div className="hidden md:flex md:flex-col gap-3 w-20 md:w-24 shrink-0">
@@ -328,7 +328,7 @@ export default function SingleProductView({
           )}
 
           {/* Main Image - Responsive */}
-          <div className="relative w-full md:w-[640px] lg:w-[720px] h-[340px] sm:h-[420px] md:h-[600px] lg:h-[720px] bg-muted rounded-lg overflow-hidden">
+          <div className="relative w-full h-[220px] xs:h-[300px] sm:h-[340px] md:w-[640px] lg:w-[720px] sm:h-[420px] md:h-[600px] lg:h-[720px] bg-muted rounded-lg overflow-hidden">
             <Image
               src={sortedImages[currentImageIndex].image_url}
               alt={
@@ -343,14 +343,14 @@ export default function SingleProductView({
             />
 
             {/* Badges */}
-            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-col gap-2">
+            <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-1 sm:gap-2">
               {product.age_group && (
-                <span className="bg-primary/90 text-white px-2 py-0.5 rounded text-[10px] sm:text-xs font-semibold tracking-wide flex items-center justify-center text-center min-w-12">
+                <span className="bg-primary/90 text-white px-1.5 py-0.5 rounded text-[10px] xs:text-xs font-semibold tracking-wide flex items-center justify-center text-center min-w-10 xs:min-w-12">
                   {product.age_group}
                 </span>
               )}
               {promotionData && (
-                <span className="bg-accent text-white px-2.5 py-1 rounded text-[10px] sm:text-xs font-bold">
+                <span className="bg-accent text-white px-2 py-0.5 rounded text-[10px] xs:text-xs font-bold">
                   Sparpreis
                 </span>
               )}
@@ -359,12 +359,12 @@ export default function SingleProductView({
 
           {/* Thumbnail Gallery - Below Main Image (mobile) */}
           {sortedImages.length > 0 && (
-            <div className="flex md:hidden gap-3 mt-1">
+            <div className="flex md:hidden gap-2 mt-1">
               {sortedImages.slice(0, 4).map((image, index) => (
                 <button
                   key={image.id}
                   onClick={() => setCurrentImageIndex(index)}
-                  className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                  className={`relative w-14 h-14 xs:w-16 xs:h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                     currentImageIndex === index
                       ? "border-accent ring-2 ring-accent/20"
                       : "border-muted-foreground/30 hover:border-accent/50"
@@ -384,11 +384,13 @@ export default function SingleProductView({
         </div>
 
         {/* Right: Product Info */}
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {/* Title */}
           <div>
-            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <div className="mb-4">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 break-words">
+              {product.name}
+            </h1>
+            <div className="mb-3 sm:mb-4">
               {reviewStats.totalReviews > 0 ? (
                 <div className="flex items-center gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -405,7 +407,7 @@ export default function SingleProductView({
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.38-2.454a1 1 0 00-1.175 0l-3.38 2.454c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.394c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.967z" />
                     </svg>
                   ))}
-                  <span className="ml-2 text-sm text-muted-foreground">
+                  <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
                     ({reviewStats.totalReviews})
                   </span>
                 </div>
@@ -446,7 +448,7 @@ export default function SingleProductView({
           </div>
 
           {/* Key Features */}
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
             <li className="flex items-start gap-2">
               <span className="text-muted-foreground">•</span>
               <span>Enthält die Muskelmasse</span>
@@ -971,7 +973,7 @@ export default function SingleProductView({
       </div>
 
       {/* Related Products */}
-      <div className="mt-16">
+      <div className="mt-10 sm:mt-14 md:mt-16">
         <RelatedProducts
           productId={product.id}
           title="Entdecke ähnliche Produkte"

@@ -10,7 +10,6 @@ import React, {
 import { createClient } from "@/lib/supabase/client";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { CartItem, DbCartItem, CartContextType } from "@/types";
-import { toast } from "sonner";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -19,6 +18,206 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const supabase = createClient();
+
+  // Format cart items helper
+  const formatCartItems = async (
+    cartItems: DbCartItem[]
+  ): Promise<CartItem[]> => {
+    const productIds = (cartItems || [])
+      .map((item) => {
+        const variant = Array.isArray(item.product_variants)
+          ? item.product_variants[0]
+          : item.product_variants;
+        return variant?.product_id;
+      })
+      .filter((id) => id);
+    const { data: images } = await supabase
+      .from("product_images")
+      .select("product_id, image_url")
+      .in("product_id", productIds)
+      .eq("is_primary", true);
+    const imageMap = new Map<string, string>(
+      (images?.map((img: { product_id: string; image_url: string }) => [
+        img.product_id,
+        img.image_url,
+      ]) || []) as [string, string][]
+    );
+    const formattedItemsPromises = (cartItems || [])
+      .filter((item) => {
+        const variant = Array.isArray(item.product_variants)
+          ? item.product_variants[0]
+          : item.product_variants;
+        const product = variant
+          ? Array.isArray(variant.products)
+            ? variant.products[0]
+            : variant.products
+          : null;
+        return variant && product;
+      })
+      .map(async (item) => {
+        const variant = Array.isArray(item.product_variants)
+          ? item.product_variants[0]
+          : item.product_variants;
+        const product = Array.isArray(variant.products)
+          ? variant.products[0]
+          : variant.products;
+        const promotionData = await calculatePromotionDiscount(
+          variant.product_id,
+          variant.id,
+          parseFloat(variant.price)
+        );
+        const basePrice = parseFloat(variant.price);
+        const comparePrice = variant.compare_at_price
+          ? parseFloat(variant.compare_at_price)
+          : null;
+        let finalPrice = basePrice;
+        let originalPrice = comparePrice || basePrice;
+        if (promotionData) {
+          finalPrice = promotionData.discountedPrice;
+          originalPrice = promotionData.originalPrice;
+        }
+        return {
+          id: item.id,
+          variant_id: item.variant_id,
+          product_id: variant.product_id,
+          product_name: product.name,
+          variant_name: variant.name,
+          price: finalPrice,
+          original_price: originalPrice,
+          quantity: item.quantity,
+          image_url:
+            typeof imageMap.get(variant.product_id) === "string"
+              ? imageMap.get(variant.product_id)!
+              : null,
+          stock_quantity: variant.stock_quantity,
+        };
+      });
+    return Promise.all(formattedItemsPromises);
+  };
+
+  // Add to cart
+  const addToCart = async (
+    variantId: string,
+    productId: string,
+    productName: string,
+    variantName: string,
+    price: number,
+    imageUrl: string | null,
+    stockQuantity: number,
+    quantity: number = 1
+  ) => {
+    if (userId) {
+      // Add to database for logged-in users
+      try {
+        // Get or create cart
+        let { data: cart } = await supabase
+          .from("carts")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("status", "OPEN")
+          .single();
+
+        if (!cart) {
+          const { data: newCart } = await supabase
+            .from("carts")
+            .insert({ user_id: userId })
+            .select("id")
+            .single();
+          cart = newCart;
+        }
+
+        if (cart) {
+          // Try insert, handle 409 by always updating quantity
+          const { error: insertError } = await supabase
+            .from("cart_items")
+            .insert({
+              cart_id: cart.id,
+              variant_id: variantId,
+              quantity,
+              price_at_add: price,
+            });
+          if (insertError && insertError.code === "409") {
+            // Always update quantity if conflict
+            const { data: retryItem } = await supabase
+              .from("cart_items")
+              .select("id, quantity")
+              .eq("cart_id", cart.id)
+              .eq("variant_id", variantId)
+              .single();
+            if (retryItem) {
+              await supabase
+                .from("cart_items")
+                .update({ quantity: retryItem.quantity + quantity })
+                .eq("id", retryItem.id);
+            }
+          }
+          // Always reload cart after insert/update
+          const { data: cartReload } = await supabase
+            .from("carts")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("status", "OPEN")
+            .single();
+          if (!cartReload) {
+            setItems([]);
+            return;
+          }
+          const { data: cartItems } = await supabase
+            .from("cart_items")
+            .select(
+              `
+                id,
+                quantity,
+                price_at_add,
+                variant_id,
+                product_variants!inner(
+                  id,
+                  name,
+                  price,
+                  compare_at_price,
+                  stock_quantity,
+                  product_id,
+                  products!inner(
+                    id,
+                    name,
+                    slug
+                  )
+                )
+              `
+            )
+            .eq("cart_id", cartReload.id);
+          const formattedItems = await formatCartItems(cartItems || []);
+          setItems(formattedItems);
+        }
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+      }
+    } else {
+      // Guest: Add to localStorage
+      const localCart = getLocalCart();
+      const itemIndex = localCart.findIndex(
+        (item) => item.variant_id === variantId
+      );
+      if (itemIndex > -1) {
+        localCart[itemIndex].quantity += quantity;
+      } else {
+        localCart.push({
+          id: `${variantId}-${Date.now()}`,
+          variant_id: variantId,
+          product_id: productId,
+          product_name: productName,
+          variant_name: variantName,
+          price,
+          original_price: price,
+          quantity,
+          image_url: imageUrl,
+          stock_quantity: stockQuantity,
+        });
+      }
+      saveLocalCart(localCart);
+      setItems(localCart);
+    }
+  };
 
   // Get cart from localStorage (for guests)
   const getLocalCart = (): CartItem[] => {
@@ -85,7 +284,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         if (cart) {
           // Get cart items with product details
-          const { data: cartItems } = await supabase
+          const { data: cartItems, error: cartItemsError } = await supabase
             .from("cart_items")
             .select(
               `
@@ -110,6 +309,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             )
             .eq("cart_id", cart.id);
 
+          // Debug-Logging für cartItems und Fehler
+          console.log("[CARTCONTEXT] cartItems (raw):", cartItems);
+          if (cartItemsError) {
+            console.error("[CARTCONTEXT] cartItemsError:", cartItemsError);
+          }
+
           if (cartItems) {
             // Get primary images for each product
             const productIds = (cartItems as DbCartItem[])
@@ -129,7 +334,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               .eq("is_primary", true);
 
             const imageMap = new Map(
-              images?.map((img) => [img.product_id, img.image_url]) || []
+              images?.map((img: { product_id: string; image_url: string }) => [
+                img.product_id,
+                img.image_url,
+              ]) || []
             );
 
             // Format items with promotion prices
@@ -243,196 +451,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Add to cart
-  const addToCart = async (
-    variantId: string,
-    productId: string,
-    productName: string,
-    variantName: string,
-    price: number,
-    imageUrl: string | null,
-    stockQuantity: number,
-    quantity: number = 1
-  ) => {
-    console.log("addToCart called", { variantId, productId, quantity, userId });
-    if (userId) {
-      // Add to database for logged-in users
-      try {
-        // Get or create cart
-        let { data: cart } = await supabase
-          .from("carts")
-          .select("id")
-          .eq("user_id", userId)
-          .eq("status", "OPEN")
-          .single();
-
-        if (!cart) {
-          const { data: newCart } = await supabase
-            .from("carts")
-            .insert({ user_id: userId })
-            .select("id")
-            .single();
-          cart = newCart;
-        }
-
-        if (cart) {
-          // Check if item already exists
-          const { data: existingItem } = await supabase
-            .from("cart_items")
-            .select("id, quantity")
-            .eq("cart_id", cart.id)
-            .eq("variant_id", variantId)
-            .single();
-
-          if (existingItem) {
-            // Update quantity
-            await supabase
-              .from("cart_items")
-              .update({ quantity: existingItem.quantity + quantity })
-              .eq("id", existingItem.id);
-          } else {
-            // Insert new item, handle 409 conflict by updating instead
-            const { error } = await supabase.from("cart_items").insert({
-              cart_id: cart.id,
-              variant_id: variantId,
-              quantity,
-              price_at_add: price,
-            });
-            if (error && error.code === "409") {
-              // If conflict, update quantity instead
-              const { data: retryItem } = await supabase
-                .from("cart_items")
-                .select("id, quantity")
-                .eq("cart_id", cart.id)
-                .eq("variant_id", variantId)
-                .single();
-              if (retryItem) {
-                await supabase
-                  .from("cart_items")
-                  .update({ quantity: retryItem.quantity + quantity })
-                  .eq("id", retryItem.id);
-              }
-            }
-          }
-
-          // Reload cart and force state update with a new array
-          // Reload cart and setItems with the latest DB state
-          const reload = async () => {
-            const itemsFromDb = await (async () => {
-              let { data: cart } = await supabase
-                .from("carts")
-                .select("id")
-                .eq("user_id", userId)
-                .eq("status", "OPEN")
-                .single();
-              if (!cart) return [];
-              const { data: cartItems } = await supabase
-                .from("cart_items")
-                .select("*")
-                .eq("cart_id", cart.id);
-              return cartItems || [];
-            })();
-            setItems([...itemsFromDb]);
-            setTimeout(() => {
-              const sum = itemsFromDb.reduce(
-                (acc, item) => acc + item.quantity,
-                0
-              );
-              console.log(
-                "[DEBUG] itemCount after DB update:",
-                sum,
-                itemsFromDb
-              );
-            }, 100);
-          };
-          reload();
-        }
-      } catch (error) {
-        console.error("Error adding to cart:", error);
-      }
-    } else {
-      // Add to localStorage for guests
-      const localCart = getLocalCart();
-      const existingItemIndex = localCart.findIndex(
-        (item) => item.variant_id === variantId
-      );
-
-      if (existingItemIndex > -1) {
-        localCart[existingItemIndex].quantity += quantity;
-        // Force new array reference for React
-        saveLocalCart([...localCart]);
-        setItems([...localCart]);
-        console.log(
-          "[DEBUG] Updated existing localCart item quantity:",
-          localCart[existingItemIndex]
-        );
-      } else {
-        localCart.push({
-          id: `local-${Date.now()}-${variantId}`,
-          variant_id: variantId,
-          product_id: productId,
-          product_name: productName,
-          variant_name: variantName,
-          price,
-          quantity,
-          image_url: imageUrl,
-          stock_quantity: stockQuantity,
-        });
-      }
-
-      saveLocalCart(localCart);
-      // Force new array reference for React
-      saveLocalCart([...localCart]);
-      setItems([...localCart]);
-      console.log("Cart updated from localStorage", localCart);
-      // Debug: Log itemCount after localStorage update
-      setTimeout(() => {
-        const sum = localCart.reduce((acc, item) => acc + item.quantity, 0);
-        console.log(
-          "[DEBUG] itemCount after localStorage update:",
-          sum,
-          localCart
-        );
-      }, 100);
-    }
-
-    // Show success toast with animated checkmark
-    toast.custom(
-      () => (
-        <div className="flex items-center gap-3 bg-card border-2 border-primary/20 rounded-lg p-4 shadow-xl animate-slide-in-right">
-          <div className="shrink-0">
-            <div className="relative">
-              <svg
-                className="w-10 h-10 text-primary animate-cart-bounce"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-            </div>
-          </div>
-          <div className="flex-1">
-            <p className="font-bold text-primary text-base">
-              Zum Warenkorb hinzugefügt!
-            </p>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {productName} {variantName && `- ${variantName}`}
-            </p>
-          </div>
-        </div>
-      ),
-      {
-        duration: 3000,
-      }
-    );
-  };
-
   // Update quantity
   const updateQuantity = async (itemId: string, quantity: number) => {
     if (quantity <= 0) {
@@ -508,8 +526,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Calculate totals
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   useEffect(() => {
-    console.log("[DEBUG] CartContext items changed:", items);
-    console.log("[DEBUG] CartContext itemCount:", itemCount);
+    console.log("====================");
+    console.log("[CARTCONTEXT] ITEMS:", items);
+    console.log("[CARTCONTEXT] ITEMCOUNT:", itemCount);
+    console.log("====================");
   }, [items, itemCount]);
   const totalPrice = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
