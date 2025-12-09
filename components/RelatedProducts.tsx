@@ -50,46 +50,87 @@ export default function RelatedProducts({
       const supabase = createClient();
 
       try {
-        // Fetch related products from database
-        const { data: relatedProductsData } = await supabase
+        // Step 1: Get related product IDs (single query)
+        const { data: relatedIds, error: idsError } = await supabase
           .from("related_products")
-          .select(
-            `
-            related_product_id,
-            products!related_products_related_product_id_fkey (
-              id,
-              name,
-              slug,
-              description,
-              product_images (
-                image_url,
-                alt_text,
-                is_primary
-              ),
-              product_variants (
-                id,
-                name,
-                price,
-                compare_at_price,
-                stock_quantity
-              )
-            )
-          `
-          )
+          .select("related_product_id, display_order")
           .eq("product_id", productId)
           .order("display_order", { ascending: true })
           .limit(limit);
 
-        if (relatedProductsData) {
-          const products = relatedProductsData
-            .map((rp) => rp.products)
-            .flat()
-            .filter((p) => p !== null) as RelatedProduct[];
-
-          setRelatedProducts(products);
+        if (idsError) throw idsError;
+        if (!relatedIds || relatedIds.length === 0) {
+          setRelatedProducts([]);
+          return;
         }
+
+        const productIds = relatedIds.map((r) => r.related_product_id);
+
+        // Step 2: Batch fetch all data in parallel (3 optimized queries)
+        const [productsResult, imagesResult, variantsResult] = await Promise.all([
+          // Fetch products
+          supabase
+            .from("products")
+            .select("id, name, slug, description")
+            .in("id", productIds),
+
+          // Fetch only primary images
+          supabase
+            .from("product_images")
+            .select("product_id, image_url, alt_text, is_primary")
+            .in("product_id", productIds)
+            .eq("is_primary", true),
+
+          // Fetch only first variant per product (cheapest)
+          supabase
+            .from("product_variants")
+            .select("product_id, id, name, price, compare_at_price, stock_quantity")
+            .in("product_id", productIds)
+            .eq("is_active", true)
+            .order("price", { ascending: true }),
+        ]);
+
+        if (productsResult.error) throw productsResult.error;
+        if (imagesResult.error) throw imagesResult.error;
+        if (variantsResult.error) throw variantsResult.error;
+
+        // Step 3: Efficiently combine data client-side
+        const productsMap = new Map(
+          productsResult.data?.map((p) => [p.id, p]) || []
+        );
+        const imagesMap = new Map(
+          imagesResult.data?.map((img) => [img.product_id, img]) || []
+        );
+        const variantsMap = new Map<string, typeof variantsResult.data>();
+        
+        variantsResult.data?.forEach((v) => {
+          if (!variantsMap.has(v.product_id)) {
+            variantsMap.set(v.product_id, []);
+          }
+          variantsMap.get(v.product_id)?.push(v);
+        });
+
+        // Step 4: Build products in original display_order
+        const products = relatedIds
+          .map((rel) => {
+            const product = productsMap.get(rel.related_product_id);
+            if (!product) return null;
+
+            const image = imagesMap.get(product.id);
+            const variants = variantsMap.get(product.id) || [];
+
+            return {
+              ...product,
+              product_images: image ? [image] : [],
+              product_variants: variants,
+            } as RelatedProduct;
+          })
+          .filter((p): p is RelatedProduct => p !== null);
+
+        setRelatedProducts(products);
       } catch (error) {
         console.error("Error fetching related products:", error);
+        setRelatedProducts([]);
       } finally {
         setIsLoading(false);
       }

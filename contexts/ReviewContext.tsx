@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "./AuthContext";
 import type { Database } from "@/types";
@@ -39,7 +39,7 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
   const { user } = useAuth();
 
-  const createReview = async (review: ReviewInsert) => {
+  const createReview = useCallback(async (review: ReviewInsert) => {
     try {
       const { data, error } = await supabase
         .from("reviews")
@@ -53,9 +53,9 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
       console.error("Error creating review:", error);
       return { data: null, error: error as Error };
     }
-  };
+  }, [supabase]);
 
-  const updateReview = async (id: string, updates: Partial<ReviewInsert>) => {
+  const updateReview = useCallback(async (id: string, updates: Partial<ReviewInsert>) => {
     try {
       const { data, error } = await supabase
         .from("reviews")
@@ -70,9 +70,9 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
       console.error("Error updating review:", error);
       return { data: null, error: error as Error };
     }
-  };
+  }, [supabase]);
 
-  const deleteReview = async (id: string) => {
+  const deleteReview = useCallback(async (id: string) => {
     try {
       const { error } = await supabase.from("reviews").delete().eq("id", id);
 
@@ -82,9 +82,9 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
       console.error("Error deleting review:", error);
       return { error: error as Error };
     }
-  };
+  }, [supabase]);
 
-  const getProductReviews = async (productId: string) => {
+  const getProductReviews = useCallback(async (productId: string) => {
     try {
       const { data, error } = await supabase
         .from("reviews")
@@ -108,9 +108,9 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
       console.error("Error fetching product reviews:", error);
       return { data: null, error: error as Error };
     }
-  };
+  }, [supabase]);
 
-  const getUserReviews = async () => {
+  const getUserReviews = useCallback(async () => {
     if (!user) return { data: null, error: new Error("Not authenticated") };
 
     try {
@@ -135,9 +135,9 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
       console.error("Error fetching user reviews:", error);
       return { data: null, error: error as Error };
     }
-  };
+  }, [user, supabase]);
 
-  const getUserReviewForProduct = async (productId: string) => {
+  const getUserReviewForProduct = useCallback(async (productId: string) => {
     if (!user) return { data: null, error: null };
 
     try {
@@ -154,9 +154,9 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
       console.error("Error fetching user review:", error);
       return { data: null, error: error as Error };
     }
-  };
+  }, [user, supabase]);
 
-  const checkUserCanReview = async (productId: string) => {
+  const checkUserCanReview = useCallback(async (productId: string) => {
     if (!user) {
       return { canReview: false, hasPurchased: false, hasReviewed: false };
     }
@@ -227,20 +227,23 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
       console.error("Error checking review permission:", error);
       return { canReview: false, hasPurchased: false, hasReviewed: false };
     }
-  };
+  }, [user, supabase]);
+
+  const contextValue = useMemo(
+    () => ({
+      createReview,
+      updateReview,
+      deleteReview,
+      getProductReviews,
+      getUserReviews,
+      getUserReviewForProduct,
+      checkUserCanReview,
+    }),
+    [createReview, updateReview, deleteReview, getProductReviews, getUserReviews, getUserReviewForProduct, checkUserCanReview]
+  );
 
   return (
-    <ReviewContext.Provider
-      value={{
-        createReview,
-        updateReview,
-        deleteReview,
-        getProductReviews,
-        getUserReviews,
-        getUserReviewForProduct,
-        checkUserCanReview,
-      }}
-    >
+    <ReviewContext.Provider value={contextValue}>
       {children}
     </ReviewContext.Provider>
   );

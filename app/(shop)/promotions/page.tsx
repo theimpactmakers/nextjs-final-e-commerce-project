@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Database } from "@/types";
 import { FilterPanel } from "@/components/FilterPanel";
 import PromotionProductCard from "@/components/PromotionProductCard";
-import { getActivePromotions } from "@/lib/supabase/products";
+import { getActivePromotionsServer } from "@/lib/supabase/products-server";
 
 export const revalidate = 60;
 
@@ -20,8 +20,8 @@ async function PromotionsContent({
   const supabase = await createClient();
 
   try {
-    // Hole alle aktiven Promotions
-    let activePromotions = await getActivePromotions();
+    // Hole alle aktiven Promotions (Server-Side, Caching via Page revalidate)
+    let activePromotions = await getActivePromotionsServer();
 
     // Filtere nach spezifischer Promotion, wenn promo-Parameter vorhanden
     if (promo) {
@@ -43,17 +43,17 @@ async function PromotionsContent({
       );
     }
 
-    // Sammle alle Produkt-IDs aus den aktiven Promotions
-    const productIds: string[] = [];
-    const variantIds: string[] = [];
+    // Sammle alle Produkt-IDs und Varianten-IDs aus den aktiven Promotions
+    const productIdsSet = new Set<string>();
+    const variantIdsSet = new Set<string>();
+    const hasAllPromotion = activePromotions.some((p) => p.applies_to === "all");
 
     activePromotions.forEach((promo) => {
-      if (promo.applies_to === "all") {
-        // Für "all" brauchen wir später alle Produkte zu filtern
-      } else if (promo.product_ids) {
-        productIds.push(...promo.product_ids);
-      } else if (promo.variant_ids) {
-        variantIds.push(...promo.variant_ids);
+      if (promo.product_ids) {
+        promo.product_ids.forEach((id) => productIdsSet.add(id));
+      }
+      if (promo.variant_ids) {
+        promo.variant_ids.forEach((id) => variantIdsSet.add(id));
       }
     });
 
@@ -125,8 +125,49 @@ async function PromotionsContent({
       );
     }
 
+    if (!allProducts || allProducts.length === 0) {
+      return (
+        <div className="container max-w-7xl mx-auto px-4 py-16">
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+              Aktuelle Angebote
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Keine Produkte gefunden
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // Batch-lade alle Varianten für Produkte mit Varianten-Promotions in einem Query
+    const productIdsForVariants = allProducts
+      .map((p) => p.id)
+      .filter((id): id is string => !!id);
+
+    const { data: allVariants } = await supabase
+      .from("product_variants")
+      .select("id, product_id, name, weight_grams, price")
+      .in("product_id", productIdsForVariants)
+      .eq("is_active", true);
+
+    // Erstelle Maps für schnellen Zugriff
+    const variantsMap = new Map<string, typeof allVariants>();
+    allVariants?.forEach((v) => {
+      if (!variantsMap.has(v.product_id)) {
+        variantsMap.set(v.product_id, []);
+      }
+      variantsMap.get(v.product_id)?.push(v);
+    });
+
+    const promoMap = new Map<string, typeof activePromotions[0]>();
+    activePromotions.forEach((p) => {
+      if (p.applies_to === "specific_products" && p.product_ids) {
+        p.product_ids.forEach((id) => promoMap.set(id, p));
+      }
+    });
+
     // Filtere Produkte, die im Angebot sind
-    // Wir erstellen ein erweitertes Array mit Promotion-Infos
     type ProductWithPromotionInfo = ProductWithImage & {
       promotionDetails?: {
         promotion: typeof activePromotions[0];
@@ -142,60 +183,65 @@ async function PromotionsContent({
 
     const productsInPromotion: ProductWithPromotionInfo[] = [];
 
-    if (allProducts) {
-      for (const product of allProducts) {
-        if (!product.id) continue;
+    for (const product of allProducts) {
+      if (!product.id) continue;
 
-        let productPromotion: ProductWithPromotionInfo["promotionDetails"] = undefined;
+      let productPromotion: ProductWithPromotionInfo["promotionDetails"] = undefined;
 
-        // Prüfe ob das Produkt selbst in einer Promotion ist
-        for (const promo of activePromotions) {
-          if (promo.applies_to === "all") {
-            productPromotion = { promotion: promo };
-            break;
-          } else if (promo.applies_to === "specific_products" && promo.product_ids) {
-            if (promo.product_ids.includes(product.id)) {
-              productPromotion = { promotion: promo };
-              break;
-            }
-          } else if (promo.applies_to === "specific_variants" && promo.variant_ids) {
-            // Hole alle Varianten des Produkts um zu prüfen, welche davon im Angebot sind
-            const { data: variants } = await supabase
-              .from("product_variants")
-              .select("id, name, weight_grams, price")
-              .eq("product_id", product.id)
-              .in("id", promo.variant_ids);
+      // Check 1: "all" Promotion
+      if (hasAllPromotion) {
+        const allPromo = activePromotions.find((p) => p.applies_to === "all");
+        if (allPromo) {
+          productPromotion = { promotion: allPromo };
+        }
+      }
 
-            if (variants && variants.length > 0) {
-              // Berechne rabattierte Preise
-              const variantsWithDiscount = variants.map((v) => {
-                let discountedPrice = v.price;
-                if (promo.discount_type === "percentage") {
-                  discountedPrice = v.price * (1 - promo.discount_value / 100);
-                } else if (promo.discount_type === "fixed_amount") {
-                  discountedPrice = v.price - promo.discount_value;
-                }
-                return {
-                  ...v,
-                  discountedPrice: Math.max(0, discountedPrice),
-                };
-              });
+      // Check 2: Spezifische Produkt-Promotion (O(1) lookup)
+      if (!productPromotion && promoMap.has(product.id)) {
+        productPromotion = { promotion: promoMap.get(product.id)! };
+      }
 
-              productPromotion = {
-                promotion: promo,
-                variantsInPromotion: variantsWithDiscount,
+      // Check 3: Varianten-Promotion
+      if (!productPromotion && variantIdsSet.size > 0) {
+        const productVariants = variantsMap.get(product.id) || [];
+        const variantsInPromo = productVariants.filter((v) =>
+          variantIdsSet.has(v.id)
+        );
+
+        if (variantsInPromo.length > 0) {
+          const promo = activePromotions.find(
+            (p) =>
+              p.applies_to === "specific_variants" &&
+              p.variant_ids?.some((vid) => variantsInPromo.some((v) => v.id === vid))
+          );
+
+          if (promo) {
+            const variantsWithDiscount = variantsInPromo.map((v) => {
+              let discountedPrice = v.price;
+              if (promo.discount_type === "percentage") {
+                discountedPrice = v.price * (1 - promo.discount_value / 100);
+              } else if (promo.discount_type === "fixed_amount") {
+                discountedPrice = v.price - promo.discount_value;
+              }
+              return {
+                ...v,
+                discountedPrice: Math.max(0, discountedPrice),
               };
-              break;
-            }
+            });
+
+            productPromotion = {
+              promotion: promo,
+              variantsInPromotion: variantsWithDiscount,
+            };
           }
         }
+      }
 
-        if (productPromotion) {
-          productsInPromotion.push({
-            ...product,
-            promotionDetails: productPromotion,
-          });
-        }
+      if (productPromotion) {
+        productsInPromotion.push({
+          ...product,
+          promotionDetails: productPromotion,
+        });
       }
     }
 

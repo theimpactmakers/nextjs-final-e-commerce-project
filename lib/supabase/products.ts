@@ -77,7 +77,7 @@ export async function getBestsellersWithFilters(options?: {
 }
 
 /**
- * Holt alle aktiven Promotions
+ * Holt alle aktiven Promotions (CLIENT-SIDE ohne Cache)
  * @returns Array von aktiven Promotions
  */
 export async function getActivePromotions() {
