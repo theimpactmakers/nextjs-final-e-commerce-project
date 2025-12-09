@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -127,11 +127,11 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const isInWishlist = (productId: string): boolean => {
+  const isInWishlist = useCallback((productId: string): boolean => {
     return wishlist.some((item) => item.productId === productId);
-  };
+  }, [wishlist]);
 
-  const addToWishlist = async (productId: string) => {
+  const addToWishlist = useCallback(async (productId: string) => {
     if (isInWishlist(productId)) return;
 
     const newItem = { productId, addedAt: new Date().toISOString() };
@@ -192,9 +192,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         duration: 3000,
       }
     );
-  };
+  }, [user, wishlist, isInWishlist]);
 
-  const removeFromWishlist = async (productId: string) => {
+  const removeFromWishlist = useCallback(async (productId: string) => {
     if (user) {
       // Authenticated: remove from database
       const supabase = createClient();
@@ -220,9 +220,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       setWishlist(updated);
       localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(updated));
     }
-  };
+  }, [user, wishlist]);
 
-  const clearWishlist = async () => {
+  const clearWishlist = useCallback(async () => {
     if (user) {
       // Authenticated: clear database
       const supabase = createClient();
@@ -244,20 +244,23 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       setWishlist([]);
       localStorage.removeItem(WISHLIST_STORAGE_KEY);
     }
-  };
+  }, [user]);
+
+  const contextValue = useMemo(
+    () => ({
+      wishlist,
+      isInWishlist,
+      addToWishlist,
+      removeFromWishlist,
+      clearWishlist,
+      wishlistCount: wishlist.length,
+      isLoading,
+    }),
+    [wishlist, isInWishlist, addToWishlist, removeFromWishlist, clearWishlist, isLoading]
+  );
 
   return (
-    <WishlistContext.Provider
-      value={{
-        wishlist,
-        isInWishlist,
-        addToWishlist,
-        removeFromWishlist,
-        clearWishlist,
-        wishlistCount: wishlist.length,
-        isLoading,
-      }}
-    >
+    <WishlistContext.Provider value={contextValue}>
       {children}
     </WishlistContext.Provider>
   );

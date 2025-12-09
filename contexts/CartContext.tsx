@@ -6,6 +6,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
@@ -447,20 +448,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     0
   );
 
+  const contextValue = useMemo(
+    () => ({
+      items,
+      itemCount,
+      totalPrice,
+      isLoading,
+      addToCart,
+      updateQuantity,
+      removeItem,
+      clearCart,
+      refreshCart,
+    }),
+    [items, itemCount, totalPrice, isLoading, addToCart, updateQuantity, removeItem, clearCart, refreshCart]
+  );
+
   return (
-    <CartContext.Provider
-      value={{
-        items,
-        itemCount,
-        totalPrice,
-        isLoading,
-        addToCart,
-        updateQuantity,
-        removeItem,
-        clearCart,
-        refreshCart,
-      }}
-    >
+    <CartContext.Provider value={contextValue}>
       {children}
     </CartContext.Provider>
   );

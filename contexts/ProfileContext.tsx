@@ -6,6 +6,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "./AuthContext";
@@ -260,21 +261,24 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     [user, supabase, refreshAddresses]
   );
 
+  const contextValue = useMemo(
+    () => ({
+      profile,
+      addresses,
+      isLoading,
+      updateProfile,
+      createAddress,
+      updateAddress,
+      deleteAddress,
+      setDefaultAddress,
+      refreshProfile,
+      refreshAddresses,
+    }),
+    [profile, addresses, isLoading, updateProfile, createAddress, updateAddress, deleteAddress, setDefaultAddress, refreshProfile, refreshAddresses]
+  );
+
   return (
-    <ProfileContext.Provider
-      value={{
-        profile,
-        addresses,
-        isLoading,
-        updateProfile,
-        createAddress,
-        updateAddress,
-        deleteAddress,
-        setDefaultAddress,
-        refreshProfile,
-        refreshAddresses,
-      }}
-    >
+    <ProfileContext.Provider value={contextValue}>
       {children}
     </ProfileContext.Provider>
   );
