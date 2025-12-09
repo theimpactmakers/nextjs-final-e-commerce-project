@@ -34,14 +34,52 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const protectedRoutes = ["/dashboard", "/profile", "/settings"];
+  // Fetch user profile with role if user is authenticated
+  const { data: profile, error: profileError } = user
+    ? await supabase.from("profiles").select("role").eq("id", user.id).single()
+    : { data: null, error: null };
+
+  // Debug logging
+  if (user) {
+    console.log("🔍 Middleware - User ID:", user.id);
+    console.log("🔍 Middleware - Profile:", profile);
+    console.log("🔍 Middleware - Profile Error:", profileError);
+  }
+
+  // Admin routes protection
+  const adminRoutes = ["/admin"];
+  const isAdminRoute = adminRoutes.some((route) =>
+    request.nextUrl.pathname.startsWith(route)
+  );
+
+  if (isAdminRoute) {
+    if (!user) {
+      // Not authenticated -> redirect to login with return URL
+      const redirectUrl = new URL("/auth/login", request.url);
+      redirectUrl.searchParams.set(
+        "redirect",
+        request.nextUrl.pathname + request.nextUrl.search
+      );
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    if (profile?.role !== "admin") {
+      // Authenticated but not admin -> redirect to home with error
+      const redirectUrl = new URL("/", request.url);
+      redirectUrl.searchParams.set("error", "unauthorized");
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
+
+  // User routes protection (profile, orders, etc.)
+  const protectedRoutes = ["/userProfile", "/profile", "/settings"];
   const isProtectedRoute = protectedRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
 
   if (isProtectedRoute && !user) {
     const redirectUrl = new URL("/auth/login", request.url);
-    // Query-Parameter inklusive Query der Originalseite
+    // Include original URL as redirect parameter
     redirectUrl.searchParams.set(
       "redirect",
       request.nextUrl.pathname + request.nextUrl.search
@@ -49,12 +87,18 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // Auth routes - redirect logged-in users away from login/signup
   const authRoutes = ["/auth/login", "/auth/sign-up"];
   const isAuthRoute = authRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
 
   if (isAuthRoute && user) {
+    // If user is admin and coming from auth, go to admin dashboard
+    if (profile?.role === "admin") {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+    // Regular user goes to home
     return NextResponse.redirect(new URL("/", request.url));
   }
 
