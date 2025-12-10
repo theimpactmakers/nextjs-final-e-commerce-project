@@ -41,7 +41,7 @@ export function MobileMenu({ navItems, userEmail }: MobileMenuProps) {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden rounded-lg p-2 text-foreground hover:bg-muted"
+        className="cursor-pointer lg:hidden rounded-lg p-2 text-foreground hover:bg-muted"
         aria-label="Toggle menu"
       >
         {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -59,7 +59,7 @@ export function MobileMenu({ navItems, userEmail }: MobileMenuProps) {
               <h1 className="text-xl font-bold">Admin Panel</h1>
               <button
                 onClick={() => setIsOpen(false)}
-                className="rounded-lg p-2 hover:bg-primary/20"
+                className="cursor-pointer rounded-lg p-2 hover:bg-primary/20"
                 aria-label="Close menu"
               >
                 <X className="h-5 w-5" />
@@ -74,7 +74,7 @@ export function MobileMenu({ navItems, userEmail }: MobileMenuProps) {
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 rounded-lg px-4 py-3 text-primary-foreground/70 transition hover:bg-accent hover:text-accent-foreground"
+                    className="cursor-pointer flex items-center gap-3 rounded-lg px-4 py-3 text-primary-foreground/70 transition hover:bg-accent hover:text-accent-foreground"
                   >
                     <Icon className="h-5 w-5" />
                     <span>{item.label}</span>

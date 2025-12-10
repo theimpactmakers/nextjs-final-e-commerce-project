@@ -52,7 +52,7 @@ export function CustomerRoleUpdate({
       <button
         onClick={handleUpdate}
         disabled={isPending || role === currentRole}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 font-medium text-accent-foreground hover:bg-accent/90 disabled:opacity-50"
+        className="cursor-pointer flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 font-medium text-accent-foreground hover:bg-accent/90 disabled:opacity-50"
       >
         <Shield className="h-4 w-4" />
         {isPending ? "Wird aktualisiert..." : "Rolle aktualisieren"}

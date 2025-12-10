@@ -43,7 +43,7 @@ export function ReviewActions({
         <button
           onClick={handleApprove}
           disabled={isPending}
-          className="rounded p-1 text-green-600 hover:bg-green-50 disabled:opacity-50"
+          className="cursor-pointer rounded p-1 text-green-600 hover:bg-green-50 disabled:opacity-50"
           title="Genehmigen"
         >
           <CheckCircle className="h-5 w-5" />
@@ -53,7 +53,7 @@ export function ReviewActions({
         <button
           onClick={handleReject}
           disabled={isPending}
-          className="rounded p-1 text-orange-600 hover:bg-orange-50 disabled:opacity-50"
+          className="cursor-pointer rounded p-1 text-orange-600 hover:bg-orange-50 disabled:opacity-50"
           title="Ablehnen"
         >
           <XCircle className="h-5 w-5" />
@@ -62,7 +62,7 @@ export function ReviewActions({
       <button
         onClick={handleDelete}
         disabled={isPending}
-        className="rounded p-1 text-red-600 hover:bg-red-50 disabled:opacity-50"
+        className="cursor-pointer rounded p-1 text-red-600 hover:bg-red-50 disabled:opacity-50"
         title="Löschen"
       >
         <Trash2 className="h-5 w-5" />

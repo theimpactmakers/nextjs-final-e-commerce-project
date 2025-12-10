@@ -20,6 +20,8 @@ import {
   Star,
   ArrowUp,
   ArrowDown,
+  Edit2,
+  Check,
 } from "lucide-react";
 
 type ProductImage = {
@@ -95,11 +97,12 @@ export function ProductForm({
 
   // Images state
   const [images, setImages] = useState<ProductImage[]>(existingImages);
+  const [editingImageId, setEditingImageId] = useState<string | null>(null);
   const [newImage, setNewImage] = useState<ProductImage>({
     image_url: "",
     alt_text: "",
     display_order: existingImages.length,
-    is_primary: existingImages.length === 0,
+    is_primary: false,
   });
 
   // Variants state
@@ -258,12 +261,20 @@ export function ProductForm({
     }
 
     startTransition(async () => {
+      // The server action now handles unsetting all other primaries and setting this one
       const result = await updateProductImage(imageId, product.id!, {
         is_primary: true,
       });
+
       if (result.success) {
         setImages(
           images.map((img, i) => ({ ...img, is_primary: i === index }))
+        );
+      } else {
+        console.error("Failed to set primary image:", result.error);
+        alert(
+          "Fehler beim Setzen des Hauptbildes: " +
+            (result.error || "Unbekannter Fehler")
         );
       }
     });
@@ -295,6 +306,50 @@ export function ProductForm({
         });
       });
     }
+  };
+
+  const handleEditImage = (imageId: string) => {
+    setEditingImageId(imageId);
+  };
+
+  const handleSaveImageEdit = async (imageId: string) => {
+    const imageToUpdate = images.find((img) => img.id === imageId);
+    if (!imageToUpdate || !product?.id) return;
+
+    startTransition(async () => {
+      const result = await updateProductImage(imageId, product.id!, {
+        image_url: imageToUpdate.image_url,
+        alt_text: imageToUpdate.alt_text,
+        display_order: imageToUpdate.display_order,
+      });
+
+      if (result.success) {
+        setEditingImageId(null);
+      } else {
+        alert(
+          "Fehler beim Aktualisieren des Bildes: " +
+            (result.error || "Unbekannter Fehler")
+        );
+      }
+    });
+  };
+
+  const handleCancelImageEdit = () => {
+    // Reset to original values
+    setImages(existingImages);
+    setEditingImageId(null);
+  };
+
+  const handleImageFieldChange = (
+    imageId: string,
+    field: keyof ProductImage,
+    value: any
+  ) => {
+    setImages(
+      images.map((img) =>
+        img.id === imageId ? { ...img, [field]: value } : img
+      )
+    );
   };
 
   // Variant management
@@ -565,76 +620,251 @@ export function ProductForm({
 
         {/* Existing Images */}
         {images.length > 0 && (
-          <div className="mb-4 space-y-2">
-            {images.map((img, index) => (
-              <div
-                key={img.id || index}
-                className="flex items-center gap-3 rounded border border-gray-200 p-3"
-              >
-                <ImageIcon className="h-5 w-5 text-gray-400" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    {img.image_url}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Order: {img.display_order} | Alt: {img.alt_text || "None"}
-                  </p>
+          <div className="mb-6 space-y-3">
+            {images.map((img, index) => {
+              const isEditing = editingImageId === img.id;
+
+              return (
+                <div
+                  key={img.id || index}
+                  className="flex items-start gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4"
+                >
+                  {/* Image Preview */}
+                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-gray-300 bg-white">
+                    <img
+                      src={img.image_url}
+                      alt={img.alt_text || "Produktbild"}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://placehold.co/80x80?text=No+Image";
+                      }}
+                    />
+                  </div>
+
+                  {/* Image Info */}
+                  <div className="flex-1 min-w-0">
+                    {isEditing ? (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Bild-URL
+                          </label>
+                          <input
+                            type="url"
+                            value={img.image_url}
+                            onChange={(e) =>
+                              handleImageFieldChange(
+                                img.id!,
+                                "image_url",
+                                e.target.value
+                              )
+                            }
+                            className="block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Bildbeschreibung
+                          </label>
+                          <input
+                            type="text"
+                            value={img.alt_text || ""}
+                            onChange={(e) =>
+                              handleImageFieldChange(
+                                img.id!,
+                                "alt_text",
+                                e.target.value
+                              )
+                            }
+                            className="block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Anzeigereihenfolge
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={img.display_order}
+                            onChange={(e) =>
+                              handleImageFieldChange(
+                                img.id!,
+                                "display_order",
+                                parseInt(e.target.value) || 0
+                              )
+                            }
+                            className="block w-24 rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {img.alt_text || "Kein Titel"}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate mt-1">
+                            {img.image_url}
+                          </p>
+                          <div className="flex items-center gap-3 mt-2">
+                            <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                              Position: {img.display_order}
+                            </span>
+                            {img.is_primary && (
+                              <span className="inline-flex items-center gap-1 rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
+                                <Star className="h-3 w-3 fill-yellow-600" />
+                                Hauptbild
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-col gap-2">
+                    {isEditing ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleSaveImageEdit(img.id!)}
+                          className="rounded border border-green-300 bg-white px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-50 transition-colors disabled:opacity-50"
+                          disabled={isPending}
+                        >
+                          <Check className="h-4 w-4 inline mr-1" />
+                          Speichern
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelImageEdit}
+                          className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <X className="h-4 w-4 inline mr-1" />
+                          Abbrechen
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {/* Edit button */}
+                        <button
+                          type="button"
+                          onClick={() => handleEditImage(img.id!)}
+                          className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                          disabled={isPending}
+                          title="Bild bearbeiten"
+                        >
+                          <Edit2 className="h-4 w-4 inline mr-1" />
+                          Bearbeiten
+                        </button>
+
+                        {/* Primary Image Controls */}
+                        {img.is_primary ? (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (!product?.id) return;
+                              startTransition(async () => {
+                                const result = await updateProductImage(
+                                  img.id!,
+                                  product.id!,
+                                  {
+                                    is_primary: false,
+                                  }
+                                );
+                                if (result.success) {
+                                  setImages(
+                                    images.map((i) =>
+                                      i.id === img.id
+                                        ? { ...i, is_primary: false }
+                                        : i
+                                    )
+                                  );
+                                } else {
+                                  alert(
+                                    "Fehler: " +
+                                      (result.error || "Unbekannter Fehler")
+                                  );
+                                }
+                              });
+                            }}
+                            className="rounded border border-yellow-300 bg-yellow-50 px-3 py-1.5 text-xs font-medium text-yellow-700 hover:bg-yellow-100 transition-colors disabled:opacity-50"
+                            disabled={isPending}
+                            title="Hauptbild entfernen"
+                          >
+                            <Star className="h-4 w-4 inline mr-1 fill-yellow-600" />
+                            Nicht mehr Hauptbild
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleSetPrimary(img.id!, index)}
+                            className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                            disabled={isPending}
+                            title="Als Hauptbild setzen"
+                          >
+                            <Star className="h-4 w-4 inline mr-1" />
+                            Hauptbild
+                          </button>
+                        )}
+
+                        {/* Move buttons */}
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => moveImage(index, "up")}
+                            disabled={index === 0 || isPending}
+                            className="rounded border border-gray-300 bg-white p-1.5 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Nach oben"
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveImage(index, "down")}
+                            disabled={index === images.length - 1 || isPending}
+                            className="rounded border border-gray-300 bg-white p-1.5 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Nach unten"
+                          >
+                            <ArrowDown className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        {/* Delete button */}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteImage(img.id!, index)}
+                          className="rounded border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                          disabled={isPending}
+                          title="Bild löschen"
+                        >
+                          <Trash2 className="h-4 w-4 inline mr-1" />
+                          Löschen
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {img.is_primary && (
-                    <span className="rounded bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
-                      Primary
-                    </span>
-                  )}
-                  {!img.is_primary && (
-                    <button
-                      type="button"
-                      onClick={() => handleSetPrimary(img.id!, index)}
-                      className="text-gray-400 hover:text-yellow-600"
-                      disabled={isPending}
-                    >
-                      <Star className="h-4 w-4" />
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => moveImage(index, "up")}
-                    disabled={index === 0 || isPending}
-                    className="text-gray-400 hover:text-gray-600 disabled:opacity-30"
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => moveImage(index, "down")}
-                    disabled={index === images.length - 1 || isPending}
-                    className="text-gray-400 hover:text-gray-600 disabled:opacity-30"
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteImage(img.id!, index)}
-                    className="text-red-600 hover:text-red-700"
-                    disabled={isPending}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
         {/* Add New Image */}
-        <div className="space-y-3 rounded border-2 border-dashed border-gray-300 p-4">
-          <h3 className="text-sm font-medium text-gray-700">
-            Neues Bild hinzufügen
-          </h3>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="space-y-4 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-6">
+          <div className="flex items-center gap-2">
+            <ImageIcon className="h-5 w-5 text-gray-400" />
+            <h3 className="text-sm font-semibold text-gray-900">
+              Neues Bild hinzufügen
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Bild-URL *
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Bild-URL <span className="text-red-500">*</span>
               </label>
               <input
                 type="url"
@@ -643,14 +873,15 @@ export function ProductForm({
                   setNewImage({ ...newImage, image_url: e.target.value })
                 }
                 placeholder="https://beispiel.de/bilder/produkt.jpg"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 focus:outline-none"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1.5 text-xs text-gray-500">
                 Vollständige URL des Bildes (muss mit https:// beginnen)
               </p>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Bildbeschreibung
               </label>
               <input
@@ -660,15 +891,16 @@ export function ProductForm({
                   setNewImage({ ...newImage, alt_text: e.target.value })
                 }
                 placeholder="z.B. Rind Adult Classic - Hauptbild"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 focus:outline-none"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1.5 text-xs text-gray-500">
                 Beschreibung für Barrierefreiheit (optional)
               </p>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Reihenfolge
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Anzeigereihenfolge
               </label>
               <input
                 type="number"
@@ -677,37 +909,23 @@ export function ProductForm({
                 onChange={(e) =>
                   setNewImage({
                     ...newImage,
-                    display_order: parseInt(e.target.value),
+                    display_order: parseInt(e.target.value) || 0,
                   })
                 }
                 placeholder="0"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 focus:outline-none"
               />
-              <p className="mt-1 text-xs text-gray-500">
-                Position in der Bildergalerie (0 = erstes Bild)
+              <p className="mt-1.5 text-xs text-gray-500">
+                Position in der Bildergalerie (0 = Standard, 1 = 3kg, 2 = 6kg)
               </p>
             </div>
-            <div className="flex items-end md:col-span-2">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={newImage.is_primary}
-                  onChange={(e) =>
-                    setNewImage({ ...newImage, is_primary: e.target.checked })
-                  }
-                  className="h-4 w-4 rounded border-gray-300 text-blue-600"
-                />
-                <span className="text-sm text-gray-700">
-                  Als Hauptbild festlegen
-                </span>
-              </label>
-            </div>
           </div>
+
           <button
             type="button"
             onClick={handleAddImage}
             disabled={!newImage.image_url || isPending}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Plus className="h-4 w-4" />
             Bild hinzufügen

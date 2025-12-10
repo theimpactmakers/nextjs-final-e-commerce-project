@@ -46,7 +46,7 @@ export default async function CustomerDetailPage({
       <div className="flex items-center gap-4">
         <Link
           href="/admin/customers"
-          className="rounded-lg border border-border p-2 hover:bg-muted"
+          className="cursor-pointer rounded-lg border border-border p-2 hover:bg-muted"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>

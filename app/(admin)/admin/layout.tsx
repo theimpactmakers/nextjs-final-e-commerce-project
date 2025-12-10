@@ -72,7 +72,7 @@ export default async function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 rounded-lg px-4 py-3 text-primary-foreground/70 transition hover:bg-accent hover:text-accent-foreground"
+                className="cursor-pointer flex items-center gap-3 rounded-lg px-4 py-3 text-primary-foreground/70 transition hover:bg-accent hover:text-accent-foreground"
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
@@ -106,9 +106,9 @@ export default async function AdminLayout({
             <Link
               href="/"
               target="_blank"
-              className="text-sm text-muted-foreground hover:text-accent"
+              className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
             >
-              View Store →
+              Shop ansehen
             </Link>
           </div>
         </header>

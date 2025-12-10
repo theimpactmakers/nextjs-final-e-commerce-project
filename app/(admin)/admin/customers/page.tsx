@@ -110,7 +110,7 @@ export default async function CustomersPage({
           </div>
           <button
             type="submit"
-            className="rounded-lg bg-accent px-6 py-2 font-medium text-accent-foreground hover:bg-accent/90"
+            className="cursor-pointer rounded-lg bg-accent px-6 py-2 font-medium text-accent-foreground hover:bg-accent/90"
           >
             Suchen
           </button>
@@ -247,7 +247,7 @@ export default async function CustomersPage({
                     <td className="px-6 py-4">
                       <Link
                         href={`/admin/customers/${customer.id}`}
-                        className="inline-flex items-center gap-1 text-accent hover:text-accent/80"
+                        className="cursor-pointer inline-flex items-center gap-1 text-accent hover:text-accent/80"
                       >
                         <Eye className="h-4 w-4" />
                         Details
