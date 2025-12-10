@@ -1,14 +1,19 @@
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
-import { Mail, Calendar, ShoppingBag } from "lucide-react";
+import { Mail, Calendar, ShoppingBag, Search, Eye } from "lucide-react";
+import Link from "next/link";
 
-async function getCustomers() {
+async function getCustomers(
+  page: number = 1,
+  perPage: number = 25,
+  search: string = ""
+) {
   // Verify admin access first with regular client
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return [];
+  if (!user) return { customers: [], totalCount: 0 };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -16,10 +21,20 @@ async function getCustomers() {
     .eq("id", user.id)
     .single();
 
-  if (profile?.role !== "admin") return [];
+  if (profile?.role !== "admin") return { customers: [], totalCount: 0 };
 
   // Use service role to get all profiles (bypasses RLS)
   const adminClient = createServiceRoleClient();
+
+  const from = (page - 1) * perPage;
+  const to = from + perPage - 1;
+
+  // Get total count for pagination
+  const { count } = await adminClient
+    .from("profiles")
+    .select("*", { count: "exact", head: true });
+
+  // Get profiles with order count
   const { data: profiles } = await adminClient
     .from("profiles")
     .select(
@@ -28,7 +43,8 @@ async function getCustomers() {
       orders(count)
     `
     )
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   // Get emails from auth.users for each profile
   const profilesWithEmails = await Promise.all(
@@ -36,42 +52,89 @@ async function getCustomers() {
       const {
         data: { user },
       } = await adminClient.auth.admin.getUserById(profile.id);
-      return { ...profile, email: user?.email };
+      return { ...profile, email: user?.email || "" };
     })
   );
 
-  return profilesWithEmails || [];
+  // Apply client-side search filter if provided
+  let filteredProfiles = profilesWithEmails;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredProfiles = profilesWithEmails.filter(
+      (profile) =>
+        profile.email?.toLowerCase().includes(searchLower) ||
+        profile.first_name?.toLowerCase().includes(searchLower) ||
+        profile.last_name?.toLowerCase().includes(searchLower)
+    );
+  }
+
+  return { customers: filteredProfiles, totalCount: count || 0 };
 }
 
-export default async function CustomersPage() {
-  const customers = await getCustomers();
+export default async function CustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; search?: string }>;
+}) {
+  const params = await searchParams;
+  const page = parseInt(params.page || "1");
+  const search = params.search || "";
+  const { customers, totalCount } = await getCustomers(page, 25, search);
+
+  const totalPages = Math.ceil(totalCount / 25);
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
-        <p className="mt-2 text-gray-600">View and manage customer accounts</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Kunden</h1>
+          <p className="mt-2 text-gray-600">
+            Kundenkonten anzeigen und verwalten
+          </p>
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="rounded-lg bg-card p-4 shadow">
+        <form method="get" className="flex gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              name="search"
+              defaultValue={search}
+              placeholder="Nach E-Mail, Vor- oder Nachname suchen..."
+              className="w-full rounded-lg border border-input bg-background py-2 pl-10 pr-4 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+            />
+          </div>
+          <button
+            type="submit"
+            className="cursor-pointer rounded-lg bg-accent px-6 py-2 font-medium text-accent-foreground hover:bg-accent/90"
+          >
+            Suchen
+          </button>
+        </form>
       </div>
 
       {/* Stats */}
       <div className="grid gap-6 sm:grid-cols-3">
-        <div className="rounded-lg bg-white p-6 shadow">
+        <div className="rounded-lg bg-card p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Customers</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">
-                {customers.length}
+              <p className="text-sm text-muted-foreground">Gesamtkunden</p>
+              <p className="mt-2 text-3xl font-bold text-foreground">
+                {totalCount}
               </p>
             </div>
-            <Mail className="h-8 w-8 text-blue-500" />
+            <Mail className="h-8 w-8 text-accent" />
           </div>
         </div>
-        <div className="rounded-lg bg-white p-6 shadow">
+        <div className="rounded-lg bg-card p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Active This Month</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">
+              <p className="text-sm text-muted-foreground">Neu diesen Monat</p>
+              <p className="mt-2 text-3xl font-bold text-foreground">
                 {
                   customers.filter((c) => {
                     const created = new Date(c.created_at);
@@ -82,14 +145,14 @@ export default async function CustomersPage() {
                 }
               </p>
             </div>
-            <Calendar className="h-8 w-8 text-green-500" />
+            <Calendar className="h-8 w-8 text-primary" />
           </div>
         </div>
-        <div className="rounded-lg bg-white p-6 shadow">
+        <div className="rounded-lg bg-card p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">With Orders</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">
+              <p className="text-sm text-muted-foreground">Mit Bestellungen</p>
+              <p className="mt-2 text-3xl font-bold text-foreground">
                 {
                   customers.filter((c) => {
                     const orderCount = Array.isArray(c.orders)
@@ -106,59 +169,72 @@ export default async function CustomersPage() {
       </div>
 
       {/* Customers Table */}
-      <div className="overflow-hidden rounded-lg bg-white shadow">
+      <div className="overflow-hidden rounded-lg bg-card shadow">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr className="text-left text-sm font-medium text-gray-700">
-                <th className="px-6 py-4">Customer</th>
-                <th className="px-6 py-4">Email</th>
-                <th className="px-6 py-4">Phone</th>
-                <th className="px-6 py-4">Role</th>
-                <th className="px-6 py-4">Orders</th>
-                <th className="px-6 py-4">Joined</th>
+            <thead className="bg-muted">
+              <tr className="text-left text-sm font-medium text-foreground">
+                <th className="px-6 py-4">Kunde</th>
+                <th className="px-6 py-4">E-Mail</th>
+                <th className="px-6 py-4">Rolle</th>
+                <th className="px-6 py-4">Bestellungen</th>
+                <th className="px-6 py-4">Registriert</th>
+                <th className="px-6 py-4">Aktionen</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-border">
               {customers.map((customer) => {
                 const orderCount = Array.isArray(customer.orders)
                   ? customer.orders[0]?.count || 0
                   : 0;
 
+                const fullName =
+                  [customer.first_name, customer.last_name]
+                    .filter(Boolean)
+                    .join(" ") || "N/A";
+
                 return (
-                  <tr key={customer.id} className="text-sm hover:bg-gray-50">
+                  <tr key={customer.id} className="text-sm hover:bg-muted/50">
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">
-                        {customer.full_name || "N/A"}
+                      <div>
+                        <div className="font-medium text-foreground">
+                          {fullName}
+                        </div>
+                        {customer.gender && (
+                          <div className="text-xs text-muted-foreground">
+                            {customer.gender === "M"
+                              ? "Männlich"
+                              : customer.gender === "F"
+                              ? "Weiblich"
+                              : "Divers"}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-gray-600">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Mail className="h-4 w-4" />
                         {customer.email}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {customer.phone || "N/A"}
                     </td>
                     <td className="px-6 py-4">
                       <span
                         className={`rounded-full px-2 py-1 text-xs font-medium ${
                           customer.role === "admin"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
+                            ? "bg-destructive/10 text-destructive"
+                            : "bg-muted text-muted-foreground"
                         }`}
                       >
-                        {customer.role}
+                        {customer.role === "admin" ? "Admin" : "Kunde"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-gray-900">
+                      <div className="flex items-center gap-2 text-foreground">
                         <ShoppingBag className="h-4 w-4" />
                         {orderCount}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600">
+                    <td className="px-6 py-4 text-muted-foreground">
                       {new Date(customer.created_at).toLocaleDateString(
                         "de-DE",
                         {
@@ -167,6 +243,15 @@ export default async function CustomersPage() {
                           year: "numeric",
                         }
                       )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <Link
+                        href={`/admin/customers/${customer.id}`}
+                        className="cursor-pointer inline-flex items-center gap-1 text-accent hover:text-accent/80"
+                      >
+                        <Eye className="h-4 w-4" />
+                        Details
+                      </Link>
                     </td>
                   </tr>
                 );
@@ -177,10 +262,43 @@ export default async function CustomersPage() {
 
         {customers.length === 0 && (
           <div className="py-12 text-center">
-            <p className="text-gray-500">No customers found</p>
+            <p className="text-muted-foreground">Keine Kunden gefunden</p>
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Link
+            href={`?page=${Math.max(1, page - 1)}${
+              search ? `&search=${search}` : ""
+            }`}
+            className={`rounded-lg border px-4 py-2 ${
+              page === 1
+                ? "pointer-events-none border-border text-muted-foreground opacity-50"
+                : "border-border text-foreground hover:bg-muted"
+            }`}
+          >
+            Zurück
+          </Link>
+          <span className="text-sm text-muted-foreground">
+            Seite {page} von {totalPages}
+          </span>
+          <Link
+            href={`?page=${Math.min(totalPages, page + 1)}${
+              search ? `&search=${search}` : ""
+            }`}
+            className={`rounded-lg border px-4 py-2 ${
+              page === totalPages
+                ? "pointer-events-none border-border text-muted-foreground opacity-50"
+                : "border-border text-foreground hover:bg-muted"
+            }`}
+          >
+            Weiter
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

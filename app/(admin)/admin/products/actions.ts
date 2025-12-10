@@ -1,9 +1,9 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-// Verify admin role
+// Verify admin role and return service role client for admin operations
 async function verifyAdmin() {
   const supabase = await createClient();
   const {
@@ -24,7 +24,8 @@ async function verifyAdmin() {
     throw new Error("Unauthorized - Admin access required");
   }
 
-  return supabase;
+  // Return service role client that bypasses RLS for admin operations
+  return createServiceRoleClient();
 }
 
 // Product CRUD
@@ -207,15 +208,53 @@ export async function updateProductImage(
 ) {
   try {
     const supabase = await verifyAdmin();
+    console.log("🔧 updateProductImage - Starting:", {
+      imageId,
+      productId,
+      imageData,
+    });
 
-    // If setting as primary, unset other primary images for this product
+    // If setting as primary, use the database function to handle it atomically
+    // This bypasses RLS issues and ensures the unique constraint is satisfied
     if (imageData.is_primary) {
-      await supabase
+      console.log("🔧 Calling set_primary_image function:", {
+        imageId,
+        productId,
+      });
+
+      const { error: functionError } = await supabase.rpc("set_primary_image", {
+        p_image_id: imageId,
+        p_product_id: productId,
+      });
+
+      if (functionError) {
+        console.error("❌ Error calling set_primary_image:", functionError);
+        throw new Error(
+          "Failed to set primary image: " + functionError.message
+        );
+      }
+
+      console.log("✅ Primary image set successfully");
+
+      // Fetch the updated image to return
+      const { data, error } = await supabase
         .from("product_images")
-        .update({ is_primary: false })
-        .eq("product_id", productId);
+        .select()
+        .eq("id", imageId)
+        .single();
+
+      if (error) {
+        console.error("❌ Error fetching updated image:", error);
+        throw error;
+      }
+
+      console.log("✅ Image data retrieved:", data);
+      revalidatePath("/admin/products");
+      revalidatePath(`/admin/products/${productId}/edit`);
+      return { success: true, data };
     }
 
+    // For non-primary updates, just update normally
     const { data, error } = await supabase
       .from("product_images")
       .update({ ...imageData, updated_at: new Date().toISOString() })
@@ -223,7 +262,15 @@ export async function updateProductImage(
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error updating product image details:", {
+        imageId,
+        productId,
+        imageData,
+        error,
+      });
+      throw error;
+    }
 
     revalidatePath("/admin/products");
     revalidatePath(`/admin/products/${productId}/edit`);

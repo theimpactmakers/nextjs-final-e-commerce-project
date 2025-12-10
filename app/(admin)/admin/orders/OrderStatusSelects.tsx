@@ -57,14 +57,14 @@ export function OrderStatusSelect({
         isPending ? "opacity-50" : "cursor-pointer"
       } border-0 focus:ring-2 focus:ring-blue-500`}
     >
-      <option value="pending">Pending</option>
-      <option value="confirmed">Confirmed</option>
-      <option value="processing">Processing</option>
-      <option value="shipped">Shipped</option>
-      <option value="delivered">Delivered</option>
-      <option value="cancelled">Cancelled</option>
-      <option value="refunded">Refunded</option>
-      <option value="failed">Failed</option>
+      <option value="pending">Ausstehend</option>
+      <option value="confirmed">Bestätigt</option>
+      <option value="processing">In Bearbeitung</option>
+      <option value="shipped">Versandt</option>
+      <option value="delivered">Zugestellt</option>
+      <option value="cancelled">Storniert</option>
+      <option value="refunded">Erstattet</option>
+      <option value="failed">Fehlgeschlagen</option>
     </select>
   );
 }
@@ -119,11 +119,11 @@ export function PaymentStatusSelect({
         isPending ? "opacity-50" : "cursor-pointer"
       } border-0 focus:ring-2 focus:ring-blue-500`}
     >
-      <option value="pending">Pending</option>
-      <option value="paid">Paid</option>
-      <option value="failed">Failed</option>
-      <option value="refunded">Refunded</option>
-      <option value="partially_refunded">Partially Refunded</option>
+      <option value="pending">Ausstehend</option>
+      <option value="paid">Bezahlt</option>
+      <option value="failed">Fehlgeschlagen</option>
+      <option value="refunded">Erstattet</option>
+      <option value="partially_refunded">Teilweise Erstattet</option>
     </select>
   );
 }
