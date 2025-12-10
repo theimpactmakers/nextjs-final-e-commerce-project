@@ -1,6 +1,11 @@
 export const dynamic = 'force-static';
 export const revalidate = 86400; // 24 hours
 
+export const metadata = {
+  title: "Unsere Geschichte | Elite Dog TREATS - Von der Idee zum Premium-Futter",
+  description: "Entdecken Sie die Geschichte hinter Elite Dog TREATS und wie unsere Leidenschaft für Hunde zu Premium-Leckerlis wurde.",
+};
+
 export default function StoryPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">

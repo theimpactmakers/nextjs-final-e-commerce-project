@@ -7,6 +7,12 @@ import { getProductsByAge } from "@/lib/supabase/products-optimized";
 
 export const revalidate = 60;
 
+export const metadata = {
+  title: "Senior Hundefutter | Spezielles Futter für ältere Hunde",
+  description: "Gesundes Futter für Senior Hunde. Unterstützt Gelenkgesundheit, Verdauung & mentale Vitalität. Jetzt Senior Hundefutter online kaufen!",
+  keywords: "Senior Hundefutter, Futter ältere Hunde, Gelenkgesundheit Hund",
+};
+
 const meatEnumValues: Record<string, string> = {
   ente: "ENTE",
   rind: "RIND",

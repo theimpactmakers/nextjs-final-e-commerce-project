@@ -1,6 +1,11 @@
 export const dynamic = 'force-static';
 export const revalidate = 604800; // 7 days
 
+export const metadata = {
+  title: "Datenschutzerklärung | Elite Dog TREATS",
+  description: "Erfahren Sie, wie wir Ihre Daten schützen und verarbeiten. DSGVO-konforme Datenschutzerklärung.",
+};
+
 export default function DatenschutzPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">

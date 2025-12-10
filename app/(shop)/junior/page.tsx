@@ -7,6 +7,12 @@ import { getProductsByAge } from "@/lib/supabase/products-optimized";
 
 export const revalidate = 60;
 
+export const metadata = {
+  title: "Welpenfutter & Junior Hundefutter | Optimale Ernährung für Welpen",
+  description: "Speziell entwickeltes Futter für Welpen & Junghunde. Unterstützt optimales Wachstum, Zahnentwicklung & Immunsystem. Jetzt Welpenfutter bestellen!",
+  keywords: "Welpenfutter, Junior Hundefutter, Futter für Welpen, Junghunde Ernährung",
+};
+
 const meatEnumValues: Record<string, string> = {
   ente: "ENTE",
   rind: "RIND",

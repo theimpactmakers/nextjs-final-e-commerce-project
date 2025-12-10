@@ -7,6 +7,12 @@ import { getProductsByAge } from "@/lib/supabase/products-optimized";
 
 export const revalidate = 60;
 
+export const metadata = {
+  title: "Hundefutter für Adult Hunde | Premium Futter für erwachsene Hunde",
+  description: "Optimales Futter für erwachsene Hunde. Ausgewogene Nährstoffe für Energie, starke Knochen & glänzendes Fell. Jetzt Adult Hundefutter online bestellen!",
+  keywords: "Adult Hundefutter, Futter erwachsene Hunde, Premium Hundefutter Adult",
+};
+
 const meatEnumValues: Record<string, string> = {
   ente: "ENTE",
   rind: "RIND",

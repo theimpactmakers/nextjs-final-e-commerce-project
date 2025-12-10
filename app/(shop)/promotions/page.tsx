@@ -8,6 +8,12 @@ import { getActivePromotionsServer } from "@/lib/supabase/products-server";
 
 export const revalidate = 60;
 
+export const metadata = {
+  title: "Angebote & Aktionen | Hundefutter Sale bis zu 20% Rabatt",
+  description: "Aktuelle Rabatte auf Premium Hundefutter! Bis zu 20% sparen auf ausgewählte Produkte. Limitierte Angebote - jetzt zugreifen!",
+  keywords: "Hundefutter Angebote, Leckerlis Sale, Rabatt Hundefutter",
+};
+
 type ProductWithImage =
   Database["public"]["Views"]["products_with_primary_image"]["Row"];
 

@@ -1,6 +1,11 @@
 export const dynamic = 'force-static';
 export const revalidate = 86400; // 24 hours
 
+export const metadata = {
+  title: "Über uns | Elite Dog TREATS - Unsere Mission & Werte",
+  description: "Erfahren Sie mehr über Elite Dog TREATS: Unsere Mission, Werte und Leidenschaft für hochwertige Hundeleckerlis seit 2018.",
+};
+
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">
