@@ -28,6 +28,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de">
+      <head>
+        {/* Preload critical hero image for instant display */}
+        <link
+          rel="preload"
+          as="image"
+          href="/images/slider/slide-1.1.svg"
+          fetchPriority="high"
+        />
+      </head>
       <body className={inter.className}>
         <AuthProvider>
           <CartProvider>

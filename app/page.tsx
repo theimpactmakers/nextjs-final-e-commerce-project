@@ -1,23 +1,11 @@
 import { Suspense } from "react";
-import dynamic from "next/dynamic";
 import { SLIDES_DATA } from "./(data)/slideData";
 import { BestsellerCarousel } from "../components/BestsellerCarouselWrapper";
 import { NewProductsCarousel } from "../components/NewProductsCarouselWrapper";
 import Button from "@/components/Button";
 import Image from "next/image";
 import { AgeCategories } from "@/components/AgeCategories";
-
-// Dynamic import for HeroSlider to improve FCP
-const HeroSlider = dynamic(() => import("../components/HeroSlider").then(mod => ({ default: mod.HeroSlider })), {
-  loading: () => (
-    <div className="relative w-full h-[400px] md:h-[500px] bg-linear-to-br from-amber-50 to-amber-100 animate-pulse">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-600"></div>
-      </div>
-    </div>
-  ),
-  ssr: true,
-});
+import { HeroSlider } from "../components/HeroSlider";
 
 export const revalidate = 60;
 
