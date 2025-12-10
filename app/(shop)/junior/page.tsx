@@ -79,7 +79,19 @@ async function JuniorContent({
       {/* Bestseller Slider */}
       <div className="mb-12">
         <h2 className="text-3xl font-bold mb-6">Unsere Junior Bestseller</h2>
-        <BestsellerCarousel ageGroup="JUNIOR" />
+        <Suspense fallback={
+          <div className="flex gap-4 overflow-hidden">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="min-w-[280px] animate-pulse">
+                <div className="bg-muted rounded-xl h-48 mb-4" />
+                <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                <div className="bg-muted rounded h-3 w-1/2" />
+              </div>
+            ))}
+          </div>
+        }>
+          <BestsellerCarousel ageGroup="JUNIOR" />
+        </Suspense>
       </div>
 
       {/* Info Section */}

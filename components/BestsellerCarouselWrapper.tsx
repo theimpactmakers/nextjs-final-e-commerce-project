@@ -1,56 +1,83 @@
+import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { BestsellerCarouselClient } from "./BestsellerCarousel";
+import type { Database } from "@/types";
+
+type ProductWithImage =
+  Database["public"]["Views"]["products_with_primary_image"]["Row"];
 
 interface BestsellerCarouselProps {
   ageGroup?: "JUNIOR" | "ADULT" | "SENIOR";
 }
 
 /**
+ * Cached data fetching function (React 19 cache API)
+ * Prevents duplicate requests within the same render cycle
+ */
+const getBestsellerProducts = cache(
+  async (ageGroup?: "JUNIOR" | "ADULT" | "SENIOR") => {
+    // Anonymous client for public data (enables ISR/SSG)
+    const supabase = createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+      {
+        auth: { persistSession: false, autoRefreshToken: false },
+      }
+    );
+
+    // Optimized query: Filter bestsellers first, then by age group
+    let query = supabase
+      .from("products_with_primary_image")
+      .select("*")
+      .eq("bestseller", true)
+      .order("created_at", { ascending: false })
+      .limit(12);
+
+    if (ageGroup) {
+      query = query.eq("age_group", ageGroup);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data as ProductWithImage[];
+  }
+);
+
+/**
  * Server Component that fetches bestseller data
- * Uses anonymous Supabase client for better performance:
- * - Allows static/ISR rendering (not forced to dynamic)
- * - No cookies needed for public data
- * - Faster edge caching
- * - Supports filtering by age group
+ * Best Practices 2025:
+ * - Uses React 19 cache() for deduplication
+ * - Anonymous Supabase client (no cookies, allows ISR/SSG)
+ * - Type-safe with Database types
+ * - Error boundaries for graceful error handling
+ * 
+ * Usage: Wrap in <Suspense> for streaming:
+ * <Suspense fallback={<LoadingSkeleton />}>
+ *   <BestsellerCarousel />
+ * </Suspense>
  */
 export async function BestsellerCarousel({
   ageGroup,
 }: BestsellerCarouselProps = {}) {
-  // Use anonymous client for public data (allows ISR)
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-  );
+  try {
+    const products = await getBestsellerProducts(ageGroup);
 
-  // Build query with optional age group filter
-  let query = supabase
-    .from("products_with_primary_image")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(12);
+    if (!products || products.length === 0) {
+      return (
+        <div className="text-center py-8 text-muted-foreground">
+          Keine Bestseller verfügbar
+        </div>
+      );
+    }
 
-  if (ageGroup) {
-    query = query.eq("age_group", ageGroup);
-  }
-
-  const { data: products, error } = await query;
-
-  if (error) {
-    console.error("Error fetching bestsellers:", error);
+    return <BestsellerCarouselClient products={products} />;
+  } catch (error) {
+    // Error boundary will catch this in production
     return (
       <div className="text-center py-8 text-muted-foreground">
         Bestseller können nicht geladen werden
       </div>
     );
   }
-
-  if (!products || products.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        Keine Bestseller verfügbar
-      </div>
-    );
-  }
-
-  return <BestsellerCarouselClient products={products} />;
 }

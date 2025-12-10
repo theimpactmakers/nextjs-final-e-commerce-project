@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { HeroSlider } from "../components/HeroSlider";
 import { SLIDES_DATA } from "./(data)/slideData";
 import { BestsellerCarousel } from "../components/BestsellerCarouselWrapper";
@@ -137,7 +138,19 @@ export default async function Home() {
               Diese Futtersorten kommen bei Vierbeinern am besten an !
             </p>
           </div>
-          <BestsellerCarousel />
+          <Suspense fallback={
+            <div className="flex gap-4 overflow-hidden px-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[280px] animate-pulse">
+                  <div className="bg-muted rounded-xl h-48 mb-4" />
+                  <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                  <div className="bg-muted rounded h-3 w-1/2" />
+                </div>
+              ))}
+            </div>
+          }>
+            <BestsellerCarousel />
+          </Suspense>
           <div className="w-full border-t border-muted-foreground/20 mt-16 mb-8" />
         </section>
 
@@ -235,7 +248,19 @@ export default async function Home() {
               Entdecke unsere neuesten Artikel im Sortiment!
             </p>
           </div>
-          <NewProductsCarousel />
+          <Suspense fallback={
+            <div className="flex gap-4 overflow-hidden px-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[280px] animate-pulse">
+                  <div className="bg-muted rounded-xl h-48 mb-4" />
+                  <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                  <div className="bg-muted rounded h-3 w-1/2" />
+                </div>
+              ))}
+            </div>
+          }>
+            <NewProductsCarousel />
+          </Suspense>
         </section>
         <div className="w-full border-t border-muted-foreground/20 mt-16" />
 
