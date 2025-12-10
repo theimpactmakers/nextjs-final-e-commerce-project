@@ -92,7 +92,7 @@ export default function SingleProductView({
   const searchParams = useSearchParams();
   const variantIdFromUrl = searchParams.get("variant");
 
-  // Finde die initiale Variante basierend auf URL-Parameter oder nehme die erste
+  // Finde die initiale Variante basierend auf URL-Parameter oder nehme null (keine Auswahl)
   const getInitialVariant = () => {
     if (variantIdFromUrl) {
       const variantFromUrl = product.product_variants.find(
@@ -100,11 +100,13 @@ export default function SingleProductView({
       );
       if (variantFromUrl) return variantFromUrl;
     }
-    return product.product_variants[0];
+    return null; // Start with no variant selected
   };
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState(getInitialVariant());
+  const [selectedVariant, setSelectedVariant] = useState<
+    (typeof product.product_variants)[0] | null
+  >(getInitialVariant());
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<
     "description" | "ingredients" | "feeding" | "reviews"
@@ -119,6 +121,7 @@ export default function SingleProductView({
   const [canReview, setCanReview] = useState(false);
   const [productReviews, setProductReviews] =
     useState<Review[]>(initialReviews);
+  const [manualImageChange, setManualImageChange] = useState(false);
 
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
@@ -190,8 +193,42 @@ export default function SingleProductView({
           },
         ];
 
+  // Switch image based on selected variant weight (only if user hasn't manually navigated)
+  useEffect(() => {
+    if (manualImageChange) return; // Don't auto-switch if user manually changed image
+
+    if (!selectedVariant) {
+      // No variant selected: show default image (display_order 0)
+      const defaultImageIndex = sortedImages.findIndex(
+        (img) => img.display_order === 0
+      );
+      if (defaultImageIndex !== -1) {
+        setCurrentImageIndex(defaultImageIndex);
+      } else {
+        setCurrentImageIndex(0);
+      }
+    } else if (selectedVariant.weight_grams === 3000) {
+      // 3kg variant: show image with display_order 1
+      const image3kg = sortedImages.findIndex((img) => img.display_order === 1);
+      if (image3kg !== -1) {
+        setCurrentImageIndex(image3kg);
+      }
+    } else if (selectedVariant.weight_grams === 6000) {
+      // 6kg variant: show image with display_order 2
+      const image6kg = sortedImages.findIndex((img) => img.display_order === 2);
+      if (image6kg !== -1) {
+        setCurrentImageIndex(image6kg);
+      }
+    }
+  }, [selectedVariant, sortedImages, manualImageChange]);
+
   // Load promotion data when variant changes
   useEffect(() => {
+    if (!selectedVariant) {
+      setPromotionData(null);
+      return;
+    }
+
     const loadPromotion = async () => {
       const promo = await calculatePromotionDiscount(
         product.id,
@@ -241,19 +278,35 @@ export default function SingleProductView({
     await refreshReviews();
   };
 
+  // Get the lowest variant price for "ab" display
+  const lowestVariantPrice =
+    product.product_variants.length > 0
+      ? Math.min(...product.product_variants.map((v) => v.price))
+      : 0;
+
   // Get the final price
-  const finalPrice = promotionData
-    ? promotionData.discountedPrice
-    : selectedVariant.price;
+  const finalPrice = selectedVariant
+    ? promotionData
+      ? promotionData.discountedPrice
+      : selectedVariant.price
+    : lowestVariantPrice;
 
-  const originalPrice = promotionData
-    ? promotionData.originalPrice
-    : selectedVariant.compare_at_price || selectedVariant.price;
+  const originalPrice = selectedVariant
+    ? promotionData
+      ? promotionData.originalPrice
+      : selectedVariant.compare_at_price || selectedVariant.price
+    : 0;
 
-  const hasDiscount = finalPrice < originalPrice;
+  const hasDiscount =
+    selectedVariant && finalPrice > 0 && finalPrice < originalPrice;
 
   // Handle add to cart
   const handleAddToCart = async () => {
+    if (!selectedVariant) {
+      alert("Bitte wählen Sie eine Größe aus");
+      return;
+    }
+
     if (
       !selectedVariant.stock_quantity ||
       selectedVariant.stock_quantity === 0
@@ -292,6 +345,11 @@ export default function SingleProductView({
 
   // Handle buy now - add to cart and redirect to checkout
   const handleBuyNow = async () => {
+    if (!selectedVariant) {
+      alert("Bitte wählen Sie eine Größe aus");
+      return;
+    }
+
     if (
       !selectedVariant.stock_quantity ||
       selectedVariant.stock_quantity === 0
@@ -334,7 +392,22 @@ export default function SingleProductView({
               {sortedImages.slice(0, 4).map((image, index) => (
                 <button
                   key={image.id}
-                  onClick={() => setCurrentImageIndex(index)}
+                  onClick={() => {
+                    setManualImageChange(true);
+                    setCurrentImageIndex(index);
+                    // Auto-select variant based on image display_order
+                    if (image.display_order === 1) {
+                      const variant3kg = product.product_variants.find(
+                        (v) => v.weight_grams === 3000
+                      );
+                      if (variant3kg) setSelectedVariant(variant3kg);
+                    } else if (image.display_order === 2) {
+                      const variant6kg = product.product_variants.find(
+                        (v) => v.weight_grams === 6000
+                      );
+                      if (variant6kg) setSelectedVariant(variant6kg);
+                    }
+                  }}
                   className={`aspect-square rounded-lg overflow-hidden border-2 transition-all relative cursor-pointer ${
                     currentImageIndex === index
                       ? "border-accent ring-2 ring-accent/20"
@@ -389,7 +462,22 @@ export default function SingleProductView({
               {sortedImages.slice(0, 4).map((image, index) => (
                 <button
                   key={image.id}
-                  onClick={() => setCurrentImageIndex(index)}
+                  onClick={() => {
+                    setManualImageChange(true);
+                    setCurrentImageIndex(index);
+                    // Auto-select variant based on image display_order
+                    if (image.display_order === 1) {
+                      const variant3kg = product.product_variants.find(
+                        (v) => v.weight_grams === 3000
+                      );
+                      if (variant3kg) setSelectedVariant(variant3kg);
+                    } else if (image.display_order === 2) {
+                      const variant6kg = product.product_variants.find(
+                        (v) => v.weight_grams === 6000
+                      );
+                      if (variant6kg) setSelectedVariant(variant6kg);
+                    }
+                  }}
                   className={`relative w-14 h-14 xs:w-16 xs:h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                     currentImageIndex === index
                       ? "border-accent ring-2 ring-accent/20"
@@ -541,16 +629,19 @@ export default function SingleProductView({
               <span className="text-sm font-medium text-foreground">
                 Größe:{" "}
                 <span className="font-bold text-primary">
-                  {selectedVariant.name}
+                  {selectedVariant ? selectedVariant.name : "Bitte wählen"}
                 </span>
               </span>
               <div className="flex gap-3">
                 {product.product_variants.map((variant) => (
                   <button
                     key={variant.id}
-                    onClick={() => setSelectedVariant(variant)}
+                    onClick={() => {
+                      setManualImageChange(false); // Allow auto-switch when variant selected
+                      setSelectedVariant(variant);
+                    }}
                     className={`px-4 py-2 rounded-(--app-radius) border-2 font-medium transition-all cursor-pointer ${
-                      selectedVariant.id === variant.id
+                      selectedVariant?.id === variant.id
                         ? "border-accent bg-accent/10 text-primary"
                         : "border-muted-foreground/30 hover:border-accent/50 text-foreground"
                     }`}
@@ -565,6 +656,11 @@ export default function SingleProductView({
           {/* Price */}
           <div className="border-t border-b py-4">
             <div className="flex items-baseline gap-2">
+              {!selectedVariant && (
+                <span className="text-lg font-normal text-muted-foreground">
+                  ab
+                </span>
+              )}
               <span className="text-2xl font-bold text-foreground">
                 {finalPrice.toFixed(2)} €
               </span>
@@ -596,7 +692,7 @@ export default function SingleProductView({
                 <input
                   type="number"
                   min="1"
-                  max={selectedVariant.stock_quantity || 1}
+                  max={selectedVariant?.stock_quantity || 1}
                   value={quantity}
                   onChange={(e) =>
                     setQuantity(
@@ -604,7 +700,7 @@ export default function SingleProductView({
                         1,
                         Math.min(
                           parseInt(e.target.value) || 1,
-                          selectedVariant.stock_quantity || 1
+                          selectedVariant?.stock_quantity || 1
                         )
                       )
                     )
@@ -615,7 +711,7 @@ export default function SingleProductView({
                   onClick={() =>
                     setQuantity(
                       Math.min(
-                        selectedVariant.stock_quantity || 1,
+                        selectedVariant?.stock_quantity || 1,
                         quantity + 1
                       )
                     )
@@ -636,8 +732,9 @@ export default function SingleProductView({
               onClick={handleAddToCart}
               isLoading={isAddingToCart}
               disabled={
-                !selectedVariant.stock_quantity ||
-                selectedVariant.stock_quantity === 0 ||
+                !selectedVariant ||
+                !selectedVariant?.stock_quantity ||
+                selectedVariant?.stock_quantity === 0 ||
                 isAddingToCart
               }
             />
@@ -647,8 +744,9 @@ export default function SingleProductView({
               onClick={handleBuyNow}
               isLoading={isAddingToCart}
               disabled={
-                !selectedVariant.stock_quantity ||
-                selectedVariant.stock_quantity === 0 ||
+                !selectedVariant ||
+                !selectedVariant?.stock_quantity ||
+                selectedVariant?.stock_quantity === 0 ||
                 isAddingToCart
               }
             />
@@ -720,7 +818,7 @@ export default function SingleProductView({
                 <strong className="text-xs font-semibold">
                   Auf Lager - In 1-3 Werktagen bei Ihnen
                 </strong>
-                {selectedVariant.stock_quantity && (
+                {selectedVariant?.stock_quantity && (
                   <span className="text-muted-foreground ml-1 text-xs">
                     ({selectedVariant.stock_quantity} verfügbar)
                   </span>

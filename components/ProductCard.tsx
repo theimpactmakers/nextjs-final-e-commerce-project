@@ -33,8 +33,10 @@ export default function ProductCard({
   variants,
 }: ProductCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const selectedVariant =
-    variants && variants.length > 0 ? variants[0] : undefined;
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
+    null
+  ); // Start with no variant selected
+  const selectedVariant = variants?.find((v) => v.id === selectedVariantId);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [cartClicked, setCartClicked] = useState(false);
   const [showCartPlus, setShowCartPlus] = useState(false);
@@ -45,6 +47,7 @@ export default function ProductCard({
   const [selectedWeight, setSelectedWeight] = useState<"3kg" | "6kg" | null>(
     null
   );
+  const [manualImageChange, setManualImageChange] = useState(false);
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
@@ -54,6 +57,37 @@ export default function ProductCard({
   const sortedImages = [...images].sort(
     (a, b) => a.display_order - b.display_order
   );
+
+  // Switch image based on weight selection (only if user hasn't manually navigated)
+  useEffect(() => {
+    if (manualImageChange) return; // Don't auto-switch if user manually changed image
+
+    if (selectedWeight === "3kg") {
+      // Find image with display_order 1 for 3kg
+      const image3kg = sortedImages.findIndex((img) => img.display_order === 1);
+      if (image3kg !== -1) {
+        setCurrentImageIndex(image3kg);
+      }
+      // If no 3kg-specific image exists, stay on current image (graceful fallback)
+    } else if (selectedWeight === "6kg") {
+      // Find image with display_order 2 for 6kg
+      const image6kg = sortedImages.findIndex((img) => img.display_order === 2);
+      if (image6kg !== -1) {
+        setCurrentImageIndex(image6kg);
+      }
+      // If no 6kg-specific image exists, stay on current image (graceful fallback)
+    } else {
+      // Default: show image with display_order 0
+      const imageDefault = sortedImages.findIndex(
+        (img) => img.display_order === 0
+      );
+      if (imageDefault !== -1) {
+        setCurrentImageIndex(imageDefault);
+      } else {
+        setCurrentImageIndex(0);
+      }
+    }
+  }, [selectedWeight, sortedImages, manualImageChange]);
 
   // Load promotion data when variant changes
   useEffect(() => {
@@ -74,20 +108,48 @@ export default function ProductCard({
   }, [selectedVariant, product.id]);
 
   const nextImage = () => {
+    setManualImageChange(true);
     setCurrentImageIndex((prev) =>
       prev === sortedImages.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevImage = () => {
+    setManualImageChange(true);
     setCurrentImageIndex((prev) =>
       prev === 0 ? sortedImages.length - 1 : prev - 1
     );
   };
 
   const goToImage = (index: number) => {
+    setManualImageChange(true);
     setCurrentImageIndex(index);
+    // Auto-select variant based on image display_order
+    const image = sortedImages[index];
+    if (image) {
+      if (image.display_order === 1) {
+        const variant3kg = variants.find((v) => v.weight_grams === 3000);
+        if (variant3kg) {
+          setSelectedVariantId(variant3kg.id);
+          setSelectedWeight("3kg");
+        }
+      } else if (image.display_order === 2) {
+        const variant6kg = variants.find((v) => v.weight_grams === 6000);
+        if (variant6kg) {
+          setSelectedVariantId(variant6kg.id);
+          setSelectedWeight("6kg");
+        }
+      } else if (image.display_order === 0) {
+        // Default image - clear selection
+        setSelectedWeight(null);
+        setSelectedVariantId(null);
+      }
+    }
   };
+
+  // Get the lowest variant price for "ab" display
+  const lowestVariantPrice =
+    variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0;
 
   // Calculate discount percentage from compare_at_price
   const variantDiscountPercentage =
@@ -100,17 +162,20 @@ export default function ProductCard({
       : 0;
 
   // Get the final price (promotion takes precedence)
-  const finalPrice = promotionData
-    ? promotionData.discountedPrice
-    : selectedVariant?.price ?? 0;
+  const finalPrice = selectedVariant
+    ? promotionData
+      ? promotionData.discountedPrice
+      : selectedVariant.price
+    : lowestVariantPrice;
 
-  const originalPrice = promotionData
-    ? promotionData.originalPrice
-    : selectedVariant?.compare_at_price || selectedVariant?.price || 0;
+  const originalPrice = selectedVariant
+    ? promotionData
+      ? promotionData.originalPrice
+      : selectedVariant.compare_at_price || selectedVariant.price
+    : 0;
 
   // Handle add to cart
   const handleAddToCart = async () => {
-    console.log("handleAddToCart called", { quantity, selectedVariant });
     if (
       !selectedVariant ||
       !selectedVariant.stock_quantity ||
@@ -353,13 +418,13 @@ export default function ProductCard({
                 selectedVariant.stock_quantity === 0 ||
                 isAddingToCart
               }
-              className={`absolute right-0 top-4 rounded-full p-2 flex items-center justify-center shadow-lg shadow-accent/30 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
-                ${
-                  cartClicked
-                    ? "border-2 border-accent bg-white"
-                    : "bg-accent border-2 border-transparent"
-                }
-              `}
+              className={`absolute right-0 top-4 rounded-full p-2 flex items-center justify-center shadow-lg transition-all disabled:cursor-not-allowed ${
+                !selectedVariant
+                  ? "bg-gray-400 border-2 border-gray-400 cursor-not-allowed"
+                  : cartClicked
+                  ? "border-2 border-accent bg-white hover:scale-105 cursor-pointer shadow-accent/30"
+                  : "bg-accent border-2 border-transparent hover:scale-105 cursor-pointer shadow-accent/30"
+              }`}
               aria-label="In den Warenkorb"
               style={{ marginBottom: 0 }}
             >
@@ -395,7 +460,15 @@ export default function ProductCard({
                 ? "bg-muted-foreground text-white border-muted-foreground"
                 : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
             }`}
-            onClick={() => setSelectedWeight("3kg")}
+            onClick={() => {
+              setManualImageChange(false); // Allow auto-switch when variant selected
+              setSelectedWeight("3kg");
+              // Find the 3kg variant
+              const variant3kg = variants.find(
+                (v) => v.name.includes("3kg") || v.weight_grams === 3000
+              );
+              if (variant3kg) setSelectedVariantId(variant3kg.id);
+            }}
           >
             3kg
           </button>
@@ -406,7 +479,15 @@ export default function ProductCard({
                 ? "bg-muted-foreground text-white border-muted-foreground"
                 : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
             }`}
-            onClick={() => setSelectedWeight("6kg")}
+            onClick={() => {
+              setManualImageChange(false); // Allow auto-switch when variant selected
+              setSelectedWeight("6kg");
+              // Find the 6kg variant
+              const variant6kg = variants.find(
+                (v) => v.name.includes("6kg") || v.weight_grams === 6000
+              );
+              if (variant6kg) setSelectedVariantId(variant6kg.id);
+            }}
           >
             6kg
           </button>
@@ -417,20 +498,29 @@ export default function ProductCard({
             {/* Price/Promotion and Quantity Input aligned bottom */}
             <div className="flex items-end w-full justify-between">
               <div className="flex items-end gap-2">
-                <span className="text-xl font-bold text-black">
-                  {selectedWeight === "3kg"
-                    ? `€${(finalPrice * 1).toFixed(2)}`
-                    : selectedWeight === "6kg"
-                    ? `€${(finalPrice * 2).toFixed(2)}`
-                    : `€${finalPrice?.toFixed(2)}`}
+                {!selectedVariant && (
+                  <span
+                    className={`text-sm font-normal mr-1 ${
+                      product.is_on_sale || promotionData
+                        ? "text-red-500"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    ab
+                  </span>
+                )}
+                <span
+                  className={`text-xl font-bold ${
+                    product.is_on_sale || promotionData
+                      ? "text-red-500"
+                      : "text-black"
+                  }`}
+                >
+                  €{finalPrice?.toFixed(2)}
                 </span>
-                {originalPrice !== finalPrice && (
-                  <span className="text-sm text-red-300 line-through">
-                    {selectedWeight === "3kg"
-                      ? `€${(originalPrice * 1).toFixed(2)}`
-                      : selectedWeight === "6kg"
-                      ? `€${(originalPrice * 2).toFixed(2)}`
-                      : `€${originalPrice.toFixed(2)}`}
+                {selectedVariant && originalPrice > finalPrice && (
+                  <span className="text-sm text-red-400 line-through">
+                    €{originalPrice.toFixed(2)}
                   </span>
                 )}
               </div>
