@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types";
 import Link from "next/link";
+import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
 
 type Product =
@@ -184,10 +185,12 @@ export function WishlistSection() {
               onClick={() => setSelectedProduct(product)}
             >
               {product.primary_image_url ? (
-                <img
+                <Image
                   src={product.primary_image_url}
                   alt={product.name || "Product"}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -307,10 +310,12 @@ export function WishlistSection() {
               {/* Product Image */}
               <div className="aspect-square relative bg-muted rounded-lg overflow-hidden">
                 {selectedProduct.primary_image_url ? (
-                  <img
+                  <Image
                     src={selectedProduct.primary_image_url}
                     alt={selectedProduct.name || "Product"}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-muted-foreground">

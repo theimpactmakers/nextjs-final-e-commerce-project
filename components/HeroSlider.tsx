@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { SlideData, HeroSliderProps } from "../app/(data)/slideData"; // Importiere Typen
 import Button from "@/components/Button";
 
@@ -90,17 +91,16 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
       >
         {slides.map((slide: SlideData, index: number) => (
           <div key={slide.id} className="w-full shrink-0 relative h-full">
-            {/* Bild-Element mit Mobile-First-Optimierung */}
-            <picture>
-              <source media="(min-width: 768px)" srcSet={slide.imageDesktop} />
-              <img
-                src={slide.imageMobile}
-                alt={slide.title}
-                // Deckt den gesamten Container ab und zentriert das Bild
-                className="absolute inset-0 w-full h-full object-cover"
-                onError={handleImageError}
-              />
-            </picture>
+            {/* Bild-Element mit Next.js Image-Optimierung */}
+            <Image
+              src={slide.imageDesktop}
+              alt={slide.title}
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              className="object-cover"
+              quality={85}
+            />
 
             {/* Overlay-Maske (leicht dunkler) für besseren Textkontrast */}
             <div className="absolute inset-0 bg-black/30"></div>

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import Image from "next/image";
 import type { Database } from "@/types";
 import { FilterPanel } from "@/components/FilterPanel";
 import { BestsellerCarousel } from "@/components/BestsellerCarouselWrapper";
@@ -116,10 +117,12 @@ async function AdultContent({
                 className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
               >
                 <div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
-                  <img
+                  <Image
                     src={p.primary_image_url || "/images/placeholder.jpg"}
                     alt={p.name || "Product"}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                    className="object-cover"
                   />
                   <div className="absolute top-2 left-2 flex flex-col gap-1">
                     {p.meat_type && (
