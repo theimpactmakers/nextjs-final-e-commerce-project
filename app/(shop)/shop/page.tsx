@@ -1,9 +1,8 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 import type { Database } from "@/types";
-import { FilterPanel } from "@/components/FilterPanel";
-import ShopProductCard from "@/components/ShopProductCard";
+import ShopProductListClient from "@/components/ShopProductListClient";
+import Image from "next/image";
 
 // Revalidate alle 60 Sekunden für frische Daten
 export const revalidate = 60;
@@ -11,20 +10,16 @@ export const revalidate = 60;
 type ProductWithImage =
   Database["public"]["Views"]["products_with_primary_image"]["Row"];
 
-// Diese Komponente wird serverseitig gerendert
 async function ShopContent({
   searchParams,
 }: {
   searchParams: { age?: string; meat?: string };
 }) {
-  // Entpacke searchParams asynchron
-  const { age, meat } = await searchParams;
-
   const supabase = createClient();
 
   // Hole Filter-Parameter
-  const ageFilter = age;
-  const meatFilter = meat;
+  const ageFilter = searchParams.age;
+  const meatFilter = searchParams.meat;
 
   // Starte Query mit der View
   let query = supabase
@@ -94,85 +89,41 @@ async function ShopContent({
       product_variants:
         variants?.filter((v) => v.product_id === product.id) || [],
     })) || [];
-
   // Titel basierend auf Filtern
-  const getPageTitle = () => {
-    const parts = [];
-
-    if (ageFilter) {
-      const ageLabels: Record<string, string> = {
-        junior: "Junior",
-        adult: "Adult",
-        senior: "Senior",
-      };
-      parts.push(ageLabels[ageFilter.toLowerCase()] || ageFilter.toUpperCase());
-    }
-
-    if (meatFilter) {
-      const meatLabels: Record<string, string> = {
-        ente: "Ente",
-        rind: "Rind",
-        kaninchen: "Kaninchen",
-        lamm: "Lamm",
-        pferd: "Pferd",
-        wild: "Wild",
-        lachs: "Lachs",
-      };
-      parts.push(
-        meatLabels[meatFilter.toLowerCase()] || meatFilter.toUpperCase()
-      );
-    }
-
-    if (parts.length > 0) {
-      return `Alle Produkte - ${parts.join(" & ")}`;
-    }
-
-    return "Alle Produkte";
-  };
+  const getPageTitle = () => "Alle Produkte";
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2 text-foreground">
-          {getPageTitle()}
-        </h1>
-        <p className="text-muted-foreground">
-          {products?.length || 0}{" "}
-          {products?.length === 1 ? "Produkt" : "Produkte"} gefunden
-        </p>
-      </div>
+    <>
+      {/* Banner Section */}
+      <section className="w-full my-8">
+        <div className="container max-w-7xl mx-auto px-4">
+          <Image
+            src="/images/shop-banner.svg"
+            alt="Shop Banner"
+            width={1600}
+            height={300}
+            className="w-full h-80 object-cover rounded-2xl shadow-sm"
+            priority
+          />
+        </div>
+      </section>
+      <div className="container max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl text-center md:text-4xl font-bold mb-2 text-foreground">
+            {getPageTitle()}
+          </h1>
+          <p className="text-muted-foreground text-center">
+            {productsWithVariants?.length || 0}{" "}
+            {productsWithVariants?.length === 1 ? "Produkt" : "Produkte"}{" "}
+            gefunden
+          </p>
+        </div>
 
-      {/* Main Layout: Filter + Products */}
-      <div>
-        {/* Filter Panel - Above Products */}
-        <FilterPanel />
-
-        {/* Products Grid */}
-        {productsWithVariants && productsWithVariants.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {productsWithVariants.map((p) => (
-              <ShopProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <p className="text-xl text-muted-foreground mb-4">
-              Keine Produkte gefunden
-            </p>
-            <p className="text-sm text-muted-foreground mb-6">
-              Versuche es mit anderen Filtereinstellungen
-            </p>
-            <Link
-              href="/shop"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-            >
-              Alle Produkte anzeigen
-            </Link>
-          </div>
-        )}
+        {/* Main Layout: Products */}
+        <ShopProductListClient products={productsWithVariants} />
       </div>
-    </div>
+    </>
   );
 }
 

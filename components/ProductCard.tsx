@@ -386,7 +386,7 @@ export default function ProductCard({
         {/* Action Row: Gewicht links, Warenkorb rechts */}
         <div className="flex items-center gap-2 pt-2 mb-4">
           <span className="text-sm text-black font-medium mr-1 mb-3 mt-4 inline-block">
-            Variante wählen:
+            Variante:
           </span>
           <button
             type="button"
