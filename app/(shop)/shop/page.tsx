@@ -1,3 +1,16 @@
+// Loading State
+function ShopLoading() {
+  return (
+    <div className="container max-w-7xl mx-auto px-4 py-16">
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Produkte werden geladen...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types";
@@ -89,20 +102,31 @@ async function ShopContent({
       product_variants:
         variants?.filter((v) => v.product_id === product.id) || [],
     })) || [];
+
   // Titel basierend auf Filtern
   const getPageTitle = () => "Alle Produkte";
 
   return (
     <>
       {/* Banner Section */}
-      <section className="w-full my-8">
+      <section className="w-full my-4">
         <div className="container max-w-7xl mx-auto px-4">
+          {/* Desktop Banner */}
           <Image
-            src="/images/shop-banner.svg"
+            src="/images/shopbanner.svg"
             alt="Shop Banner"
             width={1600}
             height={300}
-            className="w-full h-80 object-cover rounded-2xl shadow-sm"
+            className="hidden sm:block w-full h-80 object-cover rounded-2xl shadow-sm"
+            priority
+          />
+          {/* Mobile Banner */}
+          <Image
+            src="/images/mobile-banner.svg"
+            alt="Shop Mobile Banner"
+            width={600}
+            height={200}
+            className="block sm:hidden w-full h-48 object-cover rounded-2xl shadow-sm"
             priority
           />
         </div>
@@ -119,25 +143,10 @@ async function ShopContent({
             gefunden
           </p>
         </div>
-
         {/* Main Layout: Products */}
         <ShopProductListClient products={productsWithVariants} />
       </div>
     </>
-  );
-}
-
-// Loading State
-function ShopLoading() {
-  return (
-    <div className="container max-w-7xl mx-auto px-4 py-16">
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Produkte werden geladen...</p>
-        </div>
-      </div>
-    </div>
   );
 }
 
