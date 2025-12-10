@@ -25,15 +25,6 @@ export default function Header() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [activePromotions, setActivePromotions] = useState<Promotion[]>([]);
   const { itemCount } = useCart();
-  // Debug: Log itemCount and items on every render (after hook)
-  if (typeof window !== "undefined") {
-    // eslint-disable-next-line no-console
-    console.log("====================");
-    // eslint-disable-next-line no-console
-    console.log("[HEADER] itemCount:", itemCount);
-    // eslint-disable-next-line no-console
-    console.log("====================");
-  }
   const { wishlistCount } = useWishlist();
   const { user, signOut } = useAuth();
   const pathname = usePathname();

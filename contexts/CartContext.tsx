@@ -395,10 +395,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             )
             .eq("cart_id", cart.id);
 
-          // Debug-Logging für cartItems und Fehler
-          console.log("[CARTCONTEXT] cartItems (raw):", cartItems);
           if (cartItemsError) {
-            console.error("[CARTCONTEXT] cartItemsError:", cartItemsError);
+            console.error("Error fetching cart items:", cartItemsError);
           }
 
           if (cartItems) {
@@ -660,12 +658,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Calculate totals
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  useEffect(() => {
-    console.log("====================");
-    console.log("[CARTCONTEXT] ITEMS:", items);
-    console.log("[CARTCONTEXT] ITEMCOUNT:", itemCount);
-    console.log("====================");
-  }, [items, itemCount]);
   const totalPrice = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0

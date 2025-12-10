@@ -22,7 +22,8 @@ export const revalidate = 60;
 
 export const metadata = {
   title: "Shop - Alle Hundefutter & Leckerlis | Elite Dog TREATS",
-  description: "Stöbern Sie durch unser komplettes Sortiment an Premium Hundefutter und Leckerlis. Filter nach Alter, Fleischsorte & mehr. Jetzt entdecken!",
+  description:
+    "Stöbern Sie durch unser komplettes Sortiment an Premium Hundefutter und Leckerlis. Filter nach Alter, Fleischsorte & mehr. Jetzt entdecken!",
   keywords: "Hundefutter Shop, Leckerlis kaufen, Premium Hundefutter online",
 };
 
@@ -32,13 +33,14 @@ type ProductWithImage =
 async function ShopContent({
   searchParams,
 }: {
-  searchParams: { age?: string; meat?: string };
+  searchParams: Promise<{ age?: string; meat?: string }>;
 }) {
   const supabase = createClient();
 
-  // Hole Filter-Parameter
-  const ageFilter = searchParams.age;
-  const meatFilter = searchParams.meat;
+  // Await searchParams before accessing its properties
+  const params = await searchParams;
+  const ageFilter = params.age;
+  const meatFilter = params.meat;
 
   // Starte Query mit der View
   let query = supabase
@@ -58,7 +60,7 @@ async function ShopContent({
     ente: "ENTE",
     rind: "RIND",
     kaninchen: "KANINCHEN",
-    lamm: "LAHM",
+    lamm: "LAMM",
     pferd: "PFERD",
     wild: "WILD",
     lachs: "LACHS",
@@ -94,20 +96,30 @@ async function ShopContent({
     );
   }
 
-  // Load variants for all products
+  // Load variants and all images for all products
   const productIds = products?.map((p) => p.id).filter(Boolean) || [];
-  const { data: variants } = await supabase
-    .from("product_variants")
-    .select("*")
-    .in("product_id", productIds);
 
-  // Attach variants to products
+  const [{ data: variants }, { data: allImages }] = await Promise.all([
+    supabase.from("product_variants").select("*").in("product_id", productIds),
+    supabase
+      .from("product_images")
+      .select("*")
+      .in("product_id", productIds)
+      .order("display_order", { ascending: true }),
+  ]);
+
+  // Attach variants and all images to products (replace view's single image with full array)
   const productsWithVariants =
-    products?.map((product) => ({
-      ...product,
-      product_variants:
-        variants?.filter((v) => v.product_id === product.id) || [],
-    })) || [];
+    products?.map((product) => {
+      const productImages =
+        allImages?.filter((img) => img.product_id === product.id) || [];
+      return {
+        ...product,
+        product_variants:
+          variants?.filter((v) => v.product_id === product.id) || [],
+        product_images: productImages,
+      };
+    }) || [];
 
   // Titel basierend auf Filtern
   const getPageTitle = () => "Alle Produkte";
@@ -160,7 +172,7 @@ async function ShopContent({
 export default async function ShopPage({
   searchParams,
 }: {
-  searchParams: { age?: string; meat?: string };
+  searchParams: Promise<{ age?: string; meat?: string }>;
 }) {
   return (
     <Suspense fallback={<ShopLoading />}>
