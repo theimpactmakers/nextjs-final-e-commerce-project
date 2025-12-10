@@ -90,8 +90,10 @@ export default async function OrdersPage({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
-        <p className="mt-2 text-gray-600">View and manage customer orders</p>
+        <h1 className="text-3xl font-bold text-gray-900">Bestellungen</h1>
+        <p className="mt-2 text-gray-600">
+          Kundenbestellungen anzeigen und verwalten
+        </p>
       </div>
 
       {/* Orders Table */}
@@ -100,13 +102,13 @@ export default async function OrdersPage({
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr className="text-left text-sm font-medium text-gray-700">
-                <th className="px-6 py-4">Order ID</th>
-                <th className="px-6 py-4">Customer</th>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Amount</th>
-                <th className="px-6 py-4">Payment</th>
+                <th className="px-6 py-4">Bestell-ID</th>
+                <th className="px-6 py-4">Kunde</th>
+                <th className="px-6 py-4">Datum</th>
+                <th className="px-6 py-4">Betrag</th>
+                <th className="px-6 py-4">Zahlung</th>
                 <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Shipping</th>
+                <th className="px-6 py-4">Versand</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -138,7 +140,7 @@ export default async function OrdersPage({
                           </div>
                         )}
                         <div className="text-xs text-gray-600">
-                          {customerEmail || "Guest"}
+                          {customerEmail || "Gast"}
                         </div>
                       </div>
                     </td>
@@ -178,7 +180,7 @@ export default async function OrdersPage({
 
         {ordersWithEmails.length === 0 && (
           <div className="py-12 text-center">
-            <p className="text-gray-500">No orders found</p>
+            <p className="text-gray-500">Keine Bestellungen gefunden</p>
           </div>
         )}
       </div>
@@ -187,8 +189,9 @@ export default async function OrdersPage({
       {totalPages > 1 && (
         <div className="flex items-center justify-between rounded-lg bg-white px-6 py-4 shadow">
           <div className="text-sm text-gray-600">
-            Showing {(currentPage - 1) * 25 + 1} to{" "}
-            {Math.min(currentPage * 25, totalCount)} of {totalCount} orders
+            Zeige {(currentPage - 1) * 25 + 1} bis{" "}
+            {Math.min(currentPage * 25, totalCount)} von {totalCount}{" "}
+            Bestellungen
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -201,7 +204,7 @@ export default async function OrdersPage({
               aria-disabled={currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
-              Previous
+              Zurück
             </Link>
             <div className="flex items-center gap-1">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -248,7 +251,7 @@ export default async function OrdersPage({
               }`}
               aria-disabled={currentPage === totalPages}
             >
-              Next
+              Weiter
               <ChevronRight className="h-4 w-4" />
             </Link>
           </div>

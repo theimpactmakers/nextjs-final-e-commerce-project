@@ -79,9 +79,9 @@ export default async function ProductsPage({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Produkte</h1>
           <p className="mt-2 text-gray-600">
-            Manage your product catalog, variants, and inventory
+            Verwalten Sie Ihren Produktkatalog, Varianten und Lagerbestand
           </p>
         </div>
         <Link
@@ -89,7 +89,7 @@ export default async function ProductsPage({
           className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
           <Plus className="h-5 w-5" />
-          Add Product
+          Produkt hinzufügen
         </Link>
       </div>
 
@@ -101,21 +101,21 @@ export default async function ProductsPage({
             type="text"
             name="q"
             defaultValue={search}
-            placeholder="Search products by name, slug, or description..."
+            placeholder="Produkte nach Name, Slug oder Beschreibung suchen..."
             className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
         {search && (
           <div className="mt-2 flex items-center justify-between">
             <p className="text-sm text-gray-600">
-              Showing results for:{" "}
+              Zeige Ergebnisse für:{" "}
               <span className="font-semibold">"{search}"</span>
             </p>
             <Link
               href="/admin/products"
               className="text-sm text-blue-600 hover:underline"
             >
-              Clear search
+              Suche löschen
             </Link>
           </div>
         )}
@@ -127,13 +127,13 @@ export default async function ProductsPage({
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr className="text-left text-sm font-medium text-gray-700">
-                <th className="px-6 py-4">Product</th>
-                <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4">Age Group</th>
-                <th className="px-6 py-4">Variants</th>
-                <th className="px-6 py-4">Images</th>
-                <th className="px-6 py-4">Active</th>
-                <th className="px-6 py-4">Actions</th>
+                <th className="px-6 py-4">Produkt</th>
+                <th className="px-6 py-4">Kategorie</th>
+                <th className="px-6 py-4">Altersgruppe</th>
+                <th className="px-6 py-4">Varianten</th>
+                <th className="px-6 py-4">Bilder</th>
+                <th className="px-6 py-4">Aktiv</th>
+                <th className="px-6 py-4">Aktionen</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -171,7 +171,7 @@ export default async function ProductsPage({
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {product.is_active ? "Active" : "Inactive"}
+                      {product.is_active ? "Aktiv" : "Inaktiv"}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -180,14 +180,14 @@ export default async function ProductsPage({
                         href={`/products/${product.slug}`}
                         target="_blank"
                         className="rounded p-1 text-gray-600 hover:bg-gray-100"
-                        title="View"
+                        title="Ansehen"
                       >
                         <Eye className="h-4 w-4" />
                       </Link>
                       <Link
                         href={`/admin/products/${product.id}/edit`}
                         className="rounded p-1 text-blue-600 hover:bg-blue-50"
-                        title="Edit"
+                        title="Bearbeiten"
                       >
                         <Edit className="h-4 w-4" />
                       </Link>
@@ -205,7 +205,7 @@ export default async function ProductsPage({
 
         {products.length === 0 && (
           <div className="py-12 text-center">
-            <p className="text-gray-500">No products found</p>
+            <p className="text-gray-500">Keine Produkte gefunden</p>
           </div>
         )}
       </div>
@@ -214,8 +214,8 @@ export default async function ProductsPage({
       {totalPages > 1 && (
         <div className="flex items-center justify-between rounded-lg bg-white px-6 py-4 shadow">
           <div className="text-sm text-gray-600">
-            Showing {(currentPage - 1) * 25 + 1} to{" "}
-            {Math.min(currentPage * 25, totalCount)} of {totalCount} products
+            Zeige {(currentPage - 1) * 25 + 1} bis{" "}
+            {Math.min(currentPage * 25, totalCount)} von {totalCount} Produkten
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -230,7 +230,7 @@ export default async function ProductsPage({
               aria-disabled={currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
-              Previous
+              Zurück
             </Link>
             <div className="flex items-center gap-1">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -281,7 +281,7 @@ export default async function ProductsPage({
               }`}
               aria-disabled={currentPage === totalPages}
             >
-              Next
+              Weiter
               <ChevronRight className="h-4 w-4" />
             </Link>
           </div>

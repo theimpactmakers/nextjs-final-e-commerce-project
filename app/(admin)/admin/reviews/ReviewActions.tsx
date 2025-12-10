@@ -28,7 +28,7 @@ export function ReviewActions({
   const handleDelete = () => {
     if (
       confirm(
-        "Are you sure you want to delete this review? This action cannot be undone."
+        "Sind Sie sicher, dass Sie diese Bewertung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
       )
     ) {
       startTransition(async () => {
@@ -44,7 +44,7 @@ export function ReviewActions({
           onClick={handleApprove}
           disabled={isPending}
           className="rounded p-1 text-green-600 hover:bg-green-50 disabled:opacity-50"
-          title="Approve"
+          title="Genehmigen"
         >
           <CheckCircle className="h-5 w-5" />
         </button>
@@ -54,7 +54,7 @@ export function ReviewActions({
           onClick={handleReject}
           disabled={isPending}
           className="rounded p-1 text-orange-600 hover:bg-orange-50 disabled:opacity-50"
-          title="Reject"
+          title="Ablehnen"
         >
           <XCircle className="h-5 w-5" />
         </button>
@@ -63,7 +63,7 @@ export function ReviewActions({
         onClick={handleDelete}
         disabled={isPending}
         className="rounded p-1 text-red-600 hover:bg-red-50 disabled:opacity-50"
-        title="Delete"
+        title="Löschen"
       >
         <Trash2 className="h-5 w-5" />
       </button>

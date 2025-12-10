@@ -8,8 +8,8 @@ import {
   Users,
   Star,
   Settings,
-  LogOut,
 } from "lucide-react";
+import { MobileMenu } from "./MobileMenu";
 
 export default async function AdminLayout({
   children,
@@ -40,18 +40,28 @@ export default async function AdminLayout({
 
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/products", label: "Products", icon: Package },
-    { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
-    { href: "/admin/customers", label: "Customers", icon: Users },
-    { href: "/admin/reviews", label: "Reviews", icon: Star },
-    { href: "/admin/settings", label: "Settings", icon: Settings },
+    { href: "/admin/products", label: "Produkte", icon: Package },
+    { href: "/admin/orders", label: "Bestellungen", icon: ShoppingCart },
+    { href: "/admin/customers", label: "Kunden", icon: Users },
+    { href: "/admin/reviews", label: "Bewertungen", icon: Star },
+    { href: "/admin/settings", label: "Einstellungen", icon: Settings },
+  ];
+
+  // Simple nav items for client component (without icon components)
+  const mobileNavItems = [
+    { href: "/admin", label: "Dashboard", iconName: "LayoutDashboard" },
+    { href: "/admin/products", label: "Produkte", iconName: "Package" },
+    { href: "/admin/orders", label: "Bestellungen", iconName: "ShoppingCart" },
+    { href: "/admin/customers", label: "Kunden", iconName: "Users" },
+    { href: "/admin/reviews", label: "Bewertungen", iconName: "Star" },
+    { href: "/admin/settings", label: "Einstellungen", iconName: "Settings" },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-gray-900 text-white">
-        <div className="flex h-16 items-center justify-center border-b border-gray-800">
+    <div className="min-h-screen bg-muted">
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 bg-primary text-primary-foreground lg:block">
+        <div className="flex h-16 items-center justify-center border-b border-primary/20">
           <h1 className="text-xl font-bold">Admin Panel</h1>
         </div>
 
@@ -62,7 +72,7 @@ export default async function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-300 transition hover:bg-gray-800 hover:text-white"
+                className="flex items-center gap-3 rounded-lg px-4 py-3 text-primary-foreground/70 transition hover:bg-accent hover:text-accent-foreground"
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
@@ -71,35 +81,32 @@ export default async function AdminLayout({
           })}
         </nav>
 
-        <div className="absolute bottom-0 w-64 border-t border-gray-800 p-4">
-          <div className="mb-3 text-sm text-gray-400">
+        <div className="absolute bottom-0 w-64 border-t border-primary/20 p-4">
+          <div className="text-sm text-primary-foreground/70">
             Logged in as: <br />
-            <span className="text-white">{user.email}</span>
+            <span className="text-primary-foreground">{user.email}</span>
           </div>
-          <form action="/api/auth/signout" method="POST">
-            <button
-              type="submit"
-              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-gray-300 transition hover:bg-gray-800 hover:text-white"
-            >
-              <LogOut className="h-5 w-5" />
-              <span>Logout</span>
-            </button>
-          </form>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="ml-64">
+      <div className="lg:ml-64">
         {/* Top Bar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-white px-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Admin Dashboard
-          </h2>
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card px-4 shadow-sm lg:px-6">
+          <div className="flex items-center gap-4">
+            <MobileMenu
+              navItems={mobileNavItems}
+              userEmail={user.email || ""}
+            />
+            <h2 className="text-lg font-semibold text-foreground lg:text-xl">
+              Admin Dashboard
+            </h2>
+          </div>
           <div className="flex items-center gap-4">
             <Link
               href="/"
               target="_blank"
-              className="text-sm text-gray-600 hover:text-gray-900"
+              className="text-sm text-muted-foreground hover:text-accent"
             >
               View Store →
             </Link>
@@ -107,7 +114,7 @@ export default async function AdminLayout({
         </header>
 
         {/* Page Content */}
-        <main className="p-6">{children}</main>
+        <main className="p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );

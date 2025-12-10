@@ -77,25 +77,25 @@ export default async function AdminDashboard() {
 
   const statCards = [
     {
-      title: "Total Products",
+      title: "Produkte Gesamt",
       value: stats.totalProducts,
       icon: Package,
       color: "bg-blue-500",
     },
     {
-      title: "Total Orders",
+      title: "Bestellungen Gesamt",
       value: stats.totalOrders,
       icon: ShoppingCart,
       color: "bg-green-500",
     },
     {
-      title: "Customers",
+      title: "Kunden",
       value: stats.totalCustomers,
       icon: Users,
       color: "bg-purple-500",
     },
     {
-      title: "Revenue",
+      title: "Umsatz",
       value: `€${stats.totalRevenue.toFixed(2)}`,
       icon: Euro,
       color: "bg-yellow-500",
@@ -105,10 +105,11 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="mt-2 text-gray-600">
-          Welcome to your admin dashboard. Here&apos;s what&apos;s happening
-          today.
+        <h1 className="text-3xl font-bold text-foreground">
+          Dashboard Übersicht
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Willkommen in Ihrem Admin Dashboard. Hier ist, was heute passiert.
         </p>
       </div>
 
@@ -119,14 +120,14 @@ export default async function AdminDashboard() {
           return (
             <div
               key={stat.title}
-              className="relative overflow-hidden rounded-lg bg-white p-6 shadow"
+              className="relative overflow-hidden rounded-lg bg-card border border-border p-6 shadow"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-muted-foreground">
                     {stat.title}
                   </p>
-                  <p className="mt-2 text-3xl font-bold text-gray-900">
+                  <p className="mt-2 text-3xl font-bold text-foreground">
                     {stat.value}
                   </p>
                 </div>
@@ -140,34 +141,39 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Recent Orders */}
-      <div className="rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-xl font-bold text-gray-900">Recent Orders</h2>
+      <div className="rounded-lg bg-card border border-border p-6 shadow">
+        <h2 className="mb-4 text-xl font-bold text-foreground">
+          Letzte Bestellungen
+        </h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b text-left text-sm text-gray-600">
-                <th className="pb-3">Order ID</th>
-                <th className="pb-3">Customer</th>
-                <th className="pb-3">Amount</th>
+              <tr className="border-b border-border text-left text-sm text-muted-foreground">
+                <th className="pb-3">Bestell-ID</th>
+                <th className="pb-3">Kunde</th>
+                <th className="pb-3">Betrag</th>
                 <th className="pb-3">Status</th>
-                <th className="pb-3">Payment</th>
-                <th className="pb-3">Date</th>
+                <th className="pb-3">Zahlung</th>
+                <th className="pb-3">Datum</th>
               </tr>
             </thead>
             <tbody className="text-sm">
               {stats.recentOrders.map((order) => (
-                <tr key={order.id} className="border-b last:border-0">
-                  <td className="py-3 font-mono text-xs">
+                <tr
+                  key={order.id}
+                  className="border-b border-border last:border-0"
+                >
+                  <td className="py-3 font-mono text-xs text-muted-foreground">
                     {order.id.slice(0, 8)}...
                   </td>
-                  <td className="py-3">
+                  <td className="py-3 text-foreground">
                     {order.userEmail || order.guest_email || "Guest"}
                   </td>
-                  <td className="py-3 font-semibold">
+                  <td className="py-3 font-semibold text-foreground">
                     €{order.total_amount.toFixed(2)}
                   </td>
                   <td className="py-3">
-                    <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                    <span className="rounded-full bg-accent/10 px-2 py-1 text-xs font-medium text-accent">
                       {order.status}
                     </span>
                   </td>
@@ -182,7 +188,7 @@ export default async function AdminDashboard() {
                       {order.payment_status}
                     </span>
                   </td>
-                  <td className="py-3 text-gray-600">
+                  <td className="py-3 text-muted-foreground">
                     {new Date(order.created_at).toLocaleDateString()}
                   </td>
                 </tr>

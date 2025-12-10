@@ -46,9 +46,9 @@ export default async function ReviewsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Reviews</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Bewertungen</h1>
         <p className="mt-2 text-gray-600">
-          Moderate and manage customer reviews
+          Moderieren und verwalten Sie Kundenbewertungen
         </p>
       </div>
 
@@ -57,7 +57,7 @@ export default async function ReviewsPage() {
         <div className="rounded-lg bg-white p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Approved Reviews</p>
+              <p className="text-sm text-gray-600">Genehmigte Bewertungen</p>
               <p className="mt-2 text-3xl font-bold text-gray-900">
                 {approvedCount}
               </p>
@@ -68,7 +68,7 @@ export default async function ReviewsPage() {
         <div className="rounded-lg bg-white p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Pending Reviews</p>
+              <p className="text-sm text-gray-600">Ausstehende Bewertungen</p>
               <p className="mt-2 text-3xl font-bold text-gray-900">
                 {pendingCount}
               </p>
@@ -79,7 +79,7 @@ export default async function ReviewsPage() {
         <div className="rounded-lg bg-white p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Average Rating</p>
+              <p className="text-sm text-gray-600">Durchschnittsbewertung</p>
               <p className="mt-2 text-3xl font-bold text-gray-900">
                 {avgRating}
               </p>
@@ -94,14 +94,14 @@ export default async function ReviewsPage() {
         {reviews.map((review) => {
           const productName = Array.isArray(review.products)
             ? review.products[0]?.name
-            : "Unknown Product";
+            : "Unbekanntes Produkt";
           const profile = Array.isArray(review.profiles)
             ? review.profiles[0]
             : review.profiles;
           const customerName =
             profile?.first_name || profile?.last_name
               ? `${profile.first_name || ""} ${profile.last_name || ""}`.trim()
-              : review.userEmail || "Unknown Customer";
+              : review.userEmail || "Unbekannter Kunde";
 
           return (
             <div key={review.id} className="rounded-lg bg-white p-6 shadow">
@@ -130,7 +130,7 @@ export default async function ReviewsPage() {
                       <span className="font-medium text-gray-900">
                         {customerName}
                       </span>{" "}
-                      reviewed{" "}
+                      hat bewertet{" "}
                       <span className="font-medium text-gray-900">
                         {productName}
                       </span>
@@ -156,12 +156,12 @@ export default async function ReviewsPage() {
                   {review.is_approved ? (
                     <span className="flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
                       <CheckCircle className="h-4 w-4" />
-                      Approved
+                      Genehmigt
                     </span>
                   ) : (
                     <span className="flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
                       <Clock className="h-4 w-4" />
-                      Pending
+                      Ausstehend
                     </span>
                   )}
                   <ReviewActions
@@ -176,7 +176,7 @@ export default async function ReviewsPage() {
 
         {reviews.length === 0 && (
           <div className="rounded-lg bg-white p-12 text-center shadow">
-            <p className="text-gray-500">No reviews found</p>
+            <p className="text-gray-500">Keine Bewertungen gefunden</p>
           </div>
         )}
       </div>
