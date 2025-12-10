@@ -44,7 +44,7 @@ async function JuniorContent({
     if (!products || products.length === 0) {
       return (
         <div className="container max-w-7xl mx-auto px-4 py-8">
-          <div className="mb-12 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-8 md:p-12">
+          <div className="mb-12 bg-linear-to-r from-blue-50 to-blue-100 rounded-xl p-8 md:p-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-blue-900">
               Hundefutter für Junior
             </h1>
@@ -70,7 +70,7 @@ async function JuniorContent({
     return (
       <div className="container max-w-7xl mx-auto px-4 py-8">
         {/* Hero Section */}
-        <div className="mb-12 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-8 md:p-12">
+        <div className="mb-12 bg-linear-to-r from-blue-50 to-blue-100 rounded-xl p-8 md:p-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-blue-900">
             Hundefutter für Junior
           </h1>

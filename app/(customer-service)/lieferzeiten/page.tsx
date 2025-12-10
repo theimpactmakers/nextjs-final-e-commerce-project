@@ -1,3 +1,6 @@
+export const dynamic = 'force-static';
+export const revalidate = 86400; // 24 hours
+
 export default function LieferzeitenPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">

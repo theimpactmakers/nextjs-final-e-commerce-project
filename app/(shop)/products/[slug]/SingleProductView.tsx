@@ -387,7 +387,7 @@ export default function SingleProductView({
         <div className="space-y-2 sm:space-y-3">
           {/* Title */}
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2 break-words">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 wrap-break-word">
               {product.name}
             </h1>
             <div className="mb-3 sm:mb-4">

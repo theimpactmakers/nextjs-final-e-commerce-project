@@ -1,5 +1,8 @@
 import Button from "@/components/Button";
 
+export const dynamic = 'force-static';
+export const revalidate = 86400; // 24 hours
+
 export default function BeratungPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">

@@ -1,3 +1,6 @@
+export const dynamic = 'force-static';
+export const revalidate = 604800; // 7 days
+
 export default function CookieeinstellungenPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">

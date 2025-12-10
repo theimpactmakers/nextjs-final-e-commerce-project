@@ -1,5 +1,8 @@
 import React from 'react';
 
+export const dynamic = 'force-static';
+export const revalidate = 604800; // 7 days
+
 export default function ImpressumPage() {
   return (
     <div className="container max-w-4xl mx-auto px-4 py-12">
