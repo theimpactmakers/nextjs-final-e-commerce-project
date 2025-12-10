@@ -99,7 +99,9 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
               priority={index === 0}
               sizes="100vw"
               className="object-cover"
-              quality={85}
+              quality={90}
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "low"}
             />
 
             {/* Overlay-Maske (leicht dunkler) für besseren Textkontrast */}
