@@ -214,385 +214,401 @@ export default function ProductCard({
   };
 
   return (
-    <div className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 group">
-      {/* Image Slider */}
-      <div className="relative h-56 bg-muted overflow-hidden">
-        {/* Badges + Alter/Fleischsorte */}
-        <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-          {promotionData && (
-            <span className="bg-accent/80 text-white px-2 py-1 rounded text-xs font-bold text-center shadow-lg inline-block w-auto">
-              <span className="animate-pulse">
-                {promotionData.discountType === "percentage"
-                  ? `AKTION -${Math.round(promotionData.discountAmount)}%`
-                  : `AKTION -€${promotionData.discountAmount.toFixed(2)}`}
-              </span>
-            </span>
-          )}
-          {variantDiscountPercentage > 0 && !promotionData && (
-            <span className="bg-destructive text-destructive-foreground px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-              -{variantDiscountPercentage}%
-            </span>
-          )}
-          {product.is_on_sale && !promotionData && (
-            <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-              SALE
-            </span>
-          )}
-          {/* Alter und Fleischsorte Badges */}
-          <div className="flex gap-1 mt-1">
-            {/* Age group badge removed, now shown above name */}
-            {product.meat_type && (
-              <span className="bg-muted-foreground/70 text-white px-2 rounded text-xs font-medium shadow">
-                {product.meat_type}
+    <Link
+      href={`/products/${product.slug || product.id}`}
+      className="block group focus:outline-none"
+      tabIndex={0}
+      prefetch={false}
+    >
+      <div className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 group cursor-pointer">
+        {/* Image Slider */}
+        <div className="relative h-56 bg-muted overflow-hidden">
+          {/* Badges + Alter/Fleischsorte */}
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+            {promotionData && (
+              <span className="bg-accent/80 text-white px-2 py-1 rounded text-xs font-bold text-center shadow-lg inline-block w-auto">
+                <span className="animate-pulse">
+                  {promotionData.discountType === "percentage"
+                    ? `AKTION -${Math.round(promotionData.discountAmount)}%`
+                    : `AKTION -€${promotionData.discountAmount.toFixed(2)}`}
+                </span>
               </span>
             )}
+            {variantDiscountPercentage > 0 && !promotionData && (
+              <span className="bg-destructive text-destructive-foreground px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                -{variantDiscountPercentage}%
+              </span>
+            )}
+            {product.is_on_sale && !promotionData && (
+              <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                SALE
+              </span>
+            )}
+            {/* Alter und Fleischsorte Badges */}
+            <div className="flex gap-1 mt-1">
+              {/* Age group badge removed, now shown above name */}
+              {product.meat_type && (
+                <span className="bg-muted-foreground/70 text-white px-2 rounded text-xs font-medium shadow">
+                  {product.meat_type}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-        {/* Wishlist Button */}
-        <button
-          onClick={async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (inWishlist) {
-              await removeFromWishlist(product.id);
-            } else {
-              await addToWishlist(product.id);
-            }
-          }}
-          className={`absolute top-3 right-3 z-10 p-2 rounded-full shadow-md transition-all hover:scale-110 cursor-pointer
-            ${inWishlist ? "bg-accent" : "bg-white/90 hover:bg-white"}`}
-          title={
-            inWishlist
-              ? "Von Wunschliste entfernen"
-              : "Zur Wunschliste hinzufügen"
-          }
-        >
-          <Heart
-            className={`h-5 w-5 transition-colors ${
+          {/* Wishlist Button */}
+          <button
+            onClick={async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (inWishlist) {
+                await removeFromWishlist(product.id);
+              } else {
+                await addToWishlist(product.id);
+              }
+            }}
+            className={`absolute top-3 right-3 z-10 p-2 rounded-full shadow-md transition-all hover:scale-110 cursor-pointer
+              ${inWishlist ? "bg-accent" : "bg-white/90 hover:bg-white"}`}
+            title={
               inWishlist
-                ? "fill-white stroke-white"
-                : "stroke-accent group-hover:fill-accent/20"
-            }`}
-            strokeWidth={2}
-          />
-        </button>
-        {/* Main Image */}
-        {sortedImages.length > 0 ? (
-          <>
-            <Image
-              src={sortedImages[currentImageIndex].image_url}
-              alt={
-                sortedImages[currentImageIndex].alt_text ||
-                product.name ||
-                "Product"
-              }
-              width={400}
-              height={400}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              priority={currentImageIndex === 0}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            />
-            {/* Navigation Arrows (only if multiple images) */}
-            {sortedImages.length > 1 && (
-              <>
-                <button
-                  onClick={prevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background text-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                  aria-label="Previous image"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 19.5L8.25 12l7.5-7.5"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={nextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background text-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                  aria-label="Next image"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                    />
-                  </svg>
-                </button>
-                {/* Image Indicators */}
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                  {sortedImages.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => goToImage(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentImageIndex
-                          ? "bg-primary w-4"
-                          : "bg-background/60 hover:bg-background/80"
-                      }`}
-                      aria-label={`Go to image ${index + 1}`}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            Kein Bild verfügbar
-          </div>
-        )}
-      </div>
-      {/* Product Info */}
-      <div className="flex flex-col p-6 pb-4">
-        {/* Age group above product name, smaller */}
-        {product.age_group && (
-          <span className="text-sm text-muted-foreground font-normal mb-1">
-            {product.age_group}
-          </span>
-        )}
-        {/* Product Name & Weight Selection Row */}
-        <div className="flex items-start justify-between mb-0">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold leading-tight tracking-tight line-clamp-2 min-h-10 mb-1">
-              <Link
-                href={`/products/${product.slug || product.id}`}
-                className="transition-colors duration-200 group-hover:text-accent hover:text-black hover:underline"
-              >
-                {product.name}
-              </Link>
-            </h3>
-            {/* Category/Type Badges entfernt, jetzt im Bild */}
-          </div>
-        </div>
-        {/* Description */}
-        {product.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 min-h-10">
-            {product.description}
-          </p>
-        )}
-        {/* Details Link: below description, left-aligned */}
-        <div className="mt-2 mb-2 flex items-center justify-between w-full">
-          <div className="relative w-full">
-            <Link
-              href={`/products/${product.slug || product.id}`}
-              className="text-accent font-medium text-sm underline hover:no-underline flex items-center gap-1 transition-all"
-            >
-              Produktdetails
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </Link>
-            <button
-              onClick={handleAddToCart}
-              disabled={
-                !selectedVariant ||
-                !selectedVariant.stock_quantity ||
-                selectedVariant.stock_quantity === 0 ||
-                isAddingToCart
-              }
-              className={`absolute right-0 top-4 rounded-full p-2 flex items-center justify-center shadow-lg transition-all disabled:cursor-not-allowed ${
-                !selectedVariant
-                  ? "bg-gray-400 border-2 border-gray-400 cursor-not-allowed"
-                  : cartClicked
-                  ? "border-2 border-accent bg-white hover:scale-105 cursor-pointer shadow-accent/30"
-                  : "bg-accent border-2 border-transparent hover:scale-105 cursor-pointer shadow-accent/30"
+                ? "Von Wunschliste entfernen"
+                : "Zur Wunschliste hinzufügen"
+            }
+          >
+            <Heart
+              className={`h-5 w-5 transition-colors ${
+                inWishlist
+                  ? "fill-white stroke-white"
+                  : "stroke-accent group-hover:fill-accent/20"
               }`}
-              aria-label="In den Warenkorb"
-              style={{ marginBottom: 0 }}
-            >
-              <span className="relative inline-block group">
-                <ShoppingCart
-                  className={`w-5 h-5 transition-colors ${
-                    cartClicked ? "text-accent" : "text-white"
-                  }`}
-                />
-                {/* Show black + when clicked, white + on hover */}
-                {showCartPlus && (
-                  <span className="absolute -top-4 -right-1 bg-transparent text-black text-base font-normal select-none pointer-events-none">
+              strokeWidth={2}
+            />
+          </button>
+          {/* Main Image */}
+          {sortedImages.length > 0 ? (
+            <>
+              <Image
+                src={sortedImages[currentImageIndex].image_url}
+                alt={
+                  sortedImages[currentImageIndex].alt_text ||
+                  product.name ||
+                  "Product"
+                }
+                width={400}
+                height={400}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                priority={currentImageIndex === 0}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              />
+              {/* Navigation Arrows (only if multiple images) */}
+              {sortedImages.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      prevImage();
+                    }}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background text-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg cursor-pointer"
+                    aria-label="Previous image"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-5 h-5 transition-colors duration-150 group-hover:stroke-accent"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 19.5L8.25 12l7.5-7.5"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      nextImage();
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background text-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg cursor-pointer"
+                    aria-label="Next image"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-5 h-5 transition-colors duration-150 group-hover:stroke-accent"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                      />
+                    </svg>
+                  </button>
+                  {/* Image Indicators */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {sortedImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => goToImage(index)}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          index === currentImageIndex
+                            ? "bg-primary w-4"
+                            : "bg-background/60 hover:bg-background/80"
+                        }`}
+                        aria-label={`Go to image ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+              Kein Bild verfügbar
+            </div>
+          )}
+        </div>
+        {/* Product Info */}
+        <div className="flex flex-col p-6 pb-4">
+          {/* Age group above product name, smaller */}
+          {product.age_group && (
+            <span className="text-sm text-muted-foreground font-normal mb-1">
+              {product.age_group}
+            </span>
+          )}
+          {/* Product Name & Weight Selection Row */}
+          <div className="flex items-start justify-between mb-0">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-bold leading-tight tracking-tight line-clamp-2 min-h-10 mb-1">
+                <span className="transition-colors duration-200 group-hover:text-accent hover:text-black hover:underline">
+                  {product.name}
+                </span>
+              </h3>
+              {/* Category/Type Badges entfernt, jetzt im Bild */}
+            </div>
+          </div>
+          {/* Description */}
+          {product.description && (
+            <p className="text-sm text-muted-foreground line-clamp-2 min-h-10">
+              {product.description}
+            </p>
+          )}
+          {/* Details Link: below description, left-aligned */}
+          <div className="mt-2 mb-2 flex items-center justify-between w-full">
+            <div className="relative w-full">
+              <span className="text-accent font-medium text-sm underline hover:no-underline flex items-center gap-1 transition-all">
+                Produktdetails
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </span>
+              <button
+                onClick={handleAddToCart}
+                disabled={
+                  !selectedVariant ||
+                  !selectedVariant.stock_quantity ||
+                  selectedVariant.stock_quantity === 0 ||
+                  isAddingToCart
+                }
+                className={`absolute right-0 top-4 rounded-full p-2 flex items-center justify-center shadow-lg transition-all disabled:cursor-not-allowed ${
+                  !selectedVariant
+                    ? "bg-gray-400 border-2 border-gray-400 cursor-not-allowed"
+                    : cartClicked
+                    ? "border-2 border-accent bg-white hover:scale-105 cursor-pointer shadow-accent/30"
+                    : "bg-accent border-2 border-transparent hover:scale-105 cursor-pointer shadow-accent/30"
+                }`}
+                aria-label="In den Warenkorb"
+                style={{ marginBottom: 0 }}
+              >
+                <span className="relative inline-block group">
+                  <ShoppingCart
+                    className={`w-5 h-5 transition-colors ${
+                      cartClicked ? "text-accent" : "text-white"
+                    }`}
+                  />
+                  {/* Show black + when clicked, white + on hover */}
+                  {showCartPlus && (
+                    <span className="absolute -top-4 -right-1 bg-transparent text-black text-base font-normal select-none pointer-events-none">
+                      +
+                    </span>
+                  )}
+                  <span className="absolute -top-4 -right-1 bg-transparent text-white text-lg select-none pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                     +
                   </span>
-                )}
-                <span className="absolute -top-4 -right-1 bg-transparent text-white text-lg select-none pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                  +
                 </span>
-              </span>
+              </button>
+            </div>
+          </div>
+          {/* Removed 'Größe wählen:' label and button row as requested */}
+          {/* Action Row: Gewicht links, Warenkorb rechts */}
+          <div className="flex items-center gap-2 pt-2 mb-4">
+            <span className="text-sm text-black font-medium mr-1 mb-3 mt-4 inline-block">
+              Variante:
+            </span>
+            <button
+              type="button"
+              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+                selectedWeight === "3kg"
+                  ? "bg-muted-foreground text-white border-muted-foreground"
+                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                setManualImageChange(false); // Allow auto-switch when variant selected
+                setSelectedWeight("3kg");
+                // Find the 3kg variant
+                const variant3kg = variants.find(
+                  (v) => v.name.includes("3kg") || v.weight_grams === 3000
+                );
+                if (variant3kg) setSelectedVariantId(variant3kg.id);
+              }}
+            >
+              3kg
+            </button>
+            <button
+              type="button"
+              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+                selectedWeight === "6kg"
+                  ? "bg-muted-foreground text-white border-muted-foreground"
+                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                setManualImageChange(false); // Allow auto-switch when variant selected
+                setSelectedWeight("6kg");
+                // Find the 6kg variant
+                const variant6kg = variants.find(
+                  (v) => v.name.includes("6kg") || v.weight_grams === 6000
+                );
+                if (variant6kg) setSelectedVariantId(variant6kg.id);
+              }}
+            >
+              6kg
             </button>
           </div>
-        </div>
-        {/* Removed 'Größe wählen:' label and button row as requested */}
-        {/* Action Row: Gewicht links, Warenkorb rechts */}
-        <div className="flex items-center gap-2 pt-2 mb-4">
-          <span className="text-sm text-black font-medium mr-1 mb-3 mt-4 inline-block">
-            Variante:
-          </span>
-          <button
-            type="button"
-            className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
-              selectedWeight === "3kg"
-                ? "bg-muted-foreground text-white border-muted-foreground"
-                : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
-            }`}
-            onClick={() => {
-              setManualImageChange(false); // Allow auto-switch when variant selected
-              setSelectedWeight("3kg");
-              // Find the 3kg variant
-              const variant3kg = variants.find(
-                (v) => v.name.includes("3kg") || v.weight_grams === 3000
-              );
-              if (variant3kg) setSelectedVariantId(variant3kg.id);
-            }}
-          >
-            3kg
-          </button>
-          <button
-            type="button"
-            className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
-              selectedWeight === "6kg"
-                ? "bg-muted-foreground text-white border-muted-foreground"
-                : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
-            }`}
-            onClick={() => {
-              setManualImageChange(false); // Allow auto-switch when variant selected
-              setSelectedWeight("6kg");
-              // Find the 6kg variant
-              const variant6kg = variants.find(
-                (v) => v.name.includes("6kg") || v.weight_grams === 6000
-              );
-              if (variant6kg) setSelectedVariantId(variant6kg.id);
-            }}
-          >
-            6kg
-          </button>
-        </div>
-        {/* Price & Stock Info */}
-        <div className="space-y-2">
-          <div className="flex items-baseline w-full justify-between">
-            {/* Price/Promotion and Quantity Input aligned bottom */}
-            <div className="flex items-end w-full justify-between">
-              <div className="flex items-end gap-2">
-                {!selectedVariant && (
+          {/* Price & Stock Info */}
+          <div className="space-y-2">
+            <div className="flex items-baseline w-full justify-between">
+              {/* Price/Promotion and Quantity Input aligned bottom */}
+              <div className="flex items-end w-full justify-between">
+                <div className="flex items-end gap-2">
+                  {!selectedVariant && (
+                    <span
+                      className={`text-sm font-normal mr-1 ${
+                        product.is_on_sale || promotionData
+                          ? "text-red-500"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      ab
+                    </span>
+                  )}
                   <span
-                    className={`text-sm font-normal mr-1 ${
+                    className={`text-xl font-bold ${
                       product.is_on_sale || promotionData
                         ? "text-red-500"
-                        : "text-muted-foreground"
+                        : "text-black"
                     }`}
                   >
-                    ab
+                    €{finalPrice?.toFixed(2)}
                   </span>
-                )}
-                <span
-                  className={`text-xl font-bold ${
-                    product.is_on_sale || promotionData
-                      ? "text-red-500"
-                      : "text-black"
-                  }`}
-                >
-                  €{finalPrice?.toFixed(2)}
-                </span>
-                {selectedVariant && originalPrice > finalPrice && (
-                  <span className="text-sm text-red-400 line-through">
-                    €{originalPrice.toFixed(2)}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-end ml-auto">
-                <button
-                  type="button"
-                  aria-label="Menge verringern"
-                  className="w-8 h-9 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  disabled={quantity <= 1}
-                >
-                  <span className="font-bold select-none">-</span>
-                </button>
-                <input
-                  type="number"
-                  min={1}
-                  max={selectedVariant?.stock_quantity || 99}
-                  value={quantity}
-                  onChange={(e) => {
-                    let val = parseInt(e.target.value, 10);
-                    if (isNaN(val) || val < 1) val = 1;
-                    if (
-                      selectedVariant?.stock_quantity &&
-                      val > selectedVariant.stock_quantity
-                    )
-                      val = selectedVariant.stock_quantity;
-                    setQuantity(val);
-                  }}
-                  className="w-12 h-9 mx-1 text-lg text-center border border-gray-300 rounded font-semibold focus:outline-none focus:border-accent transition-all hide-number-spin"
-                />
-                <button
-                  type="button"
-                  aria-label="Menge erhöhen"
-                  className="w-8 h-9 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
-                  onClick={() =>
-                    setQuantity((q) =>
+                  {selectedVariant && originalPrice > finalPrice && (
+                    <span className="text-sm text-red-400 line-through">
+                      €{originalPrice.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-end ml-auto">
+                  <button
+                    type="button"
+                    aria-label="Menge verringern"
+                    className="w-8 h-9 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setQuantity((q) => Math.max(1, q - 1));
+                    }}
+                    disabled={quantity <= 1}
+                  >
+                    <span className="font-bold select-none">-</span>
+                  </button>
+                  <input
+                    type="number"
+                    min={1}
+                    max={selectedVariant?.stock_quantity || 99}
+                    value={quantity}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      let val = parseInt(e.target.value, 10);
+                      if (isNaN(val) || val < 1) val = 1;
+                      if (
+                        selectedVariant?.stock_quantity &&
+                        val > selectedVariant.stock_quantity
+                      )
+                        val = selectedVariant.stock_quantity;
+                      setQuantity(val);
+                    }}
+                    className="w-12 h-9 mx-1 text-lg text-center border border-gray-300 rounded font-semibold focus:outline-none focus:border-accent transition-all hide-number-spin"
+                  />
+                  <button
+                    type="button"
+                    aria-label="Menge erhöhen"
+                    className="w-8 h-9 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setQuantity((q) =>
+                        selectedVariant?.stock_quantity
+                          ? Math.min(q + 1, selectedVariant.stock_quantity)
+                          : q + 1
+                      );
+                    }}
+                    disabled={
                       selectedVariant?.stock_quantity
-                        ? Math.min(q + 1, selectedVariant.stock_quantity)
-                        : q + 1
-                    )
-                  }
-                  disabled={
-                    selectedVariant?.stock_quantity
-                      ? quantity >= selectedVariant.stock_quantity
-                      : false
-                  }
-                >
-                  <span className="font-bold select-none">+</span>
-                </button>
+                        ? quantity >= selectedVariant.stock_quantity
+                        : false
+                    }
+                  >
+                    <span className="font-bold select-none">+</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        {/* Stock Status below cart button, centered (only here!) */}
-        <div className="w-full flex justify-center mt-2 mb-0">
-          <div className="text-xs text-center">
-            {selectedVariant &&
-            typeof selectedVariant.stock_quantity === "number" ? (
-              selectedVariant.stock_quantity > 0 &&
-              selectedVariant.stock_quantity < 5 ? (
-                <span className="text-primary font-medium">
-                  ✓ Auf Lager ({selectedVariant.stock_quantity} verfügbar)
-                </span>
-              ) : selectedVariant.stock_quantity === 0 ? (
-                <span className="text-destructive font-medium">
-                  ✗ Nicht verfügbar
-                </span>
-              ) : null
-            ) : null}
+          {/* Stock Status below cart button, centered (only here!) */}
+          <div className="w-full flex justify-center mt-2 mb-0">
+            <div className="text-xs text-center">
+              {selectedVariant &&
+              typeof selectedVariant.stock_quantity === "number" ? (
+                selectedVariant.stock_quantity > 0 &&
+                selectedVariant.stock_quantity < 5 ? (
+                  <span className="text-primary font-medium">
+                    ✓ Auf Lager ({selectedVariant.stock_quantity} verfügbar)
+                  </span>
+                ) : selectedVariant.stock_quantity === 0 ? (
+                  <span className="text-destructive font-medium">
+                    ✗ Nicht verfügbar
+                  </span>
+                ) : null
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
