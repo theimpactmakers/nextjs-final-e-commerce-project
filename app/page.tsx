@@ -1,4 +1,5 @@
-import { HeroSlider } from "../components/HeroSlider";
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { SLIDES_DATA } from "./(data)/slideData";
 import { BestsellerCarousel } from "../components/BestsellerCarouselWrapper";
 import { NewProductsCarousel } from "../components/NewProductsCarouselWrapper";
@@ -6,7 +7,30 @@ import Button from "@/components/Button";
 import Image from "next/image";
 import { AgeCategories } from "@/components/AgeCategories";
 
+// Dynamic import for HeroSlider to improve FCP
+const HeroSlider = dynamic(() => import("../components/HeroSlider").then(mod => ({ default: mod.HeroSlider })), {
+  loading: () => (
+    <div className="relative w-full h-[400px] md:h-[500px] bg-linear-to-br from-amber-50 to-amber-100 animate-pulse">
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-600"></div>
+      </div>
+    </div>
+  ),
+  ssr: true,
+});
+
 export const revalidate = 60;
+
+export const metadata = {
+  title: "Elite Dog TREATS - Premium Hundefutter & Leckerlis Online kaufen",
+  description: "Hochwertige Hundeleckerlis & Futter für Junior, Adult & Senior Hunde. 90% Frischfleisch, natürliche Zutaten, sofort lieferbar. Jetzt entdecken!",
+  keywords: "Hundefutter, Hundeleckerlis, Premium Hundefutter, gesunde Snacks Hund, Welpenfutter, Seniorenfutter",
+  openGraph: {
+    title: "Elite Dog TREATS - Premium Hundefutter",
+    description: "Hochwertige Hundeleckerlis mit 90% Frischfleisch",
+    type: "website",
+  },
+};
 
 export default async function Home() {
   return (
@@ -27,19 +51,21 @@ export default async function Home() {
               style={{ backgroundColor: "#e7a46d", zIndex: 0 }}
             />
 
-            <div
-              className="absolute inset-0 bg-cover bg-center hidden md:block"
-              style={{
-                backgroundImage: "url('/images/categories/sale.svg')",
-                zIndex: 1,
-              }}
+            <Image
+              src="/images/categories/sale.svg"
+              alt="Sale Background"
+              fill
+              priority
+              className="hidden md:block object-cover"
+              style={{ zIndex: 1 }}
             />
-            <div
-              className="absolute inset-0 bg-cover bg-center md:hidden"
-              style={{
-                backgroundImage: "url('/images/categories/salemobile.svg')",
-                zIndex: 1,
-              }}
+            <Image
+              src="/images/categories/salemobile.svg"
+              alt="Sale Background Mobile"
+              fill
+              priority
+              className="md:hidden object-cover"
+              style={{ zIndex: 1 }}
             />
             {/* Overlay und Content */}
             <div className="absolute inset-0 bg-black/20 z-10" />
@@ -71,13 +97,15 @@ export default async function Home() {
               className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-101 transition-all duration-300"
             >
               {" "}
-              <div
-                className="aspect-21/6 bg-cover bg-center"
-                style={{
-                  backgroundImage:
-                    "url('/images/categories/altersgruppen.svg')",
-                }}
-              />
+              <div className="aspect-21/6 relative">
+                <Image
+                  src="/images/categories/altersgruppen.svg"
+                  alt="Altersgruppen"
+                  fill
+                  priority
+                  className="object-cover"
+                />
+              </div>
               <div className="absolute inset-0 bg-black/30" />{" "}
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-white text-xl font-bold tracking-wide text-center">
@@ -92,12 +120,15 @@ export default async function Home() {
                 href="/marketing/specials"
                 className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
-                <div
-                  className="aspect-21/9 bg-cover bg-center"
-                  style={{
-                    backgroundImage: "url('/images/categories/sorten.svg')",
-                  }}
-                />
+                <div className="aspect-21/9 relative">
+                  <Image
+                    src="/images/categories/sorten.svg"
+                    alt="Fleischsorten"
+                    fill
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
                 <div className="absolute inset-0 bg-black/30" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-white text-lg font-bold tracking-wide text-center">
@@ -109,13 +140,15 @@ export default async function Home() {
                 href="/specials"
                 className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
-                <div
-                  className="aspect-21/9 bg-cover bg-center"
-                  style={{
-                    backgroundImage:
-                      "url('/images/categories/spezialfutter.svg')",
-                  }}
-                />
+                <div className="aspect-21/9 relative">
+                  <Image
+                    src="/images/categories/spezialfutter.svg"
+                    alt="Spezialfutter"
+                    fill
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
                 <div className="absolute inset-0 bg-black/30" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-white text-lg font-bold tracking-wide">
@@ -137,7 +170,19 @@ export default async function Home() {
               Diese Futtersorten kommen bei Vierbeinern am besten an !
             </p>
           </div>
-          <BestsellerCarousel />
+          <Suspense fallback={
+            <div className="flex gap-4 overflow-hidden px-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[280px] animate-pulse">
+                  <div className="bg-muted rounded-xl h-48 mb-4" />
+                  <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                  <div className="bg-muted rounded h-3 w-1/2" />
+                </div>
+              ))}
+            </div>
+          }>
+            <BestsellerCarousel />
+          </Suspense>
           <div className="w-full border-t border-muted-foreground/20 mt-16 mb-8" />
         </section>
 
@@ -199,8 +244,9 @@ export default async function Home() {
                   <Image
                     src={feature.icon}
                     alt={feature.title}
-                    width={64}
-                    height={64}
+                    width={80}
+                    height={80}
+                    sizes="80px"
                     className={
                       feature.padding === "xlarge"
                         ? "w-20 h-20 object-contain mb-2"
@@ -235,7 +281,19 @@ export default async function Home() {
               Entdecke unsere neuesten Artikel im Sortiment!
             </p>
           </div>
-          <NewProductsCarousel />
+          <Suspense fallback={
+            <div className="flex gap-4 overflow-hidden px-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[280px] animate-pulse">
+                  <div className="bg-muted rounded-xl h-48 mb-4" />
+                  <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                  <div className="bg-muted rounded h-3 w-1/2" />
+                </div>
+              ))}
+            </div>
+          }>
+            <NewProductsCarousel />
+          </Suspense>
         </section>
         <div className="w-full border-t border-muted-foreground/20 mt-16" />
 

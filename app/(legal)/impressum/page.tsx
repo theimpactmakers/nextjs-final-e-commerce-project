@@ -1,5 +1,13 @@
 import React from 'react';
 
+export const dynamic = 'force-static';
+export const revalidate = 604800; // 7 days
+
+export const metadata = {
+  title: "Impressum | Elite Dog TREATS",
+  description: "Impressum und rechtliche Informationen der Elite Dog TREATS GmbH.",
+};
+
 export default function ImpressumPage() {
   return (
     <div className="container max-w-4xl mx-auto px-4 py-12">

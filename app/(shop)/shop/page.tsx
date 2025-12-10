@@ -20,6 +20,12 @@ import Image from "next/image";
 // Revalidate alle 60 Sekunden für frische Daten
 export const revalidate = 60;
 
+export const metadata = {
+  title: "Shop - Alle Hundefutter & Leckerlis | Elite Dog TREATS",
+  description: "Stöbern Sie durch unser komplettes Sortiment an Premium Hundefutter und Leckerlis. Filter nach Alter, Fleischsorte & mehr. Jetzt entdecken!",
+  keywords: "Hundefutter Shop, Leckerlis kaufen, Premium Hundefutter online",
+};
+
 type ProductWithImage =
   Database["public"]["Views"]["products_with_primary_image"]["Row"];
 

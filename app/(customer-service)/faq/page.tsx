@@ -1,5 +1,13 @@
 import Button from "@/components/Button";
 
+export const dynamic = 'force-static';
+export const revalidate = 86400; // 24 hours
+
+export const metadata = {
+  title: "Häufig gestellte Fragen (FAQ) | Elite Dog TREATS",
+  description: "Antworten auf die wichtigsten Fragen zu unseren Hundeleckerlis: Haltbarkeit, Inhaltsstoffe, Allergien, Lieferung & mehr.",
+};
+
 export default function FAQPage() {
   const faqs = [
     {

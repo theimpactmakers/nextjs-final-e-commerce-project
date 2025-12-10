@@ -1,3 +1,11 @@
+export const dynamic = 'force-static';
+export const revalidate = 604800; // 7 days (legal pages change rarely)
+
+export const metadata = {
+  title: "AGB - Allgemeine Geschäftsbedingungen | Elite Dog TREATS",
+  description: "Lesen Sie unsere Allgemeinen Geschäftsbedingungen für den Online-Kauf von Hundefutter und Leckerlis.",
+};
+
 export default function AGBPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">

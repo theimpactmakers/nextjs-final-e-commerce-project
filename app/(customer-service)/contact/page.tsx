@@ -1,3 +1,11 @@
+export const dynamic = 'force-static';
+export const revalidate = 86400; // 24 hours
+
+export const metadata = {
+  title: "Kontakt | Elite Dog TREATS - Wir helfen Ihnen gerne",
+  description: "Haben Sie Fragen? Kontaktieren Sie uns per E-Mail, Telefon oder Kontaktformular. Unser Team hilft Ihnen gerne weiter!",
+};
+
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">

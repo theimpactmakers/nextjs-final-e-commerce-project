@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
@@ -8,16 +9,41 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReviews } from "@/contexts/ReviewContext";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
-import RelatedProducts from "@/components/RelatedProducts";
 import ReviewStats from "@/components/ReviewStats";
-import ReviewList from "@/components/ReviewList";
-import ReviewForm from "@/components/ReviewForm";
 import {
   AddToCartButton,
   BuyNowButton,
   AddToWishlistButton,
 } from "@/components/Button";
 import type { Database } from "@/types";
+
+// Dynamic imports for below-the-fold components to reduce initial bundle size
+const RelatedProducts = dynamic(() => import("@/components/RelatedProducts"), {
+  loading: () => (
+    <div className="flex items-center justify-center p-12">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
+    </div>
+  ),
+  ssr: true,
+});
+
+const ReviewList = dynamic(() => import("@/components/ReviewList"), {
+  loading: () => (
+    <div className="flex items-center justify-center p-8">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600"></div>
+    </div>
+  ),
+  ssr: true,
+});
+
+const ReviewForm = dynamic(() => import("@/components/ReviewForm"), {
+  loading: () => (
+    <div className="flex items-center justify-center p-8">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600"></div>
+    </div>
+  ),
+  ssr: true,
+});
 
 type Product = Database["public"]["Tables"]["products"]["Row"] & {
   product_images: Database["public"]["Tables"]["product_images"]["Row"][];
@@ -328,7 +354,7 @@ export default function SingleProductView({
           )}
 
           {/* Main Image - Responsive */}
-          <div className="relative w-full h-[220px] xs:h-[300px] sm:h-[340px] md:w-[640px] lg:w-[720px] sm:h-[420px] md:h-[600px] lg:h-[720px] bg-muted rounded-lg overflow-hidden">
+          <div className="relative w-full h-[220px] xs:h-[300px] sm:h-[420px] md:w-[640px] md:h-[600px] lg:w-[720px] lg:h-[720px] bg-muted rounded-lg overflow-hidden">
             <Image
               src={sortedImages[currentImageIndex].image_url}
               alt={
@@ -387,7 +413,7 @@ export default function SingleProductView({
         <div className="space-y-2 sm:space-y-3">
           {/* Title */}
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2 break-words">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 wrap-break-word">
               {product.name}
             </h1>
             <div className="mb-3 sm:mb-4">

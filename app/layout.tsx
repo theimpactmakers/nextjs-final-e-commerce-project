@@ -10,7 +10,11 @@ import { WishlistProvider } from "@/contexts/WishlistContext";
 import { ReviewProvider } from "@/contexts/ReviewContext";
 import { Toaster } from "sonner";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap', // Prevent FOIT/FOUT, improve Core Web Vitals
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: "Elite Dog TREATS",

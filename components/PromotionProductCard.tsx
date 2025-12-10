@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useWishlist } from "@/contexts/WishlistContext";
 import type { Database } from "@/types";
 
@@ -109,10 +110,13 @@ export default function PromotionProductCard({
             </svg>
           </button>
 
-          <img
+          <Image
             src={product.primary_image_url || "/images/placeholder.jpg"}
             alt={product.primary_image_alt || product.name || "Product image"}
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 hover:scale-105"
+            priority={false}
           />
         </div>
       </div>

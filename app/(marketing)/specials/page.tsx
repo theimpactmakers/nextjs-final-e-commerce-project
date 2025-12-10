@@ -1,3 +1,6 @@
+export const dynamic = 'force-static';
+export const revalidate = 3600; // 1 hour (specials may change)
+
 export default function SpecialsPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">
