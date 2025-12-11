@@ -357,7 +357,7 @@ export default function ProductCard({
                         onClick={() => goToImage(index)}
                         className={`w-2 h-2 rounded-full transition-all ${
                           index === currentImageIndex
-                            ? "bg-primary w-4"
+                            ? "bg-accent w-4"
                             : "bg-background/60 hover:bg-background/80"
                         }`}
                         aria-label={`Go to image ${index + 1}`}
@@ -419,16 +419,20 @@ export default function ProductCard({
                 </svg>
               </span>
               <button
-                onClick={handleAddToCart}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAddToCart();
+                }}
                 disabled={
                   !selectedVariant ||
                   !selectedVariant.stock_quantity ||
                   selectedVariant.stock_quantity === 0 ||
                   isAddingToCart
                 }
-                className={`absolute right-0 top-4 rounded-full p-2 flex items-center justify-center shadow-lg transition-all disabled:cursor-not-allowed ${
+                className={`absolute right-0 top-11 rounded-full p-2 flex items-center justify-center shadow-lg transition-all disabled:cursor-not-allowed ${
                   !selectedVariant
-                    ? "bg-gray-400 border-2 border-gray-400 cursor-not-allowed"
+                    ? "bg-white border-2 border-accent cursor-pointer"
                     : cartClicked
                     ? "border-2 border-accent bg-white hover:scale-105 cursor-pointer shadow-accent/30"
                     : "bg-accent border-2 border-transparent hover:scale-105 cursor-pointer shadow-accent/30"
@@ -439,7 +443,11 @@ export default function ProductCard({
                 <span className="relative inline-block group">
                   <ShoppingCart
                     className={`w-5 h-5 transition-colors ${
-                      cartClicked ? "text-accent" : "text-white"
+                      !selectedVariant
+                        ? "text-accent"
+                        : cartClicked
+                        ? "text-accent"
+                        : "text-white"
                     }`}
                   />
                   {/* Show black + when clicked, white + on hover */}
@@ -455,18 +463,18 @@ export default function ProductCard({
               </button>
             </div>
           </div>
-          {/* Removed 'Größe wählen:' label and button row as requested */}
+
           {/* Action Row: Gewicht links, Warenkorb rechts */}
           <div className="flex items-center gap-2 pt-2 mb-4">
             <span className="text-sm text-black font-medium mr-1 mb-3 mt-4 inline-block">
-              Variante:
+              Varianten:
             </span>
             <button
               type="button"
-              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded border text-sm font-semibold transition-colors cursor-pointer ${
                 selectedWeight === "3kg"
                   ? "bg-muted-foreground text-white border-muted-foreground"
-                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
+                  : "bg-muted text-foreground border-muted-foreground hover:bg-muted-foreground hover:text-white"
               }`}
               onClick={(e) => {
                 e.preventDefault();
@@ -483,10 +491,10 @@ export default function ProductCard({
             </button>
             <button
               type="button"
-              className={`px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded border text-sm font-semibold transition-colors cursor-pointer ${
                 selectedWeight === "6kg"
                   ? "bg-muted-foreground text-white border-muted-foreground"
-                  : "bg-muted text-foreground border-muted hover:bg-muted-foreground hover:text-white"
+                  : "bg-muted text-foreground border-muted-foreground hover:bg-muted-foreground hover:text-white"
               }`}
               onClick={(e) => {
                 e.preventDefault();
@@ -502,91 +510,84 @@ export default function ProductCard({
               6kg
             </button>
           </div>
-          {/* Price & Stock Info */}
-          <div className="space-y-2">
-            <div className="flex items-baseline w-full justify-between">
-              {/* Price/Promotion and Quantity Input aligned bottom */}
-              <div className="flex items-end w-full justify-between">
-                <div className="flex items-end gap-2">
-                  {!selectedVariant && (
-                    <span
-                      className={`text-sm font-normal mr-1 ${
-                        product.is_on_sale || promotionData
-                          ? "text-red-500"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      ab
-                    </span>
-                  )}
-                  <span
-                    className={`text-xl font-bold ${
-                      product.is_on_sale || promotionData
-                        ? "text-red-500"
-                        : "text-black"
-                    }`}
-                  >
-                    €{finalPrice?.toFixed(2)}
-                  </span>
-                  {selectedVariant && originalPrice > finalPrice && (
-                    <span className="text-sm text-red-400 line-through">
-                      €{originalPrice.toFixed(2)}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-end ml-auto">
-                  <button
-                    type="button"
-                    aria-label="Menge verringern"
-                    className="w-8 h-9 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setQuantity((q) => Math.max(1, q - 1));
-                    }}
-                    disabled={quantity <= 1}
-                  >
-                    <span className="font-bold select-none">-</span>
-                  </button>
-                  <input
-                    type="number"
-                    min={1}
-                    max={selectedVariant?.stock_quantity || 99}
-                    value={quantity}
-                    onChange={(e) => {
-                      e.preventDefault();
-                      let val = parseInt(e.target.value, 10);
-                      if (isNaN(val) || val < 1) val = 1;
-                      if (
-                        selectedVariant?.stock_quantity &&
-                        val > selectedVariant.stock_quantity
-                      )
-                        val = selectedVariant.stock_quantity;
-                      setQuantity(val);
-                    }}
-                    className="w-12 h-9 mx-1 text-lg text-center border border-gray-300 rounded font-semibold focus:outline-none focus:border-accent transition-all hide-number-spin"
-                  />
-                  <button
-                    type="button"
-                    aria-label="Menge erhöhen"
-                    className="w-8 h-9 text-lg flex items-center justify-center rounded border border-gray-300 bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setQuantity((q) =>
-                        selectedVariant?.stock_quantity
-                          ? Math.min(q + 1, selectedVariant.stock_quantity)
-                          : q + 1
-                      );
-                    }}
-                    disabled={
-                      selectedVariant?.stock_quantity
-                        ? quantity >= selectedVariant.stock_quantity
-                        : false
-                    }
-                  >
-                    <span className="font-bold select-none">+</span>
-                  </button>
-                </div>
-              </div>
+          {/* Price & Quantity Row at the bottom: Quantity left, Price right */}
+          <div className="flex items-end w-full justify-between mt-2">
+            {/* Quantity controls left */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                aria-label="Menge verringern"
+                className="w-8 h-9 text-lg flex items-center justify-center rounded border border-black bg-white text-accent cursor-pointer transition-colors hover:bg-accent hover:text-white hover:border-accent disabled:opacity-50"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setQuantity((q) => Math.max(1, q - 1));
+                }}
+                disabled={quantity <= 1}
+              >
+                <span className="font-bold select-none">-</span>
+              </button>
+              <input
+                type="number"
+                min={1}
+                max={selectedVariant?.stock_quantity || 99}
+                value={quantity}
+                onChange={(e) => {
+                  e.preventDefault();
+                  let val = parseInt(e.target.value, 10);
+                  if (isNaN(val) || val < 1) val = 1;
+                  if (
+                    selectedVariant?.stock_quantity &&
+                    val > selectedVariant.stock_quantity
+                  )
+                    val = selectedVariant.stock_quantity;
+                  setQuantity(val);
+                }}
+                className="w-12 h-9 text-lg text-center border border-black rounded font-semibold focus:outline-none focus:border-accent transition-all hide-number-spin"
+              />
+              <button
+                type="button"
+                aria-label="Menge erhöhen"
+                className="w-8 h-9 text-lg flex items-center justify-center rounded border border-black bg-white text-accent cursor-pointer transition-colors hover:border-accent hover:bg-accent hover:text-white disabled:opacity-50"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setQuantity((q) =>
+                    selectedVariant?.stock_quantity
+                      ? Math.min(q + 1, selectedVariant.stock_quantity)
+                      : q + 1
+                  );
+                }}
+                disabled={
+                  selectedVariant?.stock_quantity
+                    ? quantity >= selectedVariant.stock_quantity
+                    : false
+                }
+              >
+                <span className="font-bold select-none">+</span>
+              </button>
+            </div>
+            {/* Price right */}
+            <div className="flex items-end gap-2">
+              {!selectedVariant && (
+                <span
+                  className={`text-lg font-bold mr-1 -mt-2 mb-.5 align-baseline text-black`}
+                >
+                  ab
+                </span>
+              )}
+              <span
+                className={`text-lg font-bold ${
+                  product.is_on_sale || promotionData
+                    ? "text-red-500"
+                    : "text-black"
+                }`}
+              >
+                €{finalPrice?.toFixed(2)}
+              </span>
+              {selectedVariant && originalPrice > finalPrice && (
+                <span className="text-sm text-red-400 line-through">
+                  €{originalPrice.toFixed(2)}
+                </span>
+              )}
             </div>
           </div>
           {/* Stock Status below cart button, centered (only here!) */}

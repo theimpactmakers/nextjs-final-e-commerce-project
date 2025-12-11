@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { FilterPanel } from "@/components/FilterPanel";
+import AdultProductListClient from "@/components/AdultProductListClient";
 import { BestsellerCarousel } from "@/components/BestsellerCarouselWrapper";
 import { getProductsByAge } from "@/lib/supabase/products-optimized";
 
@@ -9,8 +8,10 @@ export const revalidate = 60;
 
 export const metadata = {
   title: "Hundefutter für Adult Hunde | Premium Futter für erwachsene Hunde",
-  description: "Optimales Futter für erwachsene Hunde. Ausgewogene Nährstoffe für Energie, starke Knochen & glänzendes Fell. Jetzt Adult Hundefutter online bestellen!",
-  keywords: "Adult Hundefutter, Futter erwachsene Hunde, Premium Hundefutter Adult",
+  description:
+    "Optimales Futter für erwachsene Hunde. Ausgewogene Nährstoffe für Energie, starke Knochen & glänzendes Fell. Jetzt Adult Hundefutter online bestellen!",
+  keywords:
+    "Adult Hundefutter, Futter erwachsene Hunde, Premium Hundefutter Adult",
 };
 
 const meatEnumValues: Record<string, string> = {
@@ -55,8 +56,8 @@ async function AdultContent({
               Hundefutter für Adult
             </h1>
             <p className="text-lg text-green-800 max-w-2xl">
-              Premium-Ernährung für deinen erwachsenen Hund. Energie, Vitalität und
-              Gesundheit in jedem Bissen.
+              Premium-Ernährung für deinen erwachsenen Hund. Energie, Vitalität
+              und Gesundheit in jedem Bissen.
             </p>
           </div>
           <div className="text-center py-16">
@@ -82,25 +83,27 @@ async function AdultContent({
             Hundefutter für Adult
           </h1>
           <p className="text-lg text-green-800 max-w-2xl">
-            Premium-Ernährung für deinen erwachsenen Hund. Energie, Vitalität und
-            Gesundheit in jedem Bissen.
+            Premium-Ernährung für deinen erwachsenen Hund. Energie, Vitalität
+            und Gesundheit in jedem Bissen.
           </p>
         </div>
 
         {/* Bestseller Slider */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold mb-6">Unsere Adult Bestseller</h2>
-          <Suspense fallback={
-            <div className="flex gap-4 overflow-hidden">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="min-w-[280px] animate-pulse">
-                  <div className="bg-muted rounded-xl h-48 mb-4" />
-                  <div className="bg-muted rounded h-4 w-3/4 mb-2" />
-                  <div className="bg-muted rounded h-3 w-1/2" />
-                </div>
-              ))}
-            </div>
-          }>
+          <Suspense
+            fallback={
+              <div className="flex gap-4 overflow-hidden">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="min-w-[280px] animate-pulse">
+                    <div className="bg-muted rounded-xl h-48 mb-4" />
+                    <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                    <div className="bg-muted rounded h-3 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            }
+          >
             <BestsellerCarousel ageGroup="ADULT" />
           </Suspense>
         </div>
@@ -130,63 +133,17 @@ async function AdultContent({
         {/* Filter & Products */}
         <div>
           <h2 className="text-3xl font-bold mb-6">Alle Adult Produkte</h2>
-          <FilterPanel currentAge="adult" />
-
-          {products.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((p) => (
-                <div
-                  key={p.id}
-                  className="bg-card text-card-foreground rounded-xl border shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
-                >
-                  <div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
-                    <Image
-                      src={p.primary_image_url || "/images/placeholder.jpg"}
-                      alt={p.name || "Product"}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                      className="object-cover"
-                    />
-                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                      {p.meat_type && (
-                        <span className="bg-primary/90 text-white text-xs px-2 py-1 rounded-full">
-                          {p.meat_type}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col space-y-1.5 p-6">
-                    <h3 className="text-2xl font-semibold">{p.name}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {p.description}
-                    </p>
-                  </div>
-
-                  <div className="p-6 pt-0 space-y-2">
-                    <Link
-                      href={`/products/${p.slug}`}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
-                    >
-                      Zum Produkt
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <p className="text-xl text-muted-foreground mb-4">
-                Keine Produkte gefunden
-              </p>
-              <Link
-                href="/adult"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-              >
-                Alle Adult Produkte anzeigen
-              </Link>
-            </div>
-          )}
+          <AdultProductListClient
+            products={products.map((p) => ({
+              ...p,
+              product_variants: p.product_variants || [],
+              product_images: p.product_images || [],
+              primary_image_url: p.primary_image_url || null,
+              primary_image_alt: p.primary_image_alt || p.name || "",
+              min_price: p.min_price ?? null,
+              starting_variant_name: p.starting_variant_name ?? "",
+            }))}
+          />
         </div>
       </div>
     );

@@ -12,6 +12,7 @@ type Props = {
 export function ProductDeleteButton({ productId, productName }: Props) {
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
+  const isDeleting = isPending;
 
   const handleDelete = () => {
     startTransition(async () => {
