@@ -125,34 +125,29 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
     value: string,
     checked: boolean
   ) => {
-    setSelectedFilters((prev) => {
-      const current = prev[groupId] || [];
-      let updated: string[];
+    const newFilters = { ...selectedFilters };
+    const current = newFilters[groupId] || [];
+    let updated: string[];
 
-      if (checked) {
-        updated = [...current, value];
-      } else {
-        updated = current.filter((v) => v !== value);
-      }
+    if (checked) {
+      updated = [...current, value];
+    } else {
+      updated = current.filter((v) => v !== value);
+    }
 
-      return {
-        ...prev,
-        [groupId]: updated,
-      };
-    });
-
-    applyFilters({
-      ...selectedFilters,
-      [groupId]: checked
-        ? [...(selectedFilters[groupId] || []), value]
-        : (selectedFilters[groupId] || []).filter((v) => v !== value),
-    });
-
+    newFilters[groupId] = updated;
+    
+    // Update state
+    setSelectedFilters(newFilters);
+    
     // Close dropdown after selection
     setOpenDropdowns((prev) => ({
       ...prev,
       [groupId]: false,
     }));
+
+    // Apply filters after state update (outside of setState)
+    applyFilters(newFilters);
   };
 
   const applyFilters = (filters: Record<string, string[]>) => {

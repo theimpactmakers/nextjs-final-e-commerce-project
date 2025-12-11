@@ -64,18 +64,29 @@ async function ShopContent({
     pferd: "PFERD",
     wild: "WILD",
     lachs: "LACHS",
+    huhn: "HUHN",
   };
 
-  // Füge Filter hinzu (korrekte Enum-Werte verwenden)
-  if (ageFilter && ageEnumValues[ageFilter.toLowerCase()]) {
-    query = query.eq("age_group", ageEnumValues[ageFilter.toLowerCase()]);
+  // Füge Filter hinzu - unterstützt mehrere Werte (kommagetrennt)
+  if (ageFilter) {
+    const ageValues = ageFilter.split(',').map(a => a.trim().toLowerCase());
+    const dbAgeValues = ageValues
+      .map(a => ageEnumValues[a])
+      .filter(Boolean);
+    
+    if (dbAgeValues.length > 0) {
+      query = query.in("age_group", dbAgeValues);
+    }
   }
 
   if (meatFilter) {
-    const normalizedMeat = meatFilter.toLowerCase();
-    const dbValue = meatEnumValues[normalizedMeat];
-    if (dbValue) {
-      query = query.eq("meat_type", dbValue);
+    const meatValues = meatFilter.split(',').map(m => m.trim().toLowerCase());
+    const dbMeatValues = meatValues
+      .map(m => meatEnumValues[m])
+      .filter(Boolean);
+    
+    if (dbMeatValues.length > 0) {
+      query = query.in("meat_type", dbMeatValues);
     }
   }
 
