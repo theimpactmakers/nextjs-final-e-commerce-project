@@ -67,28 +67,31 @@ export default function RelatedProducts({
         const productIds = relatedIds.map((r) => r.related_product_id);
 
         // Step 2: Batch fetch all data in parallel (3 optimized queries)
-        const [productsResult, imagesResult, variantsResult] = await Promise.all([
-          // Fetch products
-          supabase
-            .from("products")
-            .select("id, name, slug, description")
-            .in("id", productIds),
+        const [productsResult, imagesResult, variantsResult] =
+          await Promise.all([
+            // Fetch products
+            supabase
+              .from("products")
+              .select("id, name, slug, description")
+              .in("id", productIds),
 
-          // Fetch only primary images
-          supabase
-            .from("product_images")
-            .select("product_id, image_url, alt_text, is_primary")
-            .in("product_id", productIds)
-            .eq("is_primary", true),
+            // Fetch only primary images
+            supabase
+              .from("product_images")
+              .select("product_id, image_url, alt_text, is_primary")
+              .in("product_id", productIds)
+              .eq("is_primary", true),
 
-          // Fetch only first variant per product (cheapest)
-          supabase
-            .from("product_variants")
-            .select("product_id, id, name, price, compare_at_price, stock_quantity")
-            .in("product_id", productIds)
-            .eq("is_active", true)
-            .order("price", { ascending: true }),
-        ]);
+            // Fetch only first variant per product (cheapest)
+            supabase
+              .from("product_variants")
+              .select(
+                "product_id, id, name, price, compare_at_price, stock_quantity"
+              )
+              .in("product_id", productIds)
+              .eq("is_active", true)
+              .order("price", { ascending: true }),
+          ]);
 
         if (productsResult.error) throw productsResult.error;
         if (imagesResult.error) throw imagesResult.error;
@@ -102,7 +105,7 @@ export default function RelatedProducts({
           imagesResult.data?.map((img) => [img.product_id, img]) || []
         );
         const variantsMap = new Map<string, typeof variantsResult.data>();
-        
+
         variantsResult.data?.forEach((v) => {
           if (!variantsMap.has(v.product_id)) {
             variantsMap.set(v.product_id, []);
@@ -276,6 +279,7 @@ export default function RelatedProducts({
                         fill
                         className="object-cover group-hover:scale-105 transition-transform"
                         sizes="(max-width: 768px) 50vw, 25vw"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">
