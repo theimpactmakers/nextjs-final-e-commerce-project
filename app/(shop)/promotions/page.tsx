@@ -2,8 +2,7 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import type { Database } from "@/types";
-import { FilterPanel } from "@/components/FilterPanel";
-import PromotionProductCard from "@/components/PromotionProductCard";
+import PromotionProductListClient from "@/components/PromotionProductListClient";
 import { getActivePromotionsServer } from "@/lib/supabase/products-server";
 
 export const revalidate = 60;
@@ -156,7 +155,7 @@ async function PromotionsContent({
 
     const { data: allVariants } = await supabase
       .from("product_variants")
-      .select("id, product_id, name, weight_grams, price")
+      .select("*")
       .in("product_id", productIdsForVariants)
       .eq("is_active", true);
 
@@ -176,121 +175,50 @@ async function PromotionsContent({
       }
     });
 
-    // Filtere Produkte, die im Angebot sind
-    type ProductWithPromotionInfo = ProductWithImage & {
-      promotionDetails?: {
-        promotion: (typeof activePromotions)[0];
-        variantsInPromotion?: Array<{
-          id: string;
-          name: string;
-          weight_grams: number;
-          price: number;
-          discountedPrice: number;
-        }>;
-      };
+    // Filtere Produkte, die im Angebot sind und baue sie wie im Shop-Client auf
+    type ProductVariant =
+      Database["public"]["Tables"]["product_variants"]["Row"];
+    type ProductImage = {
+      alt_text: string | null;
+      created_at: string | null;
+      display_order: number;
+      id: string;
+      image_url: string;
+      is_primary: boolean | null;
+      product_id: string;
+      updated_at: string | null;
     };
-
-    const productsInPromotion: ProductWithPromotionInfo[] = [];
+    type ProductWithVariants = ProductWithImage & {
+      product_variants?: ProductVariant[];
+      product_images?: ProductImage[];
+    };
+    const productsInPromotion: ProductWithVariants[] = [];
 
     for (const product of allProducts) {
       if (!product.id) continue;
 
-      let productPromotion: ProductWithPromotionInfo["promotionDetails"] =
-        undefined;
-
-      // Check 1: "all" Promotion
-      if (hasAllPromotion) {
-        const allPromo = activePromotions.find((p) => p.applies_to === "all");
-        if (allPromo) {
-          productPromotion = { promotion: allPromo };
-        }
-      }
-
-      // Check 2: Spezifische Produkt-Promotion (O(1) lookup)
-      if (!productPromotion && promoMap.has(product.id)) {
-        productPromotion = { promotion: promoMap.get(product.id)! };
-      }
-
-      // Check 3: Varianten-Promotion
-      if (!productPromotion && variantIdsSet.size > 0) {
+      // Nur Produkte, die in einer Promotion sind (wie vorher)
+      let isPromo = false;
+      if (hasAllPromotion) isPromo = true;
+      if (promoMap.has(product.id)) isPromo = true;
+      if (!isPromo && variantIdsSet.size > 0) {
         const productVariants = variantsMap.get(product.id) || [];
-        const variantsInPromo = productVariants.filter((v) =>
-          variantIdsSet.has(v.id)
-        );
-
-        if (variantsInPromo.length > 0) {
-          const promo = activePromotions.find(
-            (p) =>
-              p.applies_to === "specific_variants" &&
-              p.variant_ids?.some((vid) =>
-                variantsInPromo.some((v) => v.id === vid)
-              )
-          );
-
-          if (promo) {
-            const variantsWithDiscount = variantsInPromo.map((v) => {
-              let discountedPrice = v.price;
-              if (promo.discount_type === "percentage") {
-                discountedPrice = v.price * (1 - promo.discount_value / 100);
-              } else if (promo.discount_type === "fixed_amount") {
-                discountedPrice = v.price - promo.discount_value;
-              }
-              return {
-                ...v,
-                discountedPrice: Math.max(0, discountedPrice),
-              };
-            });
-
-            productPromotion = {
-              promotion: promo,
-              variantsInPromotion: variantsWithDiscount,
-            };
-          }
+        if (productVariants.some((v) => variantIdsSet.has(v.id))) {
+          isPromo = true;
         }
       }
+      if (!isPromo) continue;
 
-      if (productPromotion) {
-        productsInPromotion.push({
-          ...product,
-          promotionDetails: productPromotion,
-        });
-      }
+      // Füge Varianten und Bilder wie im Shop hinzu (alle Felder der Variante)
+      const variantsRaw = variantsMap.get(product.id);
+      productsInPromotion.push({
+        ...product,
+        product_variants: Array.isArray(variantsRaw)
+          ? (variantsRaw as ProductVariant[])
+          : [],
+        product_images: [], // Optional: Hier könnten Bilder geladen werden, falls benötigt
+      });
     }
-
-    // Erstelle Titel basierend auf Filtern
-    const getPageTitle = () => {
-      // Wenn spezifische Promotion ausgewählt, zeige deren Namen
-      if (promo && activePromotions.length > 0) {
-        return activePromotions[0].name;
-      }
-
-      const parts = ["Aktuelle Angebote"];
-
-      if (age) {
-        const ageLabels: Record<string, string> = {
-          junior: "Junior",
-          adult: "Adult",
-          senior: "Senior",
-        };
-        parts.push(ageLabels[age.toLowerCase()] || age.toUpperCase());
-      }
-
-      if (meat) {
-        const meatLabels: Record<string, string> = {
-          ente: "Ente",
-          rind: "Rind",
-          kaninchen: "Kaninchen",
-          lamm: "Lamm",
-          pferd: "Pferd",
-          wild: "Wild",
-          lachs: "Lachs",
-          huhn: "Huhn",
-        };
-        parts.push(meatLabels[meat.toLowerCase()] || meat.toUpperCase());
-      }
-
-      return parts.join(" - ");
-    };
 
     return (
       <div className="container max-w-7xl mx-auto px-4 py-8">
@@ -433,32 +361,8 @@ async function PromotionsContent({
             </div>
           )}
 
-          {/* Filter Panel - Mit Altersgruppe und Fleischsorte für Promotions-Seite */}
-          <PromotionsFilterPanel />
-
           {/* Products Grid */}
-          {productsInPromotion && productsInPromotion.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
-              {productsInPromotion.map((p) => (
-                <PromotionProductCard key={p.id} product={p} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <p className="text-xl text-muted-foreground mb-4">
-                Keine Produkte im Angebot gefunden
-              </p>
-              <p className="text-sm text-muted-foreground mb-6">
-                Versuche es mit anderen Filtereinstellungen
-              </p>
-              <Link
-                href="/promotions"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-              >
-                Alle Angebote anzeigen
-              </Link>
-            </div>
-          )}
+          <PromotionProductListClient products={productsInPromotion} />
         </div>
       </div>
     );
@@ -475,13 +379,6 @@ async function PromotionsContent({
 }
 
 // Spezieller Filter für Promotions-Seite (mit Altersgruppe und Fleischsorte)
-function PromotionsFilterPanel() {
-  return (
-    <div className="mb-8">
-      <FilterPanel currentAge="promotions" />
-    </div>
-  );
-}
 
 function PromotionsLoading() {
   return (

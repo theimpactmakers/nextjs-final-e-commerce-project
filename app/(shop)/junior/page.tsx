@@ -84,7 +84,7 @@ async function JuniorContent({
         {/* Hero Section: Banner */}
         <div className="mb-8 rounded-xl overflow-hidden flex justify-center items-center bg-white">
           <Image
-            src="/images/banners/seniorbanner.svg"
+            src="/images/banners/juniorbanner.svg"
             alt="Junior Hundefutter Banner"
             className="w-full h-auto object-cover"
             style={{ maxHeight: 320 }}

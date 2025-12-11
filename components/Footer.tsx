@@ -132,11 +132,11 @@ function NewsletterSection() {
           </div>
           {/* Text und Formular - auf mobil oben, auf desktop rechts und vertikal zentriert */}
           <div className="order-1 md:order-2 flex-1 max-w-xl flex flex-col justify-center items-center w-full px-4 sm:px-0">
-            <h2 className="text-base sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 mt-2 sm:mb-3 md:mb-4 text-white/90 text-center">
+            <h2 className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 mt-2 sm:mb-3 md:mb-4 text-white/90 text-center">
               Werde Teil unserer Community
             </h2>
 
-            <div className="text-xs sm:text-sm md:text-base text-black/90 mb-3 sm:mb-4 md:mb-5 text-center">
+            <div className="text-xs xs:text-sm sm:text-base md:text-sm lg:text-lg text-black/90 mb-3 sm:mb-4 md:mb-5 text-center">
               Abonniere unseren Newsletter und verpasse keine Neuigkeiten!
             </div>
             <form
@@ -164,7 +164,7 @@ function NewsletterSection() {
             </form>
             {!!feedback && (
               <p
-                className={`mt-3 w-full text-xs sm:text-sm md:text-base text-center ${
+                className={`mt-3 w-full text-xs xs:text-sm sm:text-base md:text-lg text-center ${
                   status === "success" ? "text-white" : "text-red-100"
                 }`}
                 role="status"
@@ -173,11 +173,11 @@ function NewsletterSection() {
                 {feedback}
               </p>
             )}
-            <div className="flex items-center justify-center gap-4 text-white mt-6">
+            <div className="flex items-center justify-center gap-4 text-white mt-6 mb-4">
               <Link
                 href="https://www.facebook.com"
                 aria-label="Facebook"
-                className="text-black hover:text-white transform transition-all duration-300 ease-in-out hover:scale-90 active:scale-95"
+                className="text-white hover:text-black hover:animate-pulse hover:scale-110 transform transition-all duration-300 ease-in-out active:scale-95"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -191,7 +191,7 @@ function NewsletterSection() {
               <Link
                 href="https://www.instagram.com"
                 aria-label="Instagram"
-                className="text-black hover:text-white transform transition-all duration-300 ease-in-out hover:scale-90 active:scale-95 -mb-1"
+                className="text-white hover:text-black hover:animate-pulse hover:scale-110 transform transition-all duration-300 ease-in-out active:scale-95 -mb-1"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -205,7 +205,7 @@ function NewsletterSection() {
               <Link
                 href="https://www.x.com"
                 aria-label="X"
-                className="text-black hover:text-white transform transition-all duration-300 ease-in-out hover:scale-90 active:scale-95"
+                className="text-white hover:text-black hover:animate-pulse hover:scale-110 transform transition-all duration-300 ease-in-out active:scale-95"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
