@@ -11,8 +11,10 @@ export const revalidate = 60;
 
 export const metadata = {
   title: "Elite Dog TREATS - Premium Hundefutter & Leckerlis Online kaufen",
-  description: "Hochwertige Hundeleckerlis & Futter für Junior, Adult & Senior Hunde. 90% Frischfleisch, natürliche Zutaten, sofort lieferbar. Jetzt entdecken!",
-  keywords: "Hundefutter, Hundeleckerlis, Premium Hundefutter, gesunde Snacks Hund, Welpenfutter, Seniorenfutter",
+  description:
+    "Hochwertige Hundeleckerlis & Futter für Junior, Adult & Senior Hunde. 90% Frischfleisch, natürliche Zutaten, sofort lieferbar. Jetzt entdecken!",
+  keywords:
+    "Hundefutter, Hundeleckerlis, Premium Hundefutter, gesunde Snacks Hund, Welpenfutter, Seniorenfutter",
   openGraph: {
     title: "Elite Dog TREATS - Premium Hundefutter",
     description: "Hochwertige Hundeleckerlis mit 90% Frischfleisch",
@@ -27,12 +29,12 @@ export default async function Home() {
       <HeroSlider slides={SLIDES_DATA} />
       <main className="container max-w-7xl px-4 flex flex-col">
         {/* Kategorien Section */}
-        <section className="grid md:grid-cols-3 gap-x-4 gap-y-4 mt-8 mb-16">
+        <section className="grid md:grid-cols-3 gap-x-4 gap-y-4 mt-2 mb-16">
           {" "}
           {/* Linke Promo-Karte */}
           <a
             href="/promotions"
-            className="relative rounded-3xl border overflow-hidden shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
+            className="relative rounded-3xl border overflow-hidden shadow-sm hover:shadow-xl hover:scale-95 transition-all duration-300 cursor-pointer"
           >
             <div
               className="absolute inset-0"
@@ -68,8 +70,11 @@ export default async function Home() {
                 Bis zu 20% Rabatt – nur für kurze Zeit !
               </p>
               <div className="mt-2">
-                <span className="inline-block hover:brightness-110 hover:scale-95 transition-all pointer-events-auto">
-                  <Button variant="secondary" className="text-sm py-2">
+                <span className="inline-block pointer-events-auto">
+                  <Button
+                    variant="secondary"
+                    className="text-sm py-2 transition-all hover:scale-105"
+                  >
                     Zu den Angeboten
                   </Button>
                 </span>
@@ -82,7 +87,7 @@ export default async function Home() {
             {/* Altersgruppen - horizontal oben */}
             <a
               href="#altersgruppen"
-              className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-101 transition-all duration-300"
+              className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-95 transition-all duration-300"
             >
               {" "}
               <div className="aspect-21/6 relative">
@@ -106,7 +111,7 @@ export default async function Home() {
             <div className="grid grid-cols-2 gap-4">
               <a
                 href="/marketing/specials"
-                className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300"
+                className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-95 transition-all duration-300"
               >
                 <div className="aspect-21/9 relative">
                   <Image
@@ -115,6 +120,7 @@ export default async function Home() {
                     fill
                     sizes="(max-width: 768px) 50vw, 33vw"
                     className="object-cover"
+                    loading="lazy"
                   />
                 </div>
                 <div className="absolute inset-0 bg-black/30" />
@@ -126,7 +132,7 @@ export default async function Home() {
               </a>
               <a
                 href="/specials"
-                className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300"
+                className="relative rounded-3xl border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:scale-95 transition-all duration-300"
               >
                 <div className="aspect-21/9 relative">
                   <Image
@@ -135,6 +141,7 @@ export default async function Home() {
                     fill
                     sizes="(max-width: 768px) 50vw, 33vw"
                     className="object-cover"
+                    loading="lazy"
                   />
                 </div>
                 <div className="absolute inset-0 bg-black/30" />
@@ -158,17 +165,19 @@ export default async function Home() {
               Diese Futtersorten kommen bei Vierbeinern am besten an !
             </p>
           </div>
-          <Suspense fallback={
-            <div className="flex gap-4 overflow-hidden px-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="min-w-[280px] animate-pulse">
-                  <div className="bg-muted rounded-xl h-48 mb-4" />
-                  <div className="bg-muted rounded h-4 w-3/4 mb-2" />
-                  <div className="bg-muted rounded h-3 w-1/2" />
-                </div>
-              ))}
-            </div>
-          }>
+          <Suspense
+            fallback={
+              <div className="flex gap-4 overflow-hidden px-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="min-w-[280px] animate-pulse">
+                    <div className="bg-muted rounded-xl h-48 mb-4" />
+                    <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                    <div className="bg-muted rounded h-3 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            }
+          >
             <BestsellerCarousel />
           </Suspense>
           <div className="w-full border-t border-muted-foreground/20 mt-16 mb-8" />
@@ -244,6 +253,7 @@ export default async function Home() {
                         ? "w-16 h-16 object-contain mb-2"
                         : "w-full h-full object-cover mb-2"
                     }
+                    loading="lazy"
                   />
                 ) : (
                   <span className="text-2xl mb-2"> {feature.icon}</span>
@@ -269,17 +279,19 @@ export default async function Home() {
               Entdecke unsere neuesten Artikel im Sortiment!
             </p>
           </div>
-          <Suspense fallback={
-            <div className="flex gap-4 overflow-hidden px-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="min-w-[280px] animate-pulse">
-                  <div className="bg-muted rounded-xl h-48 mb-4" />
-                  <div className="bg-muted rounded h-4 w-3/4 mb-2" />
-                  <div className="bg-muted rounded h-3 w-1/2" />
-                </div>
-              ))}
-            </div>
-          }>
+          <Suspense
+            fallback={
+              <div className="flex gap-4 overflow-hidden px-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="min-w-[280px] animate-pulse">
+                    <div className="bg-muted rounded-xl h-48 mb-4" />
+                    <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                    <div className="bg-muted rounded h-3 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            }
+          >
             <NewProductsCarousel />
           </Suspense>
         </section>

@@ -1,3 +1,10 @@
+/* Blinking animation for Variante label */
+.animate-blink {
+  animation: blink 1s steps(2, start) infinite;
+}
+@keyframes blink {
+  to { visibility: hidden; }
+}
 /* Hide number input arrows for all browsers */
 input[type=number].hide-number-spin::-webkit-inner-spin-button,
 input[type=number].hide-number-spin::-webkit-outer-spin-button {

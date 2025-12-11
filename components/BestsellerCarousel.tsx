@@ -150,7 +150,7 @@ export const BestsellerCarouselClient: React.FC<
       <button
         onClick={prevSlide}
         aria-label="Previous products"
-        className="hidden md:flex absolute top-1/2 -left-8 -translate-y-1/2 p-2 text-accent hover:text-black transition-all cursor-pointer z-20 items-center justify-center"
+        className="hidden md:flex absolute top-1/2 -left-2 -translate-y-1/2 p-2 text-accent hover:text-black transition-all cursor-pointer z-20 items-center justify-center"
         style={{ transform: "translateY(-50%)" }}
       >
         <ChevronLeft className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />
@@ -158,7 +158,7 @@ export const BestsellerCarouselClient: React.FC<
       <button
         onClick={nextSlide}
         aria-label="Next products"
-        className="hidden md:flex absolute top-1/2 -right-8 -translate-y-1/2 p-2 text-accent hover:text-black transition-all cursor-pointer z-20 items-center justify-center"
+        className="hidden md:flex absolute top-1/2 -right-2 -translate-y-1/2 p-2 text-accent hover:text-black transition-all cursor-pointer z-20 items-center justify-center"
         style={{ transform: "translateY(-50%)" }}
       >
         <ChevronRight className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" />

@@ -74,6 +74,7 @@ export function AgeCategories() {
                 width={560}
                 height={560}
                 className="object-contain absolute"
+                loading="lazy"
               />
             ) : (
               <h3 className="text-lg font-bold group-brown brown-glow">

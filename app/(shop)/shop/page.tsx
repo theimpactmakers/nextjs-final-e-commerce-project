@@ -152,10 +152,10 @@ async function ShopContent({
       <div className="container max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl text-center md:text-4xl font-bold mb-2 text-foreground">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 text-foreground text-left">
             {getPageTitle()}
           </h1>
-          <p className="text-muted-foreground text-center">
+          <p className="text-muted-foreground text-left">
             {productsWithVariants?.length || 0}{" "}
             {productsWithVariants?.length === 1 ? "Produkt" : "Produkte"}{" "}
             gefunden

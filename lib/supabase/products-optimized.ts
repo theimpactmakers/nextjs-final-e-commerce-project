@@ -12,6 +12,7 @@ export type ProductWithDetails = Product & {
   primary_image_url: string | null;
   primary_image_alt: string | null;
   min_price: number | null;
+  starting_variant_name?: string;
 };
 
 interface ProductFilters {
@@ -23,7 +24,7 @@ interface ProductFilters {
 /**
  * Optimized product fetching with React 19 cache()
  * Eliminates N+1 queries by using batch fetching with .in()
- * 
+ *
  * Best Practices Next.js 16 + React 19:
  * - Uses cache() for request deduplication
  * - Anonymous Supabase client (no cookies, allows ISR)
@@ -102,7 +103,7 @@ export const getProductsWithDetails = cache(
 
     const imagesMap = new Map<string, ProductImage[]>();
     const primaryImageMap = new Map<string, ProductImage>();
-    
+
     images.forEach((image) => {
       if (!imagesMap.has(image.product_id)) {
         imagesMap.set(image.product_id, []);
@@ -123,9 +124,7 @@ export const getProductsWithDetails = cache(
 
       // Calculate min price from variants
       const minPrice =
-        variants.length > 0
-          ? Math.min(...variants.map((v) => v.price))
-          : null;
+        variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : null;
 
       return {
         ...product,
