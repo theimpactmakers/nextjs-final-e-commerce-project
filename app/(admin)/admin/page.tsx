@@ -1,11 +1,15 @@
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { Package, ShoppingCart, Users, Euro } from "lucide-react";
 
+// Cache for 5 minutes (300 seconds) - admin dashboard doesn't need real-time data
+export const revalidate = 300;
+
 async function getAdminStats() {
   const supabase = await createClient();
   const adminClient = createServiceRoleClient();
 
   // Fetch all stats in parallel
+  // ✅ Use adminClient for profiles to bypass RLS and get accurate count
   const [
     { count: totalProducts },
     { count: totalOrders },
@@ -14,15 +18,18 @@ async function getAdminStats() {
   ] = await Promise.all([
     supabase.from("products").select("*", { count: "exact", head: true }),
     supabase.from("orders").select("*", { count: "exact", head: true }),
-    supabase.from("profiles").select("*", { count: "exact", head: true }),
+    adminClient.from("profiles").select("*", { count: "exact", head: true }),
     supabase.from("orders").select("total_amount, payment_status"),
   ]);
 
-  // Calculate revenue from paid orders
+  // ✅ Calculate revenue from paid orders with proper numeric conversion
   const totalRevenue =
     orders
       ?.filter((order) => order.payment_status === "paid")
-      .reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
+      .reduce(
+        (sum, order) => sum + (parseFloat(order.total_amount as string) || 0),
+        0
+      ) || 0;
 
   // Recent orders
   const { data: recentOrders } = await supabase
@@ -41,7 +48,25 @@ async function getAdminStats() {
     .order("created_at", { ascending: false })
     .limit(5);
 
-  // Get emails from auth.users for orders with user_id
+  // ✅ OPTIMIZED: Batch fetch all user emails at once instead of N+1 queries
+  const userIds = (recentOrders || [])
+    .filter((order) => order.user_id)
+    .map((order) => order.user_id!);
+
+  // Fetch all users in a single batch request
+  const userEmailMap = new Map<string, string>();
+  if (userIds.length > 0) {
+    const {
+      data: { users },
+    } = await adminClient.auth.admin.listUsers();
+    users?.forEach((user) => {
+      if (userIds.includes(user.id)) {
+        userEmailMap.set(user.id, user.email || "");
+      }
+    });
+  }
+
+  // Map emails to orders
   const ordersWithEmails: Array<{
     id: string;
     created_at: string;
@@ -51,17 +76,10 @@ async function getAdminStats() {
     guest_email: string | null;
     user_id: string | null;
     userEmail?: string;
-  }> = await Promise.all(
-    (recentOrders || []).map(async (order) => {
-      if (order.user_id) {
-        const {
-          data: { user },
-        } = await adminClient.auth.admin.getUserById(order.user_id);
-        return { ...order, userEmail: user?.email };
-      }
-      return order;
-    })
-  );
+  }> = (recentOrders || []).map((order) => ({
+    ...order,
+    userEmail: order.user_id ? userEmailMap.get(order.user_id) : undefined,
+  }));
 
   return {
     totalProducts: totalProducts || 0,

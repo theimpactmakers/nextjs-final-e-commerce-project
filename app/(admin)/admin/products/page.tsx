@@ -10,6 +10,9 @@ import {
 } from "lucide-react";
 import { ProductDeleteButton } from "./ProductDeleteButton";
 
+// Cache for 5 minutes - products don't change frequently
+export const revalidate = 300;
+
 async function getProducts(
   page: number = 1,
   perPage: number = 25,

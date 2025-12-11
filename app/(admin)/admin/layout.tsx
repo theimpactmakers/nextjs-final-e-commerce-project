@@ -11,6 +11,9 @@ import {
 } from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
 
+// Force dynamic rendering for admin pages (always fresh auth checks)
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({
   children,
 }: {
