@@ -3,6 +3,7 @@ import Link from "next/link";
 import AdultProductListClient from "@/components/AdultProductListClient";
 import { BestsellerCarousel } from "@/components/BestsellerCarouselWrapper";
 import { getProductsByAge } from "@/lib/supabase/products-optimized";
+import Image from "next/image";
 
 export const revalidate = 60;
 
@@ -51,18 +52,23 @@ async function AdultContent({
     if (!products || products.length === 0) {
       return (
         <div className="container max-w-7xl mx-auto px-4 py-8">
-          <div className="mb-12 bg-linear-to-r from-green-50 to-green-100 rounded-xl p-8 md:p-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-green-900">
-              Hundefutter für Adult
-            </h1>
-            <p className="text-lg text-green-800 max-w-2xl">
-              Premium-Ernährung für deinen erwachsenen Hund. Energie, Vitalität
-              und Gesundheit in jedem Bissen.
-            </p>
+          <div className="mb-12 rounded-xl overflow-hidden flex justify-center items-center bg-white">
+            <Image
+              src="/images/banners/adultbanner.svg"
+              alt="Adult Hundefutter Banner"
+              className="w-full h-auto object-cover"
+              style={{ maxHeight: 320 }}
+              width={1200}
+              height={320}
+              priority
+            />
           </div>
           <div className="text-center py-16">
             <p className="text-xl text-muted-foreground mb-4">
               Keine Produkte gefunden
+            </p>
+            <p className="text-red-600">
+              Produkte konnten nicht geladen werden.
             </p>
             <Link
               href="/adult"
@@ -77,20 +83,11 @@ async function AdultContent({
 
     return (
       <div className="container max-w-7xl mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="mb-12 bg-linear-to-r from-green-50 to-green-100 rounded-xl p-8 md:p-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-green-900">
-            Hundefutter für Adult
-          </h1>
-          <p className="text-lg text-green-800 max-w-2xl">
-            Premium-Ernährung für deinen erwachsenen Hund. Energie, Vitalität
-            und Gesundheit in jedem Bissen.
-          </p>
-        </div>
-
         {/* Bestseller Slider */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">Unsere Adult Bestseller</h2>
+        <div className="mb-8">
+          <h2 className="text-3xl text-center font-bold mb-6">
+            Unsere Adult Bestseller
+          </h2>
           <Suspense
             fallback={
               <div className="flex gap-4 overflow-hidden">
@@ -107,29 +104,18 @@ async function AdultContent({
             <BestsellerCarousel ageGroup="ADULT" />
           </Suspense>
         </div>
-
-        {/* Info Section */}
-        <div className="mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg border shadow-md hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-semibold mb-2">⚡ Optimale Energie</h3>
-            <p className="text-gray-600">
-              Ausgewogenes Verhältnis von Proteinen und Fetten für Aktivität
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg border shadow-md hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-semibold mb-2">🦴 Starke Knochen</h3>
-            <p className="text-gray-600">
-              Calcium und Phosphor für langfristige Gesundheit
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg border shadow-md hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-semibold mb-2">✨ Glänzendes Fell</h3>
-            <p className="text-gray-600">
-              Omega-3 und Omega-6 für gesunde Haut und Fell
-            </p>
-          </div>
+        {/* Hero Section: Banner */}
+        <div className="mb-8 rounded-xl overflow-hidden flex justify-center items-center bg-white">
+          <Image
+            src="/images/banners/adultbanner.svg"
+            alt="Adult Hundefutter Banner"
+            className="w-full h-auto object-cover"
+            style={{ maxHeight: 320 }}
+            width={1200}
+            height={320}
+            priority
+          />
         </div>
-
         {/* Filter & Products */}
         <div>
           <h2 className="text-3xl font-bold mb-6">Alle Adult Produkte</h2>

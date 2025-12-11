@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import JuniorProductListClient from "@/components/JuniorProductListClient";
 import { BestsellerCarousel } from "@/components/BestsellerCarouselWrapper";
 import { getProductsByAge } from "@/lib/supabase/products-optimized";
+import Image from "next/image";
 
 export const revalidate = 60;
 
@@ -59,20 +60,11 @@ async function JuniorContent({
 
     return (
       <div className="container max-w-7xl mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="mb-12 bg-linear-to-r from-blue-50 to-blue-100 rounded-xl p-8 md:p-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-blue-900">
-            Hundefutter für Junior
-          </h1>
-          <p className="text-lg text-blue-800 max-w-2xl">
-            Speziell entwickelt für wachsende Welpen. Alles, was dein Junior für
-            eine gesunde Entwicklung braucht.
-          </p>
-        </div>
-
         {/* Bestseller Slider */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">Unsere Junior Bestseller</h2>
+        <div className="mb-8">
+          <h2 className="text-3xl text-center font-bold mb-6">
+            Unsere Junior Bestseller
+          </h2>
           <Suspense
             fallback={
               <div className="flex gap-4 overflow-hidden">
@@ -89,33 +81,23 @@ async function JuniorContent({
             <BestsellerCarousel ageGroup="JUNIOR" />
           </Suspense>
         </div>
-
-        {/* Info Section */}
-        <div className="mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg border shadow-md hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-semibold mb-2">
-              👶 Optimale Zusammensetzung
-            </h3>
-            <p className="text-gray-600">
-              Hochwertige Proteine und Vitamine für optimales Wachstum
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg border shadow-md hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-semibold mb-2">🦷 Zahnentwicklung</h3>
-            <p className="text-gray-600">
-              Spezielle Nährstoffe unterstützen das Knochenwachstum
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg border shadow-md hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-semibold mb-2">💪 Immunsystem</h3>
-            <p className="text-gray-600">
-              Antioxidantien für ein starkes Immunsystem von Anfang an
-            </p>
-          </div>
+        {/* Hero Section: Banner */}
+        <div className="mb-8 rounded-xl overflow-hidden flex justify-center items-center bg-white">
+          <Image
+            src="/images/banners/seniorbanner.svg"
+            alt="Junior Hundefutter Banner"
+            className="w-full h-auto object-cover"
+            style={{ maxHeight: 320 }}
+            width={1200}
+            height={320}
+            priority
+          />
         </div>
-
-        {/* Filter, Sortierung & Produktkarten wie im Shop */}
-        <JuniorProductListClient products={productsWithVariants} />
+        {/* Filter & Products */}
+        <div>
+          <h2 className="text-3xl font-bold mb-6">Alle Junior Produkte</h2>
+          <JuniorProductListClient products={productsWithVariants} />
+        </div>
       </div>
     );
   } catch (error) {
