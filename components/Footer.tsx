@@ -122,7 +122,7 @@ function NewsletterSection() {
           {/* Bild - auf mobil unten, auf desktop links mit überstehenden Kopf */}
           <div className="order-2 md:order-1 shrink-0 relative w-[140px] sm:w-40 md:w-[300px] lg:w-[360px] h-[140px] sm:h-40 md:h-[360px] lg:h-[420px] mb-0 md:self-end overflow-visible">
             <Image
-              src="/images/footer-dogs.png"
+              src="/images/footer-dogs.webp"
               alt="Hunde"
               fill
               sizes="(max-width: 640px) 140px, (max-width: 768px) 160px, (max-width: 1024px) 300px, 360px"

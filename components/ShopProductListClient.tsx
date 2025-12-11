@@ -55,8 +55,10 @@ function sortProducts(products: ProductWithVariants[], sort: string) {
 
 export default function ShopProductListClient({
   products,
+  ageContext,
 }: {
   products: ProductWithVariants[];
+  ageContext?: "junior" | "adult" | "senior" | "promotions" | "specials";
 }) {
   const [sort, setSort] = useState("newest");
   const sortedProducts = useMemo(
@@ -66,16 +68,14 @@ export default function ShopProductListClient({
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2 min-h-16">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
         <div className="flex-1">
-          <FilterPanel />
+          <FilterPanel currentAge={ageContext} />
         </div>
-        <div className="flex-none pt-4 sm:pt-0">
+        <div className="flex-none">
           <SortDropdown value={sort} onChange={setSort} />
         </div>
       </div>
-      {/* Aktive Filter-Tags immer unterhalb, damit die Höhe oben gleich bleibt */}
-      {/* ...existing code... */}
       {sortedProducts && sortedProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {sortedProducts.map((p) => (

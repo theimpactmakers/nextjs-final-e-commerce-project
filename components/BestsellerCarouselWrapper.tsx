@@ -8,6 +8,7 @@ type ProductWithImage =
 
 interface BestsellerCarouselProps {
   ageGroup?: "JUNIOR" | "ADULT" | "SENIOR";
+  specialsOnly?: boolean;
 }
 
 /**
@@ -15,7 +16,7 @@ interface BestsellerCarouselProps {
  * Prevents duplicate requests within the same render cycle
  */
 const getBestsellerProducts = cache(
-  async (ageGroup?: "JUNIOR" | "ADULT" | "SENIOR") => {
+  async (ageGroup?: "JUNIOR" | "ADULT" | "SENIOR", specialsOnly?: boolean) => {
     // Anonymous client for public data (enables ISR/SSG)
     const supabase = createClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,7 +26,7 @@ const getBestsellerProducts = cache(
       }
     );
 
-    // Optimized query: Filter bestsellers first, then by age group
+    // Optimized query: Filter bestsellers first, then by age group or specials
     let query = supabase
       .from("products_with_primary_image")
       .select("*")
@@ -35,6 +36,10 @@ const getBestsellerProducts = cache(
 
     if (ageGroup) {
       query = query.eq("age_group", ageGroup);
+    }
+
+    if (specialsOnly) {
+      query = query.not("specials", "is", null);
     }
 
     const { data, error } = await query;
@@ -51,7 +56,7 @@ const getBestsellerProducts = cache(
  * - Anonymous Supabase client (no cookies, allows ISR/SSG)
  * - Type-safe with Database types
  * - Error boundaries for graceful error handling
- * 
+ *
  * Usage: Wrap in <Suspense> for streaming:
  * <Suspense fallback={<LoadingSkeleton />}>
  *   <BestsellerCarousel />
@@ -59,9 +64,10 @@ const getBestsellerProducts = cache(
  */
 export async function BestsellerCarousel({
   ageGroup,
+  specialsOnly,
 }: BestsellerCarouselProps = {}) {
   try {
-    const products = await getBestsellerProducts(ageGroup);
+    const products = await getBestsellerProducts(ageGroup, specialsOnly);
 
     if (!products || products.length === 0) {
       return (
@@ -72,7 +78,7 @@ export async function BestsellerCarousel({
     }
 
     return <BestsellerCarouselClient products={products} />;
-  } catch (error) {
+  } catch {
     // Error boundary will catch this in production
     return (
       <div className="text-center py-8 text-muted-foreground">

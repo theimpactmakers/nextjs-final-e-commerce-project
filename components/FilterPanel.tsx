@@ -16,7 +16,7 @@ interface FilterGroup {
 }
 
 interface FilterPanelProps {
-  currentAge?: "junior" | "adult" | "senior" | "promotions";
+  currentAge?: "junior" | "adult" | "senior" | "promotions" | "specials";
 }
 
 const MEAT_OPTIONS: FilterOption[] = [
@@ -34,6 +34,13 @@ const AGE_OPTIONS: FilterOption[] = [
   { label: "Junior", value: "junior" },
   { label: "Adult", value: "adult" },
   { label: "Senior", value: "senior" },
+];
+
+const SPECIAL_OPTIONS: FilterOption[] = [
+  { label: "Diätfutter", value: "diat" },
+  { label: "Hypoallergen", value: "hypoallergen" },
+  { label: "Darmgesundheit", value: "darm" },
+  { label: "Gelenkfit", value: "gelenk" },
 ];
 
 export function FilterPanel({ currentAge }: FilterPanelProps) {
@@ -55,6 +62,19 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
             id: "age",
             label: "Altersgruppe",
             options: AGE_OPTIONS,
+          },
+          {
+            id: "meat",
+            label: "Fleischsorte",
+            options: MEAT_OPTIONS,
+          },
+        ]
+      : currentAge === "specials"
+      ? [
+          {
+            id: "special",
+            label: "Spezialfutter",
+            options: SPECIAL_OPTIONS,
           },
           {
             id: "meat",
@@ -91,6 +111,12 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
     }
     if (searchParams.get("age")) {
       filters["age"] = searchParams.get("age")!.split(",").filter(Boolean);
+    }
+    if (searchParams.get("special")) {
+      filters["special"] = searchParams
+        .get("special")!
+        .split(",")
+        .filter(Boolean);
     }
     setSelectedFilters(filters);
   }, [searchParams]);
@@ -136,10 +162,10 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
     }
 
     newFilters[groupId] = updated;
-    
+
     // Update state
     setSelectedFilters(newFilters);
-    
+
     // Close dropdown after selection
     setOpenDropdowns((prev) => ({
       ...prev,
@@ -163,6 +189,18 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
       }
       const queryString = params.toString();
       router.push(queryString ? `/promotions?${queryString}` : "/promotions", {
+        scroll: false,
+      });
+    } else if (currentAge === "specials") {
+      // On specials page, navigate with special and meat filters
+      if (filters["special"]?.length > 0) {
+        params.set("special", filters["special"].join(","));
+      }
+      if (filters["meat"]?.length > 0) {
+        params.set("meat", filters["meat"].join(","));
+      }
+      const queryString = params.toString();
+      router.push(queryString ? `/specials?${queryString}` : "/specials", {
         scroll: false,
       });
     } else if (currentAge) {
@@ -194,6 +232,8 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
     setSelectedFilters({});
     if (currentAge === "promotions") {
       router.push("/promotions", { scroll: false });
+    } else if (currentAge === "specials") {
+      router.push("/specials", { scroll: false });
     } else if (currentAge) {
       router.push(`/${currentAge}`, { scroll: false });
     } else {
