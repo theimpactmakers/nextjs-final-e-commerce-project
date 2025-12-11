@@ -47,7 +47,9 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
-  const supabase = createClient();
+
+  // ✅ Memoize supabase client to prevent recreation on every render
+  const supabase = useMemo(() => createClient(), []);
 
   // Load profile
   const refreshProfile = useCallback(async () => {
@@ -274,7 +276,18 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       refreshProfile,
       refreshAddresses,
     }),
-    [profile, addresses, isLoading, updateProfile, createAddress, updateAddress, deleteAddress, setDefaultAddress, refreshProfile, refreshAddresses]
+    [
+      profile,
+      addresses,
+      isLoading,
+      updateProfile,
+      createAddress,
+      updateAddress,
+      deleteAddress,
+      setDefaultAddress,
+      refreshProfile,
+      refreshAddresses,
+    ]
   );
 
   return (

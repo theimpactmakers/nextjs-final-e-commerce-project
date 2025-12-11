@@ -2,6 +2,9 @@ import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { Mail, Calendar, ShoppingBag, Search, Eye } from "lucide-react";
 import Link from "next/link";
 
+// Cache for 3 minutes
+export const revalidate = 180;
+
 async function getCustomers(
   page: number = 1,
   perPage: number = 25,
@@ -29,13 +32,11 @@ async function getCustomers(
   const from = (page - 1) * perPage;
   const to = from + perPage - 1;
 
-  // Get total count for pagination
-  const { count } = await adminClient
+  // ✅ OPTIMIZED: Server-side search using database query (much faster)
+  let countQuery = adminClient
     .from("profiles")
     .select("*", { count: "exact", head: true });
-
-  // Get profiles with order count
-  const { data: profiles } = await adminClient
+  let dataQuery = adminClient
     .from("profiles")
     .select(
       `
@@ -43,20 +44,45 @@ async function getCustomers(
       orders(count)
     `
     )
-    .order("created_at", { ascending: false })
-    .range(from, to);
+    .order("created_at", { ascending: false });
 
-  // Get emails from auth.users for each profile
-  const profilesWithEmails = await Promise.all(
-    (profiles || []).map(async (profile) => {
-      const {
-        data: { user },
-      } = await adminClient.auth.admin.getUserById(profile.id);
-      return { ...profile, email: user?.email || "" };
-    })
-  );
+  // Apply server-side search filter if provided
+  if (search) {
+    const searchPattern = `%${search}%`;
+    countQuery = countQuery.or(
+      `first_name.ilike.${searchPattern},last_name.ilike.${searchPattern}`
+    );
+    dataQuery = dataQuery.or(
+      `first_name.ilike.${searchPattern},last_name.ilike.${searchPattern}`
+    );
+  }
 
-  // Apply client-side search filter if provided
+  const [{ count }, { data: profiles }] = await Promise.all([
+    countQuery,
+    dataQuery.range(from, to),
+  ]);
+
+  // ✅ OPTIMIZED: Batch fetch all user emails instead of N+1 queries
+  const userIds = (profiles || []).map((profile) => profile.id);
+  const userEmailMap = new Map<string, string>();
+
+  if (userIds.length > 0) {
+    const {
+      data: { users },
+    } = await adminClient.auth.admin.listUsers();
+    users?.forEach((user) => {
+      if (userIds.includes(user.id)) {
+        userEmailMap.set(user.id, user.email || "");
+      }
+    });
+  }
+
+  const profilesWithEmails = (profiles || []).map((profile) => ({
+    ...profile,
+    email: userEmailMap.get(profile.id) || "",
+  }));
+
+  // ✅ OPTIMIZED: If searching by email, filter after email mapping
   let filteredProfiles = profilesWithEmails;
   if (search) {
     const searchLower = search.toLowerCase();

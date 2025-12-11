@@ -10,6 +10,9 @@ import {
 import Link from "next/link";
 import { OrderStatusSelect, PaymentStatusSelect } from "./OrderStatusSelects";
 
+// Cache for 2 minutes - orders need more frequent updates than dashboard
+export const revalidate = 120;
+
 async function getOrders(page: number = 1, perPage: number = 25) {
   const supabase = await createClient();
   const adminClient = createServiceRoleClient();
@@ -17,34 +20,42 @@ async function getOrders(page: number = 1, perPage: number = 25) {
   const from = (page - 1) * perPage;
   const to = from + perPage - 1;
 
-  // Get total count
-  const { count } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true });
-
-  const { data: orders } = await supabase
-    .from("orders")
-    .select(
+  // Get total count and data in parallel
+  const [{ count }, { data: orders }] = await Promise.all([
+    supabase.from("orders").select("*", { count: "exact", head: true }),
+    supabase
+      .from("orders")
+      .select(
+        `
+        *,
+        profiles!user_id(first_name, last_name)
       `
-      *,
-      profiles!user_id(first_name, last_name)
-    `
-    )
-    .order("created_at", { ascending: false })
-    .range(from, to);
+      )
+      .order("created_at", { ascending: false })
+      .range(from, to),
+  ]);
 
-  // Get user emails from auth.users for each order
-  const ordersWithEmails = await Promise.all(
-    (orders || []).map(async (order) => {
-      if (order.user_id) {
-        const {
-          data: { user },
-        } = await adminClient.auth.admin.getUserById(order.user_id);
-        return { ...order, userEmail: user?.email };
+  // ✅ OPTIMIZED: Batch fetch all user emails instead of N+1 queries
+  const userIds = (orders || [])
+    .filter((order) => order.user_id)
+    .map((order) => order.user_id!);
+
+  const userEmailMap = new Map<string, string>();
+  if (userIds.length > 0) {
+    const {
+      data: { users },
+    } = await adminClient.auth.admin.listUsers();
+    users?.forEach((user) => {
+      if (userIds.includes(user.id)) {
+        userEmailMap.set(user.id, user.email || "");
       }
-      return order;
-    })
-  );
+    });
+  }
+
+  const ordersWithEmails = (orders || []).map((order) => ({
+    ...order,
+    userEmail: order.user_id ? userEmailMap.get(order.user_id) : undefined,
+  }));
 
   return {
     orders: ordersWithEmails || [],

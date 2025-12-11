@@ -25,6 +25,7 @@ const nextConfig: NextConfig = {
         hostname: "imgur.com",
       },
     ],
+    qualities: [75, 90],
   },
   // Cache-Headers für statische Assets und API-Routen
   async headers() {

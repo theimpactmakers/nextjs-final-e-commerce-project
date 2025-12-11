@@ -2,19 +2,55 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
-import { ProfileSection } from "@/components/profile/ProfileSection";
-import { AddressesSection } from "@/components/profile/AddressesSection";
-import { WishlistSection } from "@/components/profile/WishlistSection";
-import { OrdersSection } from "@/components/profile/OrdersSection";
+import { useEffect, useState, Suspense, lazy } from "react";
+
+// ✅ Lazy load tab components for better performance (code splitting)
+const ProfileSection = lazy(() =>
+  import("@/components/profile/ProfileSection").then((m) => ({
+    default: m.ProfileSection,
+  }))
+);
+const AddressesSection = lazy(() =>
+  import("@/components/profile/AddressesSection").then((m) => ({
+    default: m.AddressesSection,
+  }))
+);
+const WishlistSection = lazy(() =>
+  import("@/components/profile/WishlistSection").then((m) => ({
+    default: m.WishlistSection,
+  }))
+);
+const OrdersSection = lazy(() =>
+  import("@/components/profile/OrdersSection").then((m) => ({
+    default: m.OrdersSection,
+  }))
+);
+
+// Loading skeleton component
+function TabLoadingSkeleton() {
+  return (
+    <div className="bg-card rounded-xl border shadow-sm animate-pulse">
+      <div className="p-6 border-b border-border">
+        <div className="h-6 w-40 bg-gray-200 rounded mb-2"></div>
+        <div className="h-4 w-64 bg-gray-200 rounded"></div>
+      </div>
+      <div className="p-6 space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-16 bg-gray-100 rounded"></div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function UserProfileContent() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<
     "profile" | "addresses" | "wishlist" | "orders"
   >("profile");
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Read tab from URL parameter on mount
   useEffect(() => {
@@ -29,15 +65,18 @@ function UserProfileContent() {
     }
   }, [searchParams]);
 
+  // ✅ Improved auth check with redirect state to prevent hanging
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!authLoading && !user && !isRedirecting) {
+      setIsRedirecting(true);
       router.push(
         "/auth/login?message=Bitte melden Sie sich an um Ihr Profil zu sehen."
       );
     }
-  }, [user, isLoading, router]);
+  }, [user, authLoading, router, isRedirecting]);
 
-  if (isLoading) {
+  // ✅ Show loading only while auth is loading or redirecting
+  if (authLoading || isRedirecting) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -48,6 +87,7 @@ function UserProfileContent() {
     );
   }
 
+  // ✅ Early return if no user (should redirect via useEffect)
   if (!user) {
     return null;
   }
@@ -107,12 +147,14 @@ function UserProfileContent() {
         </nav>
       </div>
 
-      {/* Tab Content */}
+      {/* Tab Content - Only render active tab with Suspense boundary */}
       <div className="mt-6">
-        {activeTab === "profile" && <ProfileSection />}
-        {activeTab === "addresses" && <AddressesSection />}
-        {activeTab === "wishlist" && <WishlistSection />}
-        {activeTab === "orders" && <OrdersSection />}
+        <Suspense fallback={<TabLoadingSkeleton />}>
+          {activeTab === "profile" && <ProfileSection />}
+          {activeTab === "addresses" && <AddressesSection />}
+          {activeTab === "wishlist" && <WishlistSection />}
+          {activeTab === "orders" && <OrdersSection />}
+        </Suspense>
       </div>
     </div>
   );

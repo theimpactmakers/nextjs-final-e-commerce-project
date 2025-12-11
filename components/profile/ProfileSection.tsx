@@ -2,10 +2,11 @@
 
 import { useProfile } from "@/contexts/ProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import type { ProfileUpdateData } from "@/types/profile";
 
-export function ProfileSection() {
+// ✅ Memoize component to prevent unnecessary re-renders
+export const ProfileSection = memo(function ProfileSection() {
   const { profile, updateProfile, isLoading } = useProfile();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
@@ -231,4 +232,4 @@ export function ProfileSection() {
       </div>
     </div>
   );
-}
+});

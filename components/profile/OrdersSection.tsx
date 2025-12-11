@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Database } from "@/types/supabase";
@@ -17,7 +17,8 @@ interface ProductSlug {
   [productId: string]: string;
 }
 
-export function OrdersSection() {
+// ✅ Memoize to prevent unnecessary re-renders
+export const OrdersSection = memo(function OrdersSection() {
   const { user } = useAuth();
   const supabase = createClient();
   const [orders, setOrders] = useState<OrderWithItems[]>([]);
@@ -28,55 +29,66 @@ export function OrdersSection() {
   const [productSlugs, setProductSlugs] = useState<ProductSlug>({});
 
   useEffect(() => {
-    if (user) {
-      loadOrders();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+    let mounted = true;
 
-  const loadOrders = async () => {
-    if (!user) return;
+    const loadOrders = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
 
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select(`*, order_items (*)`)
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("orders")
+          .select(`*, order_items (*)`)
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setOrders((data as OrderWithItems[]) || []);
+        if (error) throw error;
 
-      // Load product slugs
-      if (data && data.length > 0) {
-        const productIds = Array.from(
-          new Set(
-            data.flatMap((order) =>
-              order.order_items.map((item: OrderItem) => item.product_id)
+        if (!mounted) return;
+
+        setOrders((data as OrderWithItems[]) || []);
+
+        // Load product slugs
+        if (data && data.length > 0) {
+          const productIds = Array.from(
+            new Set(
+              data.flatMap((order) =>
+                order.order_items.map((item: OrderItem) => item.product_id)
+              )
             )
-          )
-        );
+          );
 
-        const { data: products } = await supabase
-          .from("products")
-          .select("id, slug")
-          .in("id", productIds);
+          const { data: products } = await supabase
+            .from("products")
+            .select("id, slug")
+            .in("id", productIds);
 
-        if (products) {
-          const slugMap: ProductSlug = {};
-          products.forEach((product) => {
-            slugMap[product.id] = product.slug;
-          });
-          setProductSlugs(slugMap);
+          if (products && mounted) {
+            const slugMap: ProductSlug = {};
+            products.forEach((product) => {
+              slugMap[product.id] = product.slug;
+            });
+            setProductSlugs(slugMap);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading orders:", error);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
         }
       }
-    } catch (error) {
-      console.error("Error loading orders:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+
+    loadOrders();
+
+    return () => {
+      mounted = false;
+    };
+  }, [user, supabase]);
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -330,4 +342,4 @@ export function OrdersSection() {
       )}
     </div>
   );
-}
+});

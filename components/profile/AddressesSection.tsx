@@ -1,13 +1,14 @@
 "use client";
 
 import { useProfile } from "@/contexts/ProfileContext";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { AddressForm } from "./AddressForm";
 import { AddressCard } from "./AddressCard";
 
 const MAX_ADDRESSES_PER_TYPE = 1;
 
-export function AddressesSection() {
+// ✅ Memoize to prevent unnecessary re-renders
+export const AddressesSection = memo(function AddressesSection() {
   const { addresses, isLoading } = useProfile();
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<string | null>(null);
@@ -170,4 +171,4 @@ export function AddressesSection() {
       </div>
     </div>
   );
-}
+});

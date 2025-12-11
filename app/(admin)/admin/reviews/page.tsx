@@ -2,6 +2,9 @@ import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { Star, CheckCircle, XCircle, Clock } from "lucide-react";
 import { ReviewActions } from "./ReviewActions";
 
+// Cache for 2 minutes
+export const revalidate = 120;
+
 async function getReviews() {
   const supabase = await createClient();
   const adminClient = createServiceRoleClient();
@@ -17,15 +20,25 @@ async function getReviews() {
     )
     .order("created_at", { ascending: false });
 
-  // Get emails from auth.users for each review
-  const reviewsWithEmails = await Promise.all(
-    (reviews || []).map(async (review) => {
-      const {
-        data: { user },
-      } = await adminClient.auth.admin.getUserById(review.user_id);
-      return { ...review, userEmail: user?.email };
-    })
-  );
+  // ✅ OPTIMIZED: Batch fetch all user emails instead of N+1 queries
+  const userIds = (reviews || []).map((review) => review.user_id);
+  const userEmailMap = new Map<string, string>();
+
+  if (userIds.length > 0) {
+    const {
+      data: { users },
+    } = await adminClient.auth.admin.listUsers();
+    users?.forEach((user) => {
+      if (userIds.includes(user.id)) {
+        userEmailMap.set(user.id, user.email || "");
+      }
+    });
+  }
+
+  const reviewsWithEmails = (reviews || []).map((review) => ({
+    ...review,
+    userEmail: userEmailMap.get(review.user_id),
+  }));
 
   return reviewsWithEmails || [];
 }
