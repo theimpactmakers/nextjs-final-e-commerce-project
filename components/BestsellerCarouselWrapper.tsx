@@ -9,6 +9,7 @@ type ProductWithImage =
 interface BestsellerCarouselProps {
   ageGroup?: "JUNIOR" | "ADULT" | "SENIOR";
   specialsOnly?: boolean;
+  specialType?: "DIAT" | "HYPOALLERGEN" | "DARM" | "GELENK";
 }
 
 /**
@@ -16,7 +17,11 @@ interface BestsellerCarouselProps {
  * Prevents duplicate requests within the same render cycle
  */
 const getBestsellerProducts = cache(
-  async (ageGroup?: "JUNIOR" | "ADULT" | "SENIOR", specialsOnly?: boolean) => {
+  async (
+    ageGroup?: "JUNIOR" | "ADULT" | "SENIOR",
+    specialsOnly?: boolean,
+    specialType?: "DIAT" | "HYPOALLERGEN" | "DARM" | "GELENK"
+  ) => {
     // Anonymous client for public data (enables ISR/SSG)
     const supabase = createClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,6 +47,10 @@ const getBestsellerProducts = cache(
       query = query.not("specials", "is", null);
     }
 
+    if (specialType) {
+      query = query.eq("specials", specialType);
+    }
+
     const { data, error } = await query;
 
     if (error) throw error;
@@ -65,9 +74,14 @@ const getBestsellerProducts = cache(
 export async function BestsellerCarousel({
   ageGroup,
   specialsOnly,
+  specialType,
 }: BestsellerCarouselProps = {}) {
   try {
-    const products = await getBestsellerProducts(ageGroup, specialsOnly);
+    const products = await getBestsellerProducts(
+      ageGroup,
+      specialsOnly,
+      specialType
+    );
 
     if (!products || products.length === 0) {
       return (

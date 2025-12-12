@@ -139,6 +139,22 @@ async function SpecialsContent({
       };
     }) || [];
 
+  // Map filter value to DB enum value for carousel
+  const specialTypeMap: Record<
+    string,
+    "DIAT" | "HYPOALLERGEN" | "DARM" | "GELENK"
+  > = {
+    diat: "DIAT",
+    hypoallergen: "HYPOALLERGEN",
+    darm: "DARM",
+    gelenk: "GELENK",
+  };
+
+  // Get first special type from filter (if multiple selected, use first one for carousel)
+  const carouselSpecialType = specialFilter
+    ? specialTypeMap[specialFilter.split(",")[0].trim().toLowerCase()]
+    : undefined;
+
   return (
     <>
       {/* Bestseller Carousel */}
@@ -159,7 +175,10 @@ async function SpecialsContent({
             </div>
           }
         >
-          <BestsellerCarousel specialsOnly={true} />
+          <BestsellerCarousel
+            specialsOnly={!carouselSpecialType}
+            specialType={carouselSpecialType}
+          />
         </Suspense>
       </div>
 
@@ -186,6 +205,10 @@ async function SpecialsContent({
           />
         </div>
       </section>
+
+      {/* Scroll Anchor for direct navigation to products */}
+      <div id="produkte" className="scroll-mt-20" />
+
       <div className="container max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">

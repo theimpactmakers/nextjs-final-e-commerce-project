@@ -465,7 +465,7 @@ export default function Header() {
                 <ul className="space-y-1 text-sm">
                   <li>
                     <Link
-                      href="/specials/darm"
+                      href="/specials?special=diat#produkte"
                       className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Diätfutter
@@ -473,7 +473,7 @@ export default function Header() {
                   </li>
                   <li>
                     <Link
-                      href="/specials/hypoallergen"
+                      href="/specials?special=hypoallergen#produkte"
                       className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Hypoallergen
@@ -481,7 +481,7 @@ export default function Header() {
                   </li>
                   <li>
                     <Link
-                      href="/specials/darmgesundheit"
+                      href="/specials?special=darm#produkte"
                       className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Darmgesundheit
@@ -489,7 +489,7 @@ export default function Header() {
                   </li>
                   <li>
                     <Link
-                      href="/specials/gelenk"
+                      href="/specials?special=gelenk#produkte"
                       className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Gelenkfit
@@ -1139,28 +1139,28 @@ export default function Header() {
               </Link>
               <div className="pl-3 space-y-1">
                 <Link
-                  href="/specials/diat"
+                  href="/specials?special=diat#produkte"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
                   Diätfutter
                 </Link>
                 <Link
-                  href="/specials/hypoallergen"
+                  href="/specials?special=hypoallergen#produkte"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
                   Hypoallergen
                 </Link>
                 <Link
-                  href="/specials/darmgesundheit"
+                  href="/specials?special=darm#produkte"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
                   Darmgesundheit
                 </Link>
                 <Link
-                  href="/specials/gelenkfit"
+                  href="/specials?special=gelenk#produkte"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
