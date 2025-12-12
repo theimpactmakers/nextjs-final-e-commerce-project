@@ -142,7 +142,7 @@ async function ShopContent({
         <div className="container max-w-7xl mx-auto px-4">
           {/* Desktop Banner */}
           <Image
-            src="/images/shopbanner.svg"
+            src="/images/shopbanner.webp"
             alt="Shop Banner"
             width={1600}
             height={300}
