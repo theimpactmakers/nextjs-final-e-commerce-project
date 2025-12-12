@@ -1,9 +1,10 @@
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
 export const revalidate = 604800; // 7 days
 
 export const metadata = {
   title: "Datenschutzerklärung | Elite Dog TREATS",
-  description: "Erfahren Sie, wie wir Ihre Daten schützen und verarbeiten. DSGVO-konforme Datenschutzerklärung.",
+  description:
+    "Erfahren Sie, wie wir Ihre Daten schützen und verarbeiten. DSGVO-konforme Datenschutzerklärung.",
 };
 
 export default function DatenschutzPage() {
@@ -15,10 +16,10 @@ export default function DatenschutzPage() {
         </h1>
 
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-8 border border-[hsl(var(--border))]">
+          <div>
             <div className="prose prose-lg max-w-none text-[hsl(var(--foreground))]">
-              <p className="text-sm text-[hsl(var(--muted-foreground))] mb-6">
-                Stand: November 2025
+              <p className="text-sm text-primary mb-6">
+                <strong>Stand:</strong> November 2025
               </p>
 
               <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-4">
@@ -100,9 +101,21 @@ export default function DatenschutzPage() {
                   <br />
                   Deutschland
                   <br />
-                  Telefon: +49 123 456789
+                  Telefon:{" "}
+                  <a
+                    href="tel:+49123456789"
+                    className="text-accent hover:underline"
+                  >
+                    +49 123 456789
+                  </a>
                   <br />
-                  E-Mail: info@elitedogtreats.de
+                  E-Mail:{" "}
+                  <a
+                    href="mailto:info@elitedogtreats.de"
+                    className="text-accent hover:underline"
+                  >
+                    info@elitedogtreats.de
+                  </a>
                 </p>
               </div>
 
@@ -159,15 +172,27 @@ export default function DatenschutzPage() {
                 an unsere Datenschutzbeauftragte:
               </p>
 
-              <div className="bg-[hsl(var(--secondary))] p-4 rounded-lg">
+              <div className=" bg-[hsl(var(--secondary))] p-4 rounded-lg">
                 <p>
-                  <strong>Datenschutzbeauftragte</strong>
+                  <strong>Herr Dog Lover</strong>
                   <br />
-                  Elite Dog TREATS GmbH
+                  <strong>EliteDogTREATS GmbH</strong>
                   <br />
-                  E-Mail: datenschutz@elitedogtreats.de
+                  <strong>E-Mail:</strong>{" "}
+                  <a
+                    href="mailto:abschlussprojekt321@gmail.com"
+                    className="text-accent hover:underline"
+                  >
+                    datenschutz@elitedogtreats.de
+                  </a>
                   <br />
-                  Telefon: +49 123 456789
+                  <strong>Telefon:</strong>{" "}
+                  <a
+                    href="tel:+49123456789"
+                    className="text-accent hover:underline"
+                  >
+                    +49 123 456789
+                  </a>
                 </p>
               </div>
             </div>
