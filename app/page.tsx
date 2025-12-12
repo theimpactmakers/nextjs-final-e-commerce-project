@@ -45,7 +45,6 @@ export default async function Home() {
               src="/images/categories/sale.svg"
               alt="Sale Background"
               fill
-              priority
               className="hidden md:block object-cover"
               style={{ zIndex: 1 }}
             />
@@ -53,7 +52,6 @@ export default async function Home() {
               src="/images/categories/salemobile.svg"
               alt="Sale Background Mobile"
               fill
-              priority
               className="md:hidden object-cover"
               style={{ zIndex: 1 }}
             />
@@ -95,7 +93,6 @@ export default async function Home() {
                   src="/images/categories/altersgruppen.svg"
                   alt="Altersgruppen"
                   fill
-                  priority
                   className="object-cover"
                 />
               </div>

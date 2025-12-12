@@ -381,9 +381,9 @@ export default function SingleProductView({
   };
 
   return (
-    <div className="space-y-8 sm:space-y-10 md:space-y-12 px-2 sm:px-4">
+    <div className="space-y-8 sm:space-y-10 md:space-y-12 px-2 sm:px-4 max-w-[1400px] mx-auto">
       {/* Main Product Section */}
-      <div className="grid grid-cols-1 md:grid-cols-[2fr_0.8fr] gap-6 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 md:gap-8">
         {/* Left: Image Gallery */}
         <div className="flex flex-col md:flex-row gap-4 md:gap-8">
           {/* Thumbnail Gallery - Left Side (desktop/tablet) */}
@@ -427,7 +427,7 @@ export default function SingleProductView({
           )}
 
           {/* Main Image - Responsive */}
-          <div className="relative w-full h-[220px] xs:h-[300px] sm:h-[420px] md:w-[640px] md:h-[600px] lg:w-[720px] lg:h-[720px] bg-muted rounded-lg overflow-hidden">
+          <div className="relative w-full h-[220px] xs:h-[300px] sm:h-[420px] md:h-[500px] lg:h-[600px] bg-muted rounded-lg overflow-hidden">
             <Image
               src={sortedImages[currentImageIndex].image_url}
               alt={
