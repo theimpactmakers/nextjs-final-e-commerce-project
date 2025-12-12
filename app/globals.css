@@ -492,3 +492,9 @@ input[type=number].hide-number-spin {
     max-width: 100vw !important;
   }
 }
+
+/* Contact page: Hide newsletter section */
+body:has(.contact-page-wrapper) section[class*="newsletter"],
+body:has(.contact-page-wrapper) section.w-full.relative {
+  display: none !important;
+}

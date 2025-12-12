@@ -438,7 +438,7 @@ export default function Footer() {
               {/* Logo Links - zentriert auf mobil */}
               <Link href="/" className="cursor-pointer order-1 md:order-0">
                 <Image
-                  src="/images/Logo_example_6.png"
+                  src="/images/Logo.webp"
                   alt="Elite Dog Treats"
                   width={180}
                   height={36}
