@@ -1,11 +1,12 @@
 import Button from "@/components/Button";
 
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
 export const revalidate = 86400; // 24 hours
 
 export const metadata = {
   title: "Häufig gestellte Fragen (FAQ) | Elite Dog TREATS",
-  description: "Antworten auf die wichtigsten Fragen zu unseren Hundeleckerlis: Haltbarkeit, Inhaltsstoffe, Allergien, Lieferung & mehr.",
+  description:
+    "Antworten auf die wichtigsten Fragen zu unseren Hundeleckerlis: Haltbarkeit, Inhaltsstoffe, Allergien, Lieferung & mehr.",
 };
 
 export default function FAQPage() {
@@ -65,7 +66,7 @@ export default function FAQPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-[hsl(var(--foreground))] mb-8 text-center">
+        <h1 className="text-4xl font-bold text-primary mb-8 text-center">
           Häufig gestellte Fragen
         </h1>
 
@@ -73,7 +74,7 @@ export default function FAQPage() {
           <div className="mb-8 text-center">
             <p className="text-xl text-[hsl(var(--muted-foreground))]">
               Hier finden Sie Antworten auf die am häufigsten gestellten Fragen
-              zu unseren Produkten und Dienstleistungen.
+              zu unseren Produkten.
             </p>
           </div>
 
@@ -81,31 +82,33 @@ export default function FAQPage() {
             {faqs.map((faq, index) => (
               <details
                 key={index}
-                className="bg-white rounded-lg shadow-md border border-[hsl(var(--border))] group"
+                className="bg-white rounded-lg shadow-md border border-gray-200/40 group transition-transform duration-300 hover:-translate-y-1"
               >
-                <summary className="cursor-pointer p-6 font-semibold text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors flex justify-between items-center">
+                <summary className="cursor-pointer p-6 font-semibold text-accent transition-colors flex justify-between items-center">
                   <span>{faq.question}</span>
-                  <span className="text-2xl group-open:rotate-45 transition-transform">
+                  <span className="text-2xl group-open:rotate-45 transition-all text-accent transform-105 group-hover:text-black">
                     +
                   </span>
                 </summary>
-                <div className="px-6 pb-6 text-[hsl(var(--muted-foreground))]">
-                  {faq.answer}
-                </div>
+                <div className="px-6 pb-6 text-[hsl(var(--muted-foreground))] ">{faq.answer}</div>
               </details>
             ))}
           </div>
 
           <div className="mt-12 bg-[hsl(var(--secondary))] rounded-lg p-8 text-center">
-            <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-4">
+            <h2 className="text-3xl font-bold text-primary mb-4">
               Haben Sie weitere Fragen?
             </h2>
-            <p className="text-[hsl(var(--muted-foreground))] mb-6">
-              Unsere Experten helfen Ihnen gerne weiter. Kontaktieren Sie uns
-              jederzeit.
+            <p className=" text-[hsl(var(--muted-foreground))] mb-6">
+              <strong>
+                Unsere Experten helfen Ihnen gerne weiter - Kontaktieren Sie uns
+                jederzeit.
+              </strong>
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="secondary">Kontakt aufnehmen</Button>
+              <Button variant="primary" href="/contact">
+                Kontakt aufnehmen
+              </Button>
               <Button variant="outline">Live Chat starten</Button>
             </div>
           </div>
