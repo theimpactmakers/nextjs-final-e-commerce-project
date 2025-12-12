@@ -77,6 +77,11 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
             options: SPECIAL_OPTIONS,
           },
           {
+            id: "age",
+            label: "Altersgruppe",
+            options: AGE_OPTIONS,
+          },
+          {
             id: "meat",
             label: "Fleischsorte",
             options: MEAT_OPTIONS,
@@ -192,9 +197,12 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
         scroll: false,
       });
     } else if (currentAge === "specials") {
-      // On specials page, navigate with special and meat filters
+      // On specials page, navigate with special, age and meat filters
       if (filters["special"]?.length > 0) {
         params.set("special", filters["special"].join(","));
+      }
+      if (filters["age"]?.length > 0) {
+        params.set("age", filters["age"].join(","));
       }
       if (filters["meat"]?.length > 0) {
         params.set("meat", filters["meat"].join(","));
