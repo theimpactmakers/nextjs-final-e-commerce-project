@@ -14,12 +14,12 @@ export default function FAQPage() {
     {
       question: "Sind Ihre Produkte für alle Hunderassen geeignet?",
       answer:
-        "Ja, unsere Leckerlis sind für alle Hunderassen geeignet. Wir empfehlen jedoch, die Portionsgrößen an die Größe Ihres Hundes anzupassen. Bei speziellen Ernährungsbedürfnissen oder Allergien beraten wir Sie gerne individuell.",
+        "Ja, unser Futter ist für alle Hunderassen geeignet. Wir empfehlen jedoch, die Portionsgrößen an die Größe Ihres Hundes anzupassen. Bei speziellen Ernährungsbedürfnissen oder Allergien beraten wir Sie gerne individuell.",
     },
     {
       question: "Wie lange sind die Leckerlis haltbar?",
       answer:
-        "Unsere Leckerlis haben eine Mindesthaltbarkeit von 12 Monaten ab Produktionsdatum. Nach dem Öffnen der Verpackung sollten sie innerhalb von 2-3 Monaten verbraucht werden. Lagern Sie sie kühl und trocken.",
+        "Unser Futter hat eine Mindesthaltbarkeit von 12 Monaten ab Produktionsdatum. Nach dem Öffnen der Verpackung sollten sie innerhalb von 2-3 Monaten verbraucht werden. Lagern Sie sie kühl und trocken.",
     },
     {
       question: "Enthalten Ihre Produkte Zucker oder künstliche Zusätze?",
