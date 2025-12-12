@@ -52,7 +52,53 @@ export default function SearchBar({
       try {
         const searchTerm = searchQuery.toLowerCase();
 
-        const { data, error } = await supabase
+        // Map search terms to enum values
+        const ageGroupMap: Record<string, string> = {
+          junior: "JUNIOR",
+          welpe: "JUNIOR",
+          junghund: "JUNIOR",
+          adult: "ADULT",
+          erwachsen: "ADULT",
+          senior: "SENIOR",
+          alt: "SENIOR",
+        };
+
+        const meatTypeMap: Record<string, string> = {
+          ente: "ENTE",
+          duck: "ENTE",
+          rind: "RIND",
+          beef: "RIND",
+          kaninchen: "KANINCHEN",
+          rabbit: "KANINCHEN",
+          lamm: "LAMM",
+          lamb: "LAMM",
+          pferd: "PFERD",
+          horse: "PFERD",
+          wild: "WILD",
+          lachs: "LACHS",
+          salmon: "LACHS",
+          huhn: "HUHN",
+          chicken: "HUHN",
+        };
+
+        const specialsMap: Record<string, string> = {
+          diat: "DIAT",
+          diät: "DIAT",
+          hypoallergen: "HYPOALLERGEN",
+          allergen: "HYPOALLERGEN",
+          darm: "DARM",
+          darmgesundheit: "DARM",
+          gelenk: "GELENK",
+          gelenkfit: "GELENK",
+        };
+
+        // Check if search term matches any enum values
+        const ageGroupMatch = ageGroupMap[searchTerm];
+        const meatTypeMatch = meatTypeMap[searchTerm];
+        const specialsMatch = specialsMap[searchTerm];
+
+        // Build query with basic search first
+        let query = supabase
           .from("products")
           .select(
             `
@@ -63,23 +109,107 @@ export default function SearchBar({
             age_group,
             meat_type,
             specials,
-            product_variants!inner(price),
+            product_variants(price),
             product_images(image_url, is_primary)
           `
           )
-          .ilike("name", `%${searchTerm}%`)
-          .limit(8);
+          .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+          .limit(50);
+
+        // Add enum filters if matches found
+        if (ageGroupMatch || meatTypeMatch || specialsMatch) {
+          const enumFilters = [];
+          if (ageGroupMatch) enumFilters.push(`age_group.eq.${ageGroupMatch}`);
+          if (meatTypeMatch) enumFilters.push(`meat_type.eq.${meatTypeMatch}`);
+          if (specialsMatch) enumFilters.push(`specials.eq.${specialsMatch}`);
+
+          if (enumFilters.length > 0) {
+            query = query.or(enumFilters.join(","));
+          }
+        }
+
+        const { data, error } = await query;
 
         if (error) {
           console.error("Search error:", error);
           setSearchResults([]);
+          setShowResults(false);
         } else {
-          setSearchResults(data || []);
+          // Filter out products without variants
+          let validProducts = (data || []).filter(
+            (p) => p.product_variants && p.product_variants.length > 0
+          );
+
+          // Try to fetch ingredients separately for matching products (non-blocking)
+          try {
+            const productIds = validProducts.map((p) => p.id);
+            if (productIds.length > 0) {
+              const { data: ingredientData } = await supabase
+                .from("product_ingredients")
+                .select(
+                  `
+                  product_id,
+                  ingredient:ingredients(name)
+                `
+                )
+                .in("product_id", productIds);
+
+              // Add products that match by ingredient
+              if (ingredientData) {
+                const matchingProductIds = ingredientData
+                  .filter((pi: any) =>
+                    pi.ingredient?.name?.toLowerCase().includes(searchTerm)
+                  )
+                  .map((pi: any) => pi.product_id);
+
+                // Add these products if not already included
+                if (matchingProductIds.length > 0) {
+                  const { data: additionalProducts } = await supabase
+                    .from("products")
+                    .select(
+                      `
+                      id,
+                      name,
+                      slug,
+                      description,
+                      age_group,
+                      meat_type,
+                      specials,
+                      product_variants(price),
+                      product_images(image_url, is_primary)
+                    `
+                    )
+                    .in("id", matchingProductIds)
+                    .limit(10);
+
+                  if (additionalProducts) {
+                    validProducts = [
+                      ...validProducts,
+                      ...additionalProducts,
+                    ].filter(
+                      (p) => p.product_variants && p.product_variants.length > 0
+                    );
+                  }
+                }
+              }
+            }
+          } catch (ingredientError) {
+            // Silently fail ingredient search - still show other results
+            console.warn("Ingredient search failed:", ingredientError);
+          }
+
+          // Remove duplicates and limit results
+          const uniqueProducts = Array.from(
+            new Map(validProducts.map((p) => [p.id, p])).values()
+          ).slice(0, 8);
+
+          setSearchResults(uniqueProducts);
           setShowResults(true);
         }
       } catch (error) {
         console.error("Search error:", error);
         setSearchResults([]);
+        setShowResults(false);
       } finally {
         setIsSearching(false);
       }
