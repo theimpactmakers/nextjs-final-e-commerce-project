@@ -493,7 +493,8 @@ input[type=number].hide-number-spin {
   }
 }
 
-/* Contact page: Match newsletter footer background to page background */
-.contact-page-wrapper ~ section .bg-primary {
-  background-color: #ede8df !important;
+/* Contact page: Hide newsletter section */
+body:has(.contact-page-wrapper) section[class*="newsletter"],
+body:has(.contact-page-wrapper) section.w-full.relative {
+  display: none !important;
 }

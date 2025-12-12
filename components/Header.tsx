@@ -168,7 +168,7 @@ export default function Header() {
             } logo-md-narrow`}
           >
             <Image
-              src="/images/Logo_example_6.png"
+              src="/images/Logo.webp"
               alt="Elite Tail Treats"
               width={120}
               height={48}
@@ -1053,7 +1053,7 @@ export default function Header() {
                 className="inline-flex items-center"
               >
                 <Image
-                  src="/images/Logo_example_6.png"
+                  src="/images/Logo.webp"
                   alt="Elite"
                   width={60}
                   height={18}
