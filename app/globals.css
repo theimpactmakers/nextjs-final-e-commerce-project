@@ -492,3 +492,8 @@ input[type=number].hide-number-spin {
     max-width: 100vw !important;
   }
 }
+
+/* Contact page: Match newsletter footer background to page background */
+.contact-page-wrapper ~ section .bg-primary {
+  background-color: #ede8df !important;
+}
