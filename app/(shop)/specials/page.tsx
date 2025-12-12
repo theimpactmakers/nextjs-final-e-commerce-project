@@ -36,7 +36,7 @@ function SpecialsLoading() {
 async function SpecialsContent({
   searchParams,
 }: {
-  searchParams: Promise<{ special?: string; meat?: string }>;
+  searchParams: Promise<{ special?: string; meat?: string; age?: string }>;
 }) {
   const supabase = createClient();
 
@@ -44,6 +44,7 @@ async function SpecialsContent({
   const params = await searchParams;
   const specialFilter = params.special;
   const meatFilter = params.meat;
+  const ageFilter = params.age;
 
   // Starte Query mit der View - nur Produkte mit specials-Werten
   let query = supabase
@@ -72,6 +73,13 @@ async function SpecialsContent({
     huhn: "HUHN",
   };
 
+  // Altersgruppen-Mapping (großgeschrieben wie in der DB)
+  const ageEnumValues: Record<string, string> = {
+    junior: "JUNIOR",
+    adult: "ADULT",
+    senior: "SENIOR",
+  };
+
   // Füge Filter hinzu - unterstützt mehrere Werte (kommagetrennt)
   if (specialFilter) {
     const specialValues = specialFilter
@@ -94,6 +102,17 @@ async function SpecialsContent({
 
     if (dbMeatValues.length > 0) {
       query = query.in("meat_type", dbMeatValues);
+    }
+  }
+
+  if (ageFilter) {
+    const ageValues = ageFilter.split(",").map((a) => a.trim().toLowerCase());
+    const dbAgeValues = ageValues
+      .map((a) => ageEnumValues[a])
+      .filter(Boolean);
+
+    if (dbAgeValues.length > 0) {
+      query = query.in("age_group", dbAgeValues);
     }
   }
 
@@ -236,7 +255,7 @@ async function SpecialsContent({
 export default async function SpecialsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ special?: string; meat?: string }>;
+  searchParams: Promise<{ special?: string; meat?: string; age?: string }>;
 }) {
   return (
     <Suspense fallback={<SpecialsLoading />}>
