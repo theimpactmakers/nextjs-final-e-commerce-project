@@ -79,7 +79,7 @@ export default function LieferzeitenPage() {
               </div>
             </div>
 
-            <div className="bg-accent/20 border border-accent rounded-lg p-4 mb-6">
+            <div className="bg-accent/10 border border-accent rounded-lg p-4 mb-6">
               <p className="text-accent text-sm">
                 <strong>* Expressversand:</strong> Bestellungen bis 12:00 Uhr
                 werden am nächsten Werktag geliefert.

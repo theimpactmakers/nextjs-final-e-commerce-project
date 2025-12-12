@@ -27,7 +27,7 @@ export default function RetourenPage() {
                   von Ihnen benannter Dritter die Ware in Besitz genommen haben.
                 </p>
 
-                <div className="border border-accent rounded-lg p-4">
+                <div className="border border-accent bg-accent/10 rounded-lg p-4">
                   <h4 className="font-semibold text-accent mb-2">
                     Kostenlose Rückgabe
                   </h4>
