@@ -1,5 +1,7 @@
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
 export const revalidate = 604800; // 7 days
+
+import Link from "next/link";
 
 export default function CookieeinstellungenPage() {
   return (
@@ -83,17 +85,21 @@ export default function CookieeinstellungenPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium">Notwendige Cookies</h4>
+                      <h4 className="font-medium text-primary">
+                        Notwendige Cookies
+                      </h4>
                       <p className="text-sm text-[hsl(var(--muted-foreground))]">
                         Immer aktiv - können nicht deaktiviert werden
                       </p>
                     </div>
-                    <div className="text-[hsl(var(--primary))]">✓ Aktiv</div>
+                    <div className="text-accent"><strong>✓ </strong>Aktiv</div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium">Funktionale Cookies</h4>
+                      <h4 className="font-medium text-primary">
+                        Funktionale Cookies
+                      </h4>
                       <p className="text-sm text-[hsl(var(--muted-foreground))]">
                         Verbessern Ihre Nutzererfahrung
                       </p>
@@ -105,7 +111,9 @@ export default function CookieeinstellungenPage() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium">Analyse-Cookies</h4>
+                      <h4 className="font-medium text-primary">
+                        Analyse-Cookies
+                      </h4>
                       <p className="text-sm text-[hsl(var(--muted-foreground))]">
                         Helfen uns die Website zu verbessern
                       </p>
@@ -117,10 +125,10 @@ export default function CookieeinstellungenPage() {
                 </div>
 
                 <div className="mt-6 flex gap-4">
-                  <button className="flex-1 px-4 py-2 bg-[hsl(var(--accent))] text-white rounded hover:bg-[hsl(var(--accent))]/90 transition-colors">
+                  <button className="flex-1 px-4 py-2 text-white rounded shadow-sm hover:bg-[hsl(var(--muted))] transition-colors cursor-pointer bg-accent border hover:text-black">
                     Alle akzeptieren
                   </button>
-                  <button className="flex-1 px-4 py-2 border border-[hsl(var(--border))] rounded hover:bg-[hsl(var(--muted))] transition-colors">
+                  <button className="flex-1 px-4 py-2  text-white rounded shadow-sm hover:bg-[hsl(var(--muted))] transition-colors cursor-pointer bg-primary border hover:text-black">
                     Nur notwendige
                   </button>
                 </div>
@@ -157,24 +165,24 @@ export default function CookieeinstellungenPage() {
               </h2>
               <p className="mb-4">
                 Weitere Informationen zum Datenschutz finden Sie in unserer{" "}
-                <a
+                <Link
                   href="/datenschutz"
                   className="text-[hsl(var(--accent))] hover:underline"
                 >
                   Datenschutzerklärung
-                </a>
+                </Link>
                 .
               </p>
 
               <p className="text-sm text-[hsl(var(--muted-foreground))] mt-8">
                 Bei Fragen zu unseren Cookie-Richtlinien kontaktieren Sie uns
                 bitte über unsere{" "}
-                <a
+                <Link
                   href="/contact"
-                  className="text-[hsl(var(--accent))] hover:underline"
+                  className="text-accent underline hover:text-black"
                 >
                   Kontaktseite
-                </a>
+                </Link>
                 .
               </p>
             </div>
