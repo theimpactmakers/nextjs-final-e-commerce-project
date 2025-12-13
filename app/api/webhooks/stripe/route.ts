@@ -123,7 +123,8 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
       .single();
 
     if (findError || !order) {
-      console.error("Order not found for payment intent:", paymentIntent.id);
+      console.error("❌ Order not found for payment intent:", paymentIntent.id);
+      console.error("Error:", findError);
       return;
     }
 

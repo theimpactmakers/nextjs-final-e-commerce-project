@@ -1,8 +1,11 @@
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { Package, ShoppingCart, Users, Euro } from "lucide-react";
+import { RevenueChart } from "@/components/admin/RevenueChart";
+import { OrderStatusChart } from "@/components/admin/OrderStatusChart";
+import { CategorySalesChart } from "@/components/admin/CategorySalesChart";
 
-// Cache for 5 minutes (300 seconds) - admin dashboard doesn't need real-time data
-export const revalidate = 300;
+// No cache - admin dashboard should show real-time data
+export const revalidate = 0;
 
 async function getAdminStats() {
   const supabase = await createClient();
@@ -19,17 +22,17 @@ async function getAdminStats() {
     supabase.from("products").select("*", { count: "exact", head: true }),
     supabase.from("orders").select("*", { count: "exact", head: true }),
     adminClient.from("profiles").select("*", { count: "exact", head: true }),
-    supabase.from("orders").select("total_amount, payment_status"),
+    supabase.from("orders").select("id, total_amount, payment_status"),
   ]);
 
-  // ✅ Calculate revenue from paid orders with proper numeric conversion
-  const totalRevenue =
-    orders
-      ?.filter((order) => order.payment_status === "paid")
-      .reduce(
-        (sum, order) => sum + (parseFloat(order.total_amount as string) || 0),
-        0
-      ) || 0;
+  // ✅ Calculate revenue from paid orders - total_amount is already a number
+  const paidOrders =
+    orders?.filter((order) => order.payment_status === "paid") || [];
+
+  const totalRevenue = paidOrders.reduce(
+    (sum, order) => sum + (Number(order.total_amount) || 0),
+    0
+  );
 
   // Recent orders
   const { data: recentOrders } = await supabase
@@ -81,12 +84,125 @@ async function getAdminStats() {
     userEmail: order.user_id ? userEmailMap.get(order.user_id) : undefined,
   }));
 
+  // Fetch all orders for charts
+  const { data: allOrders } = await supabase
+    .from("orders")
+    .select("created_at, total_amount, payment_status, status")
+    .order("created_at", { ascending: false });
+
+  // Calculate revenue by last 7 days
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    return date.toISOString().split("T")[0];
+  }).reverse();
+
+  const revenueByDay = last7Days.map((date) => {
+    const dayOrders =
+      allOrders?.filter((order) => order.created_at.split("T")[0] === date) ||
+      [];
+    const paidOrders = dayOrders.filter(
+      (order) => order.payment_status === "paid"
+    );
+    return {
+      date: new Date(date).toLocaleDateString("de-DE", {
+        month: "short",
+        day: "numeric",
+      }),
+      revenue: paidOrders.reduce(
+        (sum, order) => sum + Number(order.total_amount),
+        0
+      ),
+      orders: dayOrders.length,
+    };
+  });
+
+  // Calculate order status distribution
+  const statusCounts = {
+    pending: 0,
+    confirmed: 0,
+    processing: 0,
+    shipped: 0,
+    delivered: 0,
+    cancelled: 0,
+  };
+
+  allOrders?.forEach((order) => {
+    if (order.status in statusCounts) {
+      statusCounts[order.status as keyof typeof statusCounts]++;
+    }
+  });
+
+  const orderStatusData = [
+    { name: "Ausstehend", value: statusCounts.pending, color: "#fbbf24" },
+    { name: "Bestätigt", value: statusCounts.confirmed, color: "#3b82f6" },
+    {
+      name: "In Bearbeitung",
+      value: statusCounts.processing,
+      color: "#8b5cf6",
+    },
+    { name: "Versandt", value: statusCounts.shipped, color: "#06b6d4" },
+    { name: "Geliefert", value: statusCounts.delivered, color: "#10b981" },
+    { name: "Storniert", value: statusCounts.cancelled, color: "#ef4444" },
+  ].filter((item) => item.value > 0);
+
+  // Fetch category sales data - simplified approach
+  // Get all paid order IDs first
+  const paidOrderIds = paidOrders.map((order) => order.id);
+
+  // Fetch order items for paid orders only
+  const { data: orderItems } = await supabase
+    .from("order_items")
+    .select("product_id, total_price, order_id")
+    .in("order_id", paidOrderIds);
+
+  // Get products data
+  const productIds = [
+    ...new Set(orderItems?.map((item) => item.product_id) || []),
+  ];
+  const { data: products } = await supabase
+    .from("products")
+    .select("id, age_group")
+    .in("id", productIds);
+
+  // Create product lookup map
+  const productMap = new Map(products?.map((p) => [p.id, p.age_group]) || []);
+
+  const categoryData = {
+    JUNIOR: { revenue: 0, orders: new Set<string>() },
+    ADULT: { revenue: 0, orders: new Set<string>() },
+    SENIOR: { revenue: 0, orders: new Set<string>() },
+  };
+
+  orderItems?.forEach((item) => {
+    const ageGroup = productMap.get(item.product_id);
+    if (ageGroup && ageGroup in categoryData) {
+      categoryData[ageGroup as keyof typeof categoryData].revenue += Number(
+        item.total_price
+      );
+      categoryData[ageGroup as keyof typeof categoryData].orders.add(
+        item.order_id
+      );
+    }
+  });
+
+  const categorySalesData = Object.entries(categoryData).map(
+    ([key, value]) => ({
+      category: key,
+      revenue: value.revenue,
+      orders: value.orders.size,
+    })
+  );
+
   return {
     totalProducts: totalProducts || 0,
     totalOrders: totalOrders || 0,
     totalCustomers: totalCustomers || 0,
     totalRevenue,
     recentOrders: ordersWithEmails || [],
+    revenueByDay,
+    orderStatusData,
+    categorySalesData,
   };
 }
 
@@ -156,6 +272,16 @@ export default async function AdminDashboard() {
             </div>
           );
         })}
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <RevenueChart data={stats.revenueByDay} />
+        <OrderStatusChart data={stats.orderStatusData} />
+      </div>
+
+      <div className="grid gap-6">
+        <CategorySalesChart data={stats.categorySalesData} />
       </div>
 
       {/* Recent Orders */}

@@ -61,11 +61,9 @@ export default function RelatedProducts({
         if (idsError) throw idsError;
 
         if (!relatedIds || relatedIds.length === 0) {
-          console.log("No related products found for:", productId);
           setRelatedProducts([]);
           return;
         }
-        console.log("Found related products:", relatedIds.length);
         const productIds = relatedIds.map((r) => r.related_product_id);
 
         // Step 2: Batch fetch all data in parallel (3 optimized queries)
@@ -132,7 +130,6 @@ export default function RelatedProducts({
           })
           .filter((p): p is RelatedProduct => p !== null);
 
-        console.log("Built products:", products.length);
         setRelatedProducts(products);
       } catch (error) {
         console.error("Error fetching related products:", error);
