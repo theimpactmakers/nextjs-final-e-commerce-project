@@ -165,8 +165,7 @@ async function getNextQuestion(
         }
 
         return {
-          message:
-            "Perfekt! Hat Ihr Hund besondere Bedürfnisse oder Allergien?",
+          message: "Hat Ihr Hund besondere Bedürfnisse oder Allergien?",
           quickReplies: specialsQuickReplies,
         };
       }
@@ -246,6 +245,12 @@ async function getNextQuestion(
           HUHN: "🐔 Huhn",
         };
 
+        // Wenn nur eine Fleischsorte verfügbar ist, überspringe die Frage und return null
+        // Das Signal für den Hauptcode, direkt Produkte zu laden
+        if (availableMeatTypes.length === 1) {
+          return null; // Signal: Direkt Produkte laden
+        }
+
         // Erstelle Quick Replies nur für verfügbare Fleischsorten
         const meatQuickReplies: Array<{ label: string; value: string }> =
           availableMeatTypes
@@ -259,7 +264,7 @@ async function getNextQuestion(
         // Füge "Egal / Alle Sorten" hinzu, wenn mehrere Sorten verfügbar sind
         if (meatQuickReplies.length > 1) {
           meatQuickReplies.push({
-            label: "✨ Egal / Alle Sorten",
+            label: "Egal / Alle Sorten",
             value: "ALL",
           });
         }
@@ -333,48 +338,105 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Handle "BACK" - zurück zur Bedürfnis-Auswahl
+    if (context === "BACK") {
+      // Extrahiere die Altersgruppe aus der letzten Auswahl
+      const userMessages = messages.filter((m) => m.role === "user");
+      let ageCategory = "ADULT";
+      for (let i = userMessages.length - 1; i >= 0; i--) {
+        if (userMessages[i]?.content.includes("Junior")) {
+          ageCategory = "JUNIOR";
+          break;
+        } else if (userMessages[i]?.content.includes("Senior")) {
+          ageCategory = "SENIOR";
+          break;
+        } else if (userMessages[i]?.content.includes("Erwachsen")) {
+          ageCategory = "ADULT";
+          break;
+        }
+      }
+
+      // Lade verfügbare Bedürfnisse für die gewählte Altersgruppe
+      try {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+          .from("products")
+          .select("specials")
+          .eq("age_group", ageCategory);
+
+        if (!error && data && data.length > 0) {
+          const availableSpecials = [
+            ...new Set(
+              data
+                .map((item: { specials?: string }) => item.specials)
+                .filter(Boolean)
+            ),
+          ];
+
+          const specialsLabels: { [key: string]: string } = {
+            HYPOALLERGEN: "🌾 Getreidefrei/Hypoallergen",
+            DIAT: "🥗 Diät/Übergewicht",
+            DARM: "💚 Darmgesundheit",
+            GELENK: "🦴 Gelenkunterstützung",
+            NONE: "Keine besonderen Bedürfnisse",
+          };
+
+          const specialsQuickReplies: Array<{ label: string; value: string }> =
+            availableSpecials
+              .map((special) => ({
+                label: specialsLabels[special as string] || (special as string),
+                value: special as string,
+              }))
+              .filter((item) => item.label && item.value)
+              .sort((a, b) => {
+                if (a.value === "NONE") return 1;
+                if (b.value === "NONE") return -1;
+                return a.label.localeCompare(b.label);
+              });
+
+          if (!specialsQuickReplies.find((item) => item.value === "NONE")) {
+            specialsQuickReplies.push({
+              label: "Keine besonderen Bedürfnisse",
+              value: "NONE",
+            });
+          }
+
+          return NextResponse.json({
+            message: "Hat Ihr Hund besondere Bedürfnisse oder Allergien?",
+            quickReplies: specialsQuickReplies,
+          });
+        }
+      } catch (error) {
+        console.error("Error in BACK handler:", error);
+      }
+    }
+
     // Handle "MORE_PRODUCTS" - zeige weitere passende Produkte
     if (context === "MORE_PRODUCTS") {
-      // Extrahiere die ursprünglichen Auswahlkriterien aus der Message-History
+      // Extrahiere die LETZTEN Auswahlkriterien aus der Message-History
+      // Durchsuche rückwärts, um die neuesten Auswahlen zu finden
       const userMessages = messages.filter((m) => m.role === "user");
       if (userMessages.length >= 3) {
-        const ageCategory = userMessages[0]?.content.includes("Junior")
-          ? "JUNIOR"
-          : userMessages[0]?.content.includes("Senior")
-          ? "SENIOR"
-          : "ADULT";
-        const specialNeeds = userMessages[1]?.content.includes("Hypoallergen")
-          ? "HYPOALLERGEN"
-          : userMessages[1]?.content.includes("Diät")
-          ? "DIAT"
-          : userMessages[1]?.content.includes("Darm")
-          ? "DARM"
-          : userMessages[1]?.content.includes("Gelenk")
-          ? "GELENK"
-          : "NONE";
-        const meatType = userMessages[2]?.content.includes("Ente")
-          ? "ENTE"
-          : userMessages[2]?.content.includes("Rind")
-          ? "RIND"
-          : userMessages[2]?.content.includes("Kaninchen")
-          ? "KANINCHEN"
-          : userMessages[2]?.content.includes("Lamm")
-          ? "LAMM"
-          : userMessages[2]?.content.includes("Pferd")
-          ? "PFERD"
-          : userMessages[2]?.content.includes("Wild")
-          ? "WILD"
-          : userMessages[2]?.content.includes("Lachs")
-          ? "LACHS"
-          : userMessages[2]?.content.includes("Huhn")
-          ? "HUHN"
-          : "ALL";
+        // Finde die letzte Altersgruppen-Auswahl
+        let ageCategory = "ADULT";
+        for (let i = userMessages.length - 1; i >= 0; i--) {
+          if (userMessages[i]?.content.includes("Junior")) {
+            ageCategory = "JUNIOR";
+            break;
+          } else if (userMessages[i]?.content.includes("Senior")) {
+            ageCategory = "SENIOR";
+            break;
+          } else if (userMessages[i]?.content.includes("Erwachsen")) {
+            ageCategory = "ADULT";
+            break;
+          }
+        }
 
-        // Lade weitere Produkte mit denselben Kriterien
+        // Lade ALLE Produkte für die Altersgruppe (unabhängig von Fleischsorte oder Bedürfnissen)
         try {
           const supabase = await createClient();
 
-          let queryBuilder = supabase
+          const { data, error } = await supabase
             .from("products")
             .select(
               `
@@ -386,17 +448,7 @@ export async function POST(request: NextRequest) {
             )
             .eq("product_images.is_primary", true)
             .eq("age_group", ageCategory)
-            .limit(10);
-
-          if (meatType !== "ALL") {
-            queryBuilder = queryBuilder.eq("meat_type", meatType);
-          }
-
-          if (specialNeeds !== "NONE") {
-            queryBuilder = queryBuilder.eq("specials", specialNeeds);
-          }
-
-          const { data, error } = await queryBuilder;
+            .limit(20);
 
           if (!error && data && data.length > 0) {
             const moreProducts = data.map(
@@ -422,10 +474,11 @@ export async function POST(request: NextRequest) {
             );
 
             return NextResponse.json({
-              message: "Hier sind weitere passende Produkte für Ihren Hund:",
-              products: moreProducts.slice(0, 6),
+              message:
+                "Hier sind weitere Produkte für Ihren Hund aus unserer gesamten Auswahl:",
+              products: moreProducts.slice(0, 10),
               quickReplies: [
-                { label: "🔍 Weitere Produkte zeigen", value: "MORE_PRODUCTS" },
+                { label: "🔙 Zurück zur Auswahl", value: "BACK" },
                 { label: "✅ Beratung beenden", value: "END" },
               ],
             });
@@ -447,7 +500,18 @@ export async function POST(request: NextRequest) {
 
     // Prüfe ob strukturierte Befragung fortgesetzt werden soll (aber NICHT bei conversationLength === 3, da dort Produkte geladen werden)
     const nextQuestion = await getNextQuestion(messages, context);
-    if (nextQuestion && context && conversationLength !== 3) {
+
+    // Wenn nextQuestion null ist bei conversationLength === 2, bedeutet das: nur eine Fleischsorte verfügbar
+    // In diesem Fall direkt Produkte laden ohne Fleischsorten-Frage
+    const shouldLoadProductsDirectly =
+      conversationLength === 2 && nextQuestion === null;
+
+    if (
+      nextQuestion &&
+      context &&
+      conversationLength !== 3 &&
+      !shouldLoadProductsDirectly
+    ) {
       return NextResponse.json({
         message: nextQuestion.message,
         quickReplies: nextQuestion.quickReplies,
@@ -455,6 +519,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Produkte werden NUR nach der 3. Frage (Fleischsorte) angezeigt
+    // ODER nach der 2. Frage wenn nur eine Fleischsorte verfügbar ist
     let products: Product[] = [];
     let systemMessage = `Du bist ein freundlicher und kompetenter Shopping-Assistent für EliteDogTreats, einen Premium-Online-Shop für hochwertiges Hundetrockenfutter mit naturbelassenen Inhaltsstoffen. 
 
@@ -493,6 +558,7 @@ Spezialnahrung: Diät, Hypoallergen, Darm (Verdauung), Gelenk (Mobilität)`;
     // Sammle alle User-Antworten für die Filterung
     if (
       (conversationLength === 3 ||
+        shouldLoadProductsDirectly ||
         (conversationLength > 3 && isMeatTypeSelection)) &&
       context
     ) {
@@ -512,7 +578,25 @@ Spezialnahrung: Diät, Hypoallergen, Darm (Verdauung), Gelenk (Mobilität)`;
         : userMessages[1]?.content.includes("Gelenk")
         ? "GELENK"
         : "NONE";
-      const meatType = context; // Die aktuelle Fleischsorte
+
+      // Wenn nur eine Fleischsorte verfügbar ist (shouldLoadProductsDirectly), lade diese aus der DB
+      let meatType = context; // Die aktuelle Fleischsorte
+
+      if (shouldLoadProductsDirectly) {
+        // Lade die einzige verfügbare Fleischsorte
+        const supabase = await createClient();
+        let queryBuilder = supabase
+          .from("products")
+          .select("meat_type")
+          .eq("age_group", ageCategory);
+
+        if (specialNeeds !== "NONE") {
+          queryBuilder = queryBuilder.eq("specials", specialNeeds);
+        }
+
+        const { data } = await queryBuilder.limit(1);
+        meatType = data?.[0]?.meat_type || "ALL";
+      }
 
       // Suche Produkte basierend auf ALLEN Kriterien (Alter, Bedürfnisse, Fleischsorte)
       try {
@@ -624,6 +708,7 @@ Erstelle eine kurze, freundliche Empfehlung (max. 2-3 Sätze), die erklärt, war
     if (!quickReplies && conversationLength >= 3) {
       quickReplies = [
         { label: "🔍 Weitere Produkte zeigen", value: "MORE_PRODUCTS" },
+        { label: "🔙 Zurück zur Auswahl", value: "BACK" },
         { label: "✅ Beratung beenden", value: "END" },
       ];
     }
@@ -640,14 +725,63 @@ Erstelle eine kurze, freundliche Empfehlung (max. 2-3 Sätze), die erklärt, war
     let userSelection = "";
     if (
       (conversationLength === 3 ||
+        shouldLoadProductsDirectly ||
         (conversationLength > 3 && isMeatTypeSelection)) &&
       context
     ) {
       const userMessages = messages.filter((m) => m.role === "user");
       const ageLabel = userMessages[0]?.content || "";
       const needsLabel = userMessages[1]?.content || "";
-      // Zeige die aktuelle Fleischsorten-Auswahl (letzte Message)
-      const meatLabel = userMessages[userMessages.length - 1]?.content || "";
+
+      // Bei shouldLoadProductsDirectly: Zeige die automatisch gewählte Fleischsorte
+      let meatLabel = "";
+      if (shouldLoadProductsDirectly) {
+        // Lade die verfügbare Fleischsorte aus der DB
+        const supabase = await createClient();
+        const ageCategory = userMessages[0]?.content.includes("Junior")
+          ? "JUNIOR"
+          : userMessages[0]?.content.includes("Senior")
+          ? "SENIOR"
+          : "ADULT";
+        const specialNeeds = userMessages[1]?.content.includes("Hypoallergen")
+          ? "HYPOALLERGEN"
+          : userMessages[1]?.content.includes("Diät")
+          ? "DIAT"
+          : userMessages[1]?.content.includes("Darm")
+          ? "DARM"
+          : userMessages[1]?.content.includes("Gelenk")
+          ? "GELENK"
+          : "NONE";
+
+        let queryBuilder = supabase
+          .from("products")
+          .select("meat_type")
+          .eq("age_group", ageCategory);
+
+        if (specialNeeds !== "NONE") {
+          queryBuilder = queryBuilder.eq("specials", specialNeeds);
+        }
+
+        const { data } = await queryBuilder.limit(1);
+        const meatType = data?.[0]?.meat_type || "";
+
+        const meatTypeLabels: { [key: string]: string } = {
+          ENTE: "🦆 Ente",
+          RIND: "🥩 Rind",
+          KANINCHEN: "🐰 Kaninchen",
+          LAMM: "🐑 Lamm",
+          PFERD: "🐴 Pferd",
+          WILD: "🦌 Wild",
+          LACHS: "🐟 Lachs",
+          HUHN: "🐔 Huhn",
+        };
+
+        meatLabel = meatTypeLabels[meatType] || meatType;
+      } else {
+        // Zeige die aktuelle Fleischsorten-Auswahl (letzte Message)
+        meatLabel = userMessages[userMessages.length - 1]?.content || "";
+      }
+
       userSelection = `Deine Auswahl: [[${ageLabel}]] | [[${needsLabel}]] | [[${meatLabel}]]`;
     } else if (conversationLength > 0) {
       const lastUserMessage =

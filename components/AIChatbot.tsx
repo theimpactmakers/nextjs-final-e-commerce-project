@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, MessageCircle, Send, Loader2 } from "lucide-react";
+import { X, MessageCircle, Send, Loader2, Minimize2 } from "lucide-react";
 import Image from "next/image";
 
 interface Message {
@@ -24,6 +24,7 @@ interface Message {
 
 export default function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -204,11 +205,11 @@ export default function AIChatbot() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 bg-[hsl(6,25%,25%)] hover:bg-linear-to-r hover:from-[hsl(27,38%,36%)] hover:to-[hsl(6,25%,25%)] text-white rounded-full p-5 shadow-2xl hover:shadow-[0_20px_60px_rgba(127,85,57,0.5)] transition-all duration-300 hover:scale-110 group cursor-pointer animate-pulse"
+          className="fixed bottom-6 right-6 z-50 bg-linear-to-r from-[hsl(27,38%,36%)] to-[hsl(6,25%,25%)] rounded-full p-5 shadow-2xl hover:shadow-[0_20px_60px_rgba(127,85,57,0.5)] transition-all duration-300 hover:scale-110 group cursor-pointer text-white hover:bg-black "
           aria-label="Chat öffnen"
         >
           <MessageCircle className="w-7 h-7" />
-          <span className="absolute -top-2 -right-2 bg-[hsl(33,100%,37%)] text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg">
+          <span className="absolute -top-2 -right-2 bg-accent/80 text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg">
             ?
           </span>
         </button>
@@ -216,192 +217,253 @@ export default function AIChatbot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+        <div
+          className={`fixed bottom-6 right-6 z-50 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-white/20 backdrop-blur-xl bg-white/80 transition-all duration-300 ${
+            isMinimized ? "w-96 h-16" : "w-96 h-[600px]"
+          }`}
+          style={{
+            boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+          }}
+        >
           {/* Header */}
-          <div className="bg-linear-to-r from-[hsl(6,25%,25%)] to-[hsl(27,38%,36%)] text-white p-4 flex justify-between items-center">
+          <div className="bg-white/60 backdrop-blur-md text-gray-800 p-4 flex justify-between items-center border-b border-white/20">
             <div className="flex items-center gap-3">
-              <div className="bg-white/20 rounded-full p-2">
-                <MessageCircle className="w-5 h-5" />
-              </div>
+              <Image
+                src="/images/logo.webp"
+                alt="EliteDogTreats Logo"
+                width={100}
+                height={100}
+                className="rounded-full"
+              />
               <div>
-                <h3 className="font-semibold">EliteDogTreats Futter-Berater</h3>
-                <p className="text-xs text-white/80">
-                  Lassen Sie sich beraten 🐾
+                <h3 className="font-semibold text-primary">
+                  Futter-Berater 🐾
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Finden Sie die richtigen Produkte
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="hover:bg-white/20 rounded-full p-1 transition-colors cursor-pointer"
-              aria-label="Chat schließen"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex gap-1">
+              <button
+                onClick={() => setIsMinimized(!isMinimized)}
+                className="hover:bg-gray-100/50 rounded-full p-1 transition-colors cursor-pointer"
+                aria-label={isMinimized ? "Chat maximieren" : "Chat minimieren"}
+              >
+                <Minimize2 className="w-5 h-5 text-gray-600" />
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="hover:bg-gray-100/50 rounded-full p-1 transition-colors cursor-pointer"
+                aria-label="Chat schließen"
+              >
+                <X className="w-5 h-5 text-black" />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[hsl(26,18%,90%)]">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                    message.role === "user"
-                      ? "bg-linear-to-r from-[hsl(33,100%,45%)] to-[hsl(33,100%,37%)] text-white"
-                      : "bg-white text-gray-800 shadow-sm border border-gray-200"
-                  }`}
-                >
-                  {/* User Selection Summary */}
-                  {message.userSelection && (
-                    <p className="text-[10px] mb-2 italic">
-                      {message.userSelection
-                        .split(/(\[\[.*?\]\])/)
-                        .map((part, index) => {
-                          if (part.startsWith("[[") && part.endsWith("]]")) {
-                            const value = part.slice(2, -2);
-                            return (
-                              <span
-                                key={index}
-                                className="text-[hsl(27,38%,36%)] font-semibold"
-                              >
-                                {value}
-                              </span>
-                            );
-                          }
-                          // "Deine Auswahl:" oder "Deine Frage:" in schwarz und bold
-                          if (
-                            part.includes("Deine Auswahl:") ||
-                            part.includes("Deine Frage:")
-                          ) {
-                            return (
-                              <span
-                                key={index}
-                                className="text-black font-bold"
-                              >
-                                {part}
-                              </span>
-                            );
-                          }
-                          return (
-                            <span key={index} className="text-gray-500">
-                              {part}
-                            </span>
-                          );
-                        })}
-                    </p>
-                  )}
+          {!isMinimized && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[hsl(26,18%,90%)]/50 backdrop-blur-sm">
+              {messages.map((message) => (
+                <div key={message.id}>
+                  <div
+                    className={`flex ${
+                      message.role === "user" ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div className="max-w-[80%]">
+                      {message.role === "user" && (
+                        <p className="text-xs text-gray-500 font-medium mb-1">
+                          Auswahl
+                        </p>
+                      )}
+                      <div
+                        className={`rounded-2xl px-4 py-2 ${
+                          message.role === "user"
+                            ? "bg-white text-accent border border-accent"
+                            : "bg-white text-gray-800 shadow-sm border border-gray-200"
+                        }`}
+                      >
+                        {/* User Selection Summary */}
+                        {message.userSelection && (
+                          <p className="text-[10px] mb-2 italic">
+                            {message.userSelection
+                              .split(/(\[\[.*?\]\])/)
+                              .map((part, index) => {
+                                if (
+                                  part.startsWith("[[") &&
+                                  part.endsWith("]]")
+                                ) {
+                                  const value = part.slice(2, -2);
+                                  return (
+                                    <span
+                                      key={index}
+                                      className="text-[hsl(27,38%,36%)] font-semibold"
+                                    >
+                                      {value}
+                                    </span>
+                                  );
+                                }
+                                // "Deine Auswahl:" oder "Deine Frage:" in schwarz und bold
+                                if (
+                                  part.includes("Deine Auswahl:") ||
+                                  part.includes("Deine Frage:")
+                                ) {
+                                  return (
+                                    <span
+                                      key={index}
+                                      className="text-black font-bold"
+                                    >
+                                      {part}
+                                    </span>
+                                  );
+                                }
+                                return (
+                                  <span key={index} className="text-gray-500">
+                                    {part}
+                                  </span>
+                                );
+                              })}
+                          </p>
+                        )}
 
-                  <p className="text-sm whitespace-pre-wrap">
-                    {message.content}
-                  </p>
-
-                  {/* Quick Reply Buttons */}
-                  {message.quickReplies && message.quickReplies.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {message.quickReplies.map((reply, index) => (
-                        <button
-                          key={index}
-                          onClick={() =>
-                            handleQuickReply(reply.value, reply.label)
-                          }
-                          className="px-3 py-2 bg-[hsl(33,100%,37%)]/20 border-2 border-[hsl(33,100%,37%)] text-[hsl(27,38%,36%)] rounded-full text-sm font-medium hover:bg-[hsl(33,100%,37%)] hover:text-white transition-all cursor-pointer"
+                        <p
+                          className={`text-sm whitespace-pre-wrap ${
+                            message.quickReplies &&
+                            message.quickReplies.length > 0
+                              ? "font-bold"
+                              : ""
+                          }`}
                         >
-                          {reply.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                          {message.content}
+                        </p>
 
-                  {/* Product Recommendations */}
-                  {message.products && message.products.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      {message.products.map((product) => (
-                        <a
-                          key={product.id}
-                          href={`/products/${product.slug || product.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block bg-white hover:bg-[hsl(33,100%,37%)]/10 rounded-lg p-3 transition-all border-2 border-[hsl(33,100%,37%)]/30 hover:border-[hsl(33,100%,37%)] cursor-pointer shadow-sm hover:shadow-md"
-                        >
-                          <div className="flex gap-3">
-                            {product.image_url && (
-                              <Image
-                                src={product.image_url}
-                                alt={product.name}
-                                width={64}
-                                height={64}
-                                className="w-16 h-16 object-cover rounded"
-                              />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm text-black truncate hover:underline">
-                                {product.name}
-                              </p>
-                              <p className="text-sm text-[hsl(33,100%,37%)] font-bold mt-1">
-                                €{product.price.toFixed(2)}
-                              </p>
-                              <p className="text-[10px] text-gray-400 mt-1 truncate">
-                                🔗 /products/{product.slug || product.id}
-                              </p>
+                        {/* Quick Reply Buttons */}
+                        {message.quickReplies &&
+                          message.quickReplies.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {message.quickReplies.map((reply, index) => {
+                                const isSpecialButton =
+                                  reply.value === "ALL" ||
+                                  reply.value === "NONE" ||
+                                  reply.value === "END" ||
+                                  reply.value === "BACK" ||
+                                  reply.label.includes("Egal") ||
+                                  reply.label.includes("Keine besonderen") ||
+                                  reply.label.includes("beenden") ||
+                                  reply.label.includes("Zurück");
+
+                                return (
+                                  <button
+                                    key={index}
+                                    onClick={() =>
+                                      handleQuickReply(reply.value, reply.label)
+                                    }
+                                    className={`px-3 py-2 rounded-(--app-radius) text-sm font-medium transition-all cursor-pointer ${
+                                      isSpecialButton
+                                        ? "bg-accent/20 text-accent hover:bg-accent hover:text-white"
+                                        : "bg-accent text-white hover:bg-accent/20 hover:text-accent"
+                                    }`}
+                                  >
+                                    {reply.label}
+                                  </button>
+                                );
+                              })}
                             </div>
+                          )}
+
+                        {/* Product Recommendations */}
+                        {message.products && message.products.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            {message.products.map((product) => (
+                              <a
+                                key={product.id}
+                                href={`/products/${product.slug || product.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block bg-white hover:bg-[hsl(33,100%,37%)]/10 rounded-lg p-3 transition-all border-2 border-[hsl(33,100%,37%)]/30 hover:border-[hsl(33,100%,37%)] cursor-pointer shadow-sm hover:shadow-md"
+                              >
+                                <div className="flex gap-3">
+                                  {product.image_url && (
+                                    <Image
+                                      src={product.image_url}
+                                      alt={product.name}
+                                      width={64}
+                                      height={64}
+                                      className="w-16 h-16 object-cover rounded"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-semibold text-sm text-black truncate hover:underline">
+                                      {product.name}
+                                    </p>
+                                    <p className="text-sm text-[hsl(33,100%,37%)] font-bold mt-1">
+                                      €{product.price.toFixed(2)}
+                                    </p>
+                                    <p className="text-[10px] text-gray-400 mt-1 truncate">
+                                      🔗 /products/{product.slug || product.id}
+                                    </p>
+                                  </div>
+                                </div>
+                              </a>
+                            ))}
                           </div>
-                        </a>
-                      ))}
+                        )}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-white text-gray-800 rounded-2xl px-4 py-3 shadow-sm border border-gray-200">
-                  <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white text-gray-800 rounded-2xl px-4 py-3 shadow-sm border border-gray-200">
+                    <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <div ref={messagesEndRef} />
-          </div>
+              <div ref={messagesEndRef} />
+            </div>
+          )}
 
           {/* Input */}
-          <div className="p-4 bg-white border-t border-gray-200">
-            <div className="flex gap-2">
-              <input
-                ref={inputRef}
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Nachricht schreiben..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[hsl(27,38%,36%)] focus:border-transparent"
-                disabled={isLoading}
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
-                className="bg-linear-to-r from-[hsl(6,25%,25%)] to-[hsl(27,38%,36%)] text-white rounded-full p-2 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                aria-label="Nachricht senden"
-              >
-                <Send className="w-5 h-5" />
-              </button>
+          {!isMinimized && (
+            <div className="p-4 bg-linear-to-r from-[hsl(27,38%,36%)] to-[hsl(6,25%,25%)]">
+              <div className="flex gap-2">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Nachricht schreiben..."
+                  className="flex-1 px-4 py-2 border-2 border-white/30 bg-white/95 rounded-full focus:outline-none focus:ring-2 focus:ring-white focus:border-white placeholder:text-gray-500"
+                  disabled={isLoading}
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!inputValue.trim() || isLoading}
+                  className="bg-accent text-white rounded-full px-2 py-1 hover:bg-white/90 hover:text-accent hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  aria-label="Nachricht senden"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex justify-center mt-3">
+                <button
+                  onClick={() =>
+                    handleQuickReply("RESTART", "Neue Suche starten")
+                  }
+                  disabled={isLoading}
+                  className="px-6 py-2 text-white rounded-lg underline text-sm font-medium transition-all cursor-pointer disabled:opacity-50 hover:text-white/80 hover:no-underline"
+                >
+                  Neue Suche starten
+                </button>
+              </div>
             </div>
-            <div className="flex justify-center mt-3">
-              <button
-                onClick={() =>
-                  handleQuickReply("RESTART", "Neue Suche starten")
-                }
-                disabled={isLoading}
-                className="px-6 py-2 text-accent rounded-lg underline text-sm font-medium transition-all cursor-pointer disabled:opacity-50 hover:text-primary hover:no-underline"
-              >
-                Neue Suche starten
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       )}
     </>
