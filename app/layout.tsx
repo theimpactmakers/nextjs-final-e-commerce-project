@@ -10,9 +10,9 @@ import { WishlistProvider } from "@/contexts/WishlistContext";
 import { ReviewProvider } from "@/contexts/ReviewContext";
 import { Toaster } from "sonner";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
-  display: 'swap', // Prevent FOIT/FOUT, improve Core Web Vitals
+  display: "swap", // Prevent FOIT/FOUT, improve Core Web Vitals
   preload: true,
 });
 
@@ -28,39 +28,29 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de">
-      <head>
-        {/* Preload critical hero image for instant display */}
-        <link
-          rel="preload"
-          as="image"
-          href="/images/slider/slide-1.1.svg"
-          fetchPriority="high"
-        />
-      </head>
       <body className={inter.className}>
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
               <ReviewProvider>
-              <Header />
-              <main className="grow">{children}</main>
-              <Footer />
-              <CookieBanner />
-              <Toaster
-                position="top-center"
-                expand={false}
-                richColors
-                closeButton
-                toastOptions={{
-                  style: {
-                    background: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    color: "hsl(var(--foreground))",
-                  },
-                }}
-              />
-
-            </ReviewProvider>
+                <Header />
+                <main className="grow">{children}</main>
+                <Footer />
+                <CookieBanner />
+                <Toaster
+                  position="top-center"
+                  expand={false}
+                  richColors
+                  closeButton
+                  toastOptions={{
+                    style: {
+                      background: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      color: "hsl(var(--foreground))",
+                    },
+                  }}
+                />
+              </ReviewProvider>
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>

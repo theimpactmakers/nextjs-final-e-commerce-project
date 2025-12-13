@@ -59,11 +59,13 @@ export default function RelatedProducts({
           .limit(limit);
 
         if (idsError) throw idsError;
+
         if (!relatedIds || relatedIds.length === 0) {
+          console.log("No related products found for:", productId);
           setRelatedProducts([]);
           return;
         }
-
+        console.log("Found related products:", relatedIds.length);
         const productIds = relatedIds.map((r) => r.related_product_id);
 
         // Step 2: Batch fetch all data in parallel (3 optimized queries)
@@ -130,6 +132,7 @@ export default function RelatedProducts({
           })
           .filter((p): p is RelatedProduct => p !== null);
 
+        console.log("Built products:", products.length);
         setRelatedProducts(products);
       } catch (error) {
         console.error("Error fetching related products:", error);
@@ -148,6 +151,8 @@ export default function RelatedProducts({
         setItemsPerView(4);
       } else if (window.innerWidth >= 1024) {
         setItemsPerView(3);
+      } else if (window.innerWidth >= 768) {
+        setItemsPerView(3); // Show 3 on tablets instead of 2
       } else if (window.innerWidth >= 640) {
         setItemsPerView(2);
       } else {
@@ -180,7 +185,18 @@ export default function RelatedProducts({
   }
 
   if (!relatedProducts || relatedProducts.length === 0) {
-    return null;
+    // Show section title but indicate no products available
+    return (
+      <div className="space-y-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-accent">{title}</h2>
+          <p className="text-muted-foreground">{subtitle}</p>
+        </div>
+        <div className="text-center py-8 text-muted-foreground">
+          <p>Derzeit keine ähnlichen Produkte verfügbar.</p>
+        </div>
+      </div>
+    );
   }
 
   const maxIndex = Math.max(0, relatedProducts.length - itemsPerView);
@@ -264,14 +280,14 @@ export default function RelatedProducts({
             return (
               <div
                 key={relatedProduct.id}
-                className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-3 mb-10 shrink-0"
+                className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2 sm:px-3 mb-6 sm:mb-10 shrink-0"
                 style={{ maxWidth: `${100 / itemsPerView}%` }}
               >
                 <Link
                   href={`/products/${relatedProduct.slug || relatedProduct.id}`}
                   className="block bg-card text-card-foreground rounded-lg border shadow-md overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-300 h-full cursor-pointer group"
                 >
-                  <div className="h-32 bg-muted flex items-center justify-center overflow-hidden relative">
+                  <div className="h-32 sm:h-40 md:h-48 bg-muted flex items-center justify-center overflow-hidden relative">
                     {primaryImage ? (
                       <Image
                         src={primaryImage.image_url}
