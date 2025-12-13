@@ -44,6 +44,10 @@ export default function ProductCard({
   const [promotionData, setPromotionData] = useState<PromotionData | null>(
     null
   );
+  const [multipleVariantsInPromo, setMultipleVariantsInPromo] = useState<{
+    hasMultiple: boolean;
+    maxDiscount: number;
+  } | null>(null);
   const [selectedWeight, setSelectedWeight] = useState<"3kg" | "6kg" | null>(
     null
   );
@@ -57,6 +61,54 @@ export default function ProductCard({
   const sortedImages = [...images].sort(
     (a, b) => a.display_order - b.display_order
   );
+
+  // Auto-select variant based on promotion logic
+  useEffect(() => {
+    if (selectedVariantId || !variants || variants.length === 0) return;
+
+    const checkPromotions = async () => {
+      // Check which variants have promotions
+      const variantPromotions = await Promise.all(
+        variants.map(async (v) => {
+          const promo = await calculatePromotionDiscount(
+            product.id,
+            v.id,
+            v.price
+          );
+          return { variant: v, promo };
+        })
+      );
+
+      const variantsWithPromo = variantPromotions.filter((vp) => vp.promo);
+
+      // If exactly ONE variant has a promotion, auto-select it
+      if (variantsWithPromo.length === 1) {
+        const variantToSelect = variantsWithPromo[0].variant;
+        setSelectedVariantId(variantToSelect.id);
+        // Extract weight from variant name
+        const weightMatch = variantToSelect.name?.match(/(\d+)kg/i);
+        if (weightMatch) {
+          const weight = weightMatch[1];
+          if (weight === "3" || weight === "6") {
+            setSelectedWeight(`${weight}kg` as "3kg" | "6kg");
+          }
+        }
+      } 
+      // If MULTIPLE variants have promotions, store the max discount for badge
+      else if (variantsWithPromo.length > 1) {
+        const maxDiscount = Math.max(
+          ...variantsWithPromo.map((vp) => 
+            vp.promo!.discountType === "percentage" 
+              ? vp.promo!.discountAmount 
+              : 0
+          )
+        );
+        setMultipleVariantsInPromo({ hasMultiple: true, maxDiscount });
+      }
+    };
+
+    checkPromotions();
+  }, []); // Only run on mount
 
   // Switch image based on weight selection (only if user hasn't manually navigated)
   useEffect(() => {
@@ -96,6 +148,9 @@ export default function ProductCard({
         setPromotionData(null);
         return;
       }
+      // When user selects a variant, hide the multiple variants badge
+      setMultipleVariantsInPromo(null);
+      
       const promo = await calculatePromotionDiscount(
         product.id,
         selectedVariant.id,
@@ -231,6 +286,13 @@ export default function ProductCard({
                   {promotionData.discountType === "percentage"
                     ? `AKTION -${Math.round(promotionData.discountAmount)}%`
                     : `AKTION -€${promotionData.discountAmount.toFixed(2)}`}
+                </span>
+              </span>
+            )}
+            {!promotionData && multipleVariantsInPromo?.hasMultiple && (
+              <span className="bg-accent/80 text-white px-2 py-1 rounded text-xs font-bold text-center shadow-lg inline-block w-auto">
+                <span className="animate-pulse">
+                  AKTION -{Math.round(multipleVariantsInPromo.maxDiscount)}%
                 </span>
               </span>
             )}
