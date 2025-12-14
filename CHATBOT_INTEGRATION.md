@@ -48,7 +48,7 @@ Der Chatbot wurde in das Root-Layout eingebunden und ist somit auf allen Seiten 
 
 ### Umgebungsvariablen
 ```env
-OPEN_API_KEY
+OPENAI_API_KEY=your_key_here
 ```
 
 ## Funktionsweise
