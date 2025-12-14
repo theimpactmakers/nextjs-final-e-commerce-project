@@ -587,7 +587,7 @@ export default function Header() {
                     <ul className="space-y-1 text-sm">
                       <li>
                         <Link
-                          href="/kontakt"
+                          href="/contact"
                           className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                         >
                           Kontakt

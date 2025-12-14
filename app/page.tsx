@@ -294,6 +294,7 @@ export default async function Home() {
         </section>
         <div className="w-full border-t border-muted-foreground/20 mt-16" />
 
+
         {/* Tipps & Beratung */}
         <section className="max-w-7xl mx-auto mb-16 px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 mt-16 text-center">
