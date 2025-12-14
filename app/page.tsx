@@ -319,11 +319,11 @@ export default async function Home() {
 
         <div className="w-full border-t border-muted-foreground/20" />
 
-        {/* Futterberater Section */}
-        <section className="max-w-7xl mx-auto mb-16 px-4 mt-16">
+        {/* ingredients Section */}
+        <section className="max-w-7xl mx-auto mb-8 px-4 mt-16">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl mb-4 font-bold">
-              Vertrauenswürdige Zutaten
+              Gesunde Zutaten
             </h2>
             <p className="text-muted-foreground text-sm max-w-3xl mx-auto">
               Zu 100% hochwertige, natürliche Zutaten.
@@ -333,32 +333,32 @@ export default async function Home() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-8">
             {[
               {
-                image: "/images/ingredients/fleisch.jpg",
+                image: "/images/ingredients/fleisch.webp",
                 title: "90% Frischfleisch",
                 description: "Unterstützt starke Muskulatur und Wachstum",
               },
               {
-                image: "/images/ingredients/fisch.jpg",
+                image: "/images/ingredients/seelachs.webp",
                 title: "Seelachs",
                 description: "Omega-3 unterstützt Fell- und Hautgesundheit",
               },
               {
-                image: "/images/ingredients/rosmarin.jpg",
+                image: "/images/ingredients/kuerbis.webp",
                 title: "Kürbis",
                 description: "Unterstützt eine gesunde Verdauung",
               },
               {
-                image: "/images/ingredients/kurkuma.jpg",
+                image: "/images/ingredients/muschel.webp",
                 title: "Grünlippmuschel",
                 description: "Natürlicher Entzündungshemmer",
               },
               {
-                image: "/images/ingredients/brokkoli.jpg",
+                image: "/images/ingredients/suesskartoffel.webp",
                 title: "Süßkartoffel",
-                description: "Unterstützt das Immunsystem",
+                description: "Hochwertiger Energielieferant",
               },
               {
-                image: "/images/ingredients/preiselbeeren.jpg",
+                image: "/images/ingredients/blaubeere.webp",
                 title: "Blaubeeren",
                 description: "Unterstützt das Immunsystem",
               },
@@ -392,14 +392,11 @@ export default async function Home() {
           </div>
 
           <div className="text-center mt-8">
-            <p className="text-muted-foreground text-m my-8 max-w-3xl mx-auto">
-              Nutze unseren Futterberater und lasse dich sofort ganz individuell beraten.
-            </p>
             <a
-              href="/beratung"
-              className="inline-block px-6 py-3 bg-accent text-white rounded-(--app-radius) font-semibold hover:bg-accent/90 transition-colors"
+              href="/shop"
+              className="inline-block px-6 py-3 underline hover:no-underline text-accent hover:text-primary font-semibold transition-colors"
             >
-              Zum Futterberater
+              Allen Produkte Entdecken
             </a>
           </div>
         </section>
@@ -440,6 +437,18 @@ export default async function Home() {
                 <p className="text-muted-foreground text-sm">Weiter lesen</p>
               </a>
             ))}
+          </div>
+          <div className="text-center mt-8">
+            <p className="text-muted-foreground text-m my-8 max-w-3xl mx-auto">
+              Nutze unseren Futterberater und lasse dich sofort ganz individuell
+              beraten.
+            </p>
+            <a
+              href="/beratung"
+              className="inline-block px-6 py-3 bg-accent text-white rounded-(--app-radius) font-semibold hover:bg-accent/90 transition-colors"
+            >
+              Zum Futterberater
+            </a>
           </div>
         </section>
       </main>
