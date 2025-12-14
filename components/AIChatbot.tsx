@@ -20,6 +20,7 @@ interface Message {
     label: string;
     value: string;
   }>;
+  allowMultipleSelection?: boolean;
 }
 
 export default function AIChatbot() {
@@ -27,6 +28,7 @@ export default function AIChatbot() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedMeatTypes, setSelectedMeatTypes] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -66,14 +68,43 @@ export default function AIChatbot() {
     }
   }, [isOpen]);
 
-  const handleQuickReply = async (value: string, label: string) => {
+  const handleQuickReply = async (
+    value: string,
+    label: string,
+    allowMultiple?: boolean
+  ) => {
     if (isLoading) return;
 
     // Bei RESTART den Chat-Verlauf löschen
     if (value === "RESTART") {
       setMessages([]);
       setIsLoading(false);
+      setSelectedMeatTypes([]);
       return;
+    }
+
+    // Bei Mehrfachauswahl: Fleischsorte zur Auswahl hinzufügen/entfernen
+    if (allowMultiple && !["ALL", "NONE"].includes(value)) {
+      if (selectedMeatTypes.includes(value)) {
+        setSelectedMeatTypes((prev) => prev.filter((meat) => meat !== value));
+      } else {
+        setSelectedMeatTypes((prev) => [...prev, value]);
+      }
+      return; // Nicht direkt senden, warte auf Bestätigung
+    }
+
+    // Bei "Alle Sorten" wähle alle aus und sende direkt
+    if (value === "ALL" && allowMultiple) {
+      const currentMessage = messages[messages.length - 1];
+      if (currentMessage?.quickReplies) {
+        const allMeats = currentMessage.quickReplies
+          .filter((reply) => !["ALL", "NONE"].includes(reply.value))
+          .map((reply) => reply.value);
+        setSelectedMeatTypes(allMeats);
+      }
+      // Sende direkt mit "ALL"
+      value = "ALL";
+      allowMultiple = false;
     }
 
     const userMessage: Message = {
@@ -113,9 +144,91 @@ export default function AIChatbot() {
         products: data.products,
         quickReplies: data.quickReplies,
         userSelection: data.userSelection,
+        allowMultipleSelection: data.allowMultipleSelection,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+
+      // Reset Mehrfachauswahl wenn keine Mehrfachauswahl mehr erlaubt ist
+      if (!data.allowMultipleSelection) {
+        setSelectedMeatTypes([]);
+      }
+    } catch (error) {
+      console.error("Chatbot Error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content:
+            "Entschuldigung, es gab einen Fehler. Bitte versuchen Sie es erneut.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleConfirmMultipleSelection = async () => {
+    if (isLoading || selectedMeatTypes.length === 0) return;
+
+    const meatTypeLabels: { [key: string]: string } = {
+      ENTE: "🦆 Ente",
+      RIND: "🥩 Rind",
+      KANINCHEN: "🐰 Kaninchen",
+      LAMM: "🐑 Lamm",
+      PFERD: "🐴 Pferd",
+      WILD: "🦌 Wild",
+      LACHS: "🐟 Lachs",
+      HUHN: "🐔 Huhn",
+    };
+
+    const selectedLabels = selectedMeatTypes
+      .map((meat) => meatTypeLabels[meat] || meat)
+      .join(", ");
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: selectedLabels,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chatbot", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          context: `MULTI_MEAT:${selectedMeatTypes.join(",")}`,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Fehler beim Abrufen der Antwort");
+      }
+
+      const data = await response.json();
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: data.message,
+        products: data.products,
+        quickReplies: data.quickReplies,
+        userSelection: data.userSelection,
+        allowMultipleSelection: data.allowMultipleSelection,
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+      setSelectedMeatTypes([]);
     } catch (error) {
       console.error("Chatbot Error:", error);
       setMessages((prev) => [
@@ -172,9 +285,15 @@ export default function AIChatbot() {
         products: data.products,
         quickReplies: data.quickReplies,
         userSelection: data.userSelection,
+        allowMultipleSelection: data.allowMultipleSelection,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+
+      // Reset Mehrfachauswahl wenn keine Mehrfachauswahl mehr erlaubt ist
+      if (!data.allowMultipleSelection) {
+        setSelectedMeatTypes([]);
+      }
     } catch (error) {
       console.error("Chatbot Error:", error);
       setMessages((prev) => [
@@ -329,34 +448,63 @@ export default function AIChatbot() {
                       {/* Quick Reply Buttons */}
                       {message.quickReplies &&
                         message.quickReplies.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {message.quickReplies.map((reply, index) => {
-                              const isSpecialButton =
-                                reply.value === "ALL" ||
-                                reply.value === "NONE" ||
-                                reply.value === "END" ||
-                                reply.value === "BACK" ||
-                                reply.label.includes("Egal") ||
-                                reply.label.includes("Keine besonderen") ||
-                                reply.label.includes("beenden") ||
-                                reply.label.includes("Zurück");
+                          <div className="mt-3">
+                            <div className="flex flex-wrap gap-2">
+                              {message.quickReplies.map((reply, index) => {
+                                const isSpecialButton =
+                                  reply.value === "ALL" ||
+                                  reply.value === "NONE" ||
+                                  reply.value === "END" ||
+                                  reply.value === "BACK" ||
+                                  reply.value === "BACK_TO_MEAT" ||
+                                  reply.label.includes("Egal") ||
+                                  reply.label.includes("Keine besonderen") ||
+                                  reply.label.includes("beenden") ||
+                                  reply.label.includes("Zurück") ||
+                                  reply.label.includes("Ja,") ||
+                                  reply.label.includes("Nein,");
 
-                              return (
+                                const isSelected =
+                                  message.allowMultipleSelection &&
+                                  selectedMeatTypes.includes(reply.value);
+
+                                return (
+                                  <button
+                                    key={index}
+                                    onClick={() =>
+                                      handleQuickReply(
+                                        reply.value,
+                                        reply.label,
+                                        message.allowMultipleSelection
+                                      )
+                                    }
+                                    className={`px-3 py-2 rounded-(--app-radius) text-sm font-medium transition-all cursor-pointer ${
+                                      isSelected
+                                        ? "bg-green-600 text-white border-2 border-green-700"
+                                        : isSpecialButton
+                                        ? "bg-accent/20 text-accent hover:bg-accent hover:text-white"
+                                        : "bg-accent text-white hover:bg-accent/20 hover:text-accent"
+                                    }`}
+                                  >
+                                    {isSelected && "✓ "}
+                                    {reply.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {/* Bestätigungsbutton für Mehrfachauswahl */}
+                            {message.allowMultipleSelection &&
+                              selectedMeatTypes.length > 0 && (
                                 <button
-                                  key={index}
-                                  onClick={() =>
-                                    handleQuickReply(reply.value, reply.label)
-                                  }
-                                  className={`px-3 py-2 rounded-(--app-radius) text-sm font-medium transition-all cursor-pointer ${
-                                    isSpecialButton
-                                      ? "bg-accent/20 text-accent hover:bg-accent hover:text-white"
-                                      : "bg-accent text-white hover:bg-accent/20 hover:text-accent"
-                                  }`}
+                                  onClick={handleConfirmMultipleSelection}
+                                  disabled={isLoading}
+                                  className="mt-3 w-full px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all cursor-pointer disabled:opacity-50"
                                 >
-                                  {reply.label}
+                                  ✓ Auswahl bestätigen (
+                                  {selectedMeatTypes.length} ausgewählt)
                                 </button>
-                              );
-                            })}
+                              )}
                           </div>
                         )}
 

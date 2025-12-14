@@ -87,6 +87,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
               alt={slide.title}
               fill
               priority={index === 0}
+              loading={index === 0 ? undefined : "lazy"}
               sizes="100vw"
               className="object-cover"
               quality={90}

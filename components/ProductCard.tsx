@@ -281,7 +281,13 @@ export default function ProductCard({
           {/* Badges + Alter/Fleischsorte */}
           <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
             {promotionData && (
-              <span className="bg-accent/80 text-white px-2 py-1 rounded text-xs font-bold text-center shadow-lg inline-block w-auto">
+              <span
+                className={`${
+                  Math.round(promotionData.discountAmount) === 10
+                    ? "bg-muted-foreground"
+                    : "bg-[#a90329]"
+                } text-white px-2 py-1 rounded text-xs font-bold text-center shadow-lg inline-block w-auto`}
+              >
                 <span className="animate-pulse">
                   {promotionData.discountType === "percentage"
                     ? `AKTION -${Math.round(promotionData.discountAmount)}%`
@@ -290,7 +296,13 @@ export default function ProductCard({
               </span>
             )}
             {!promotionData && multipleVariantsInPromo?.hasMultiple && (
-              <span className="bg-accent/80 text-white px-2 py-1 rounded text-xs font-bold text-center shadow-lg inline-block w-auto">
+              <span
+                className={`${
+                  Math.round(multipleVariantsInPromo.maxDiscount) === 10
+                    ? "bg-muted-foreground"
+                    : "bg-[#a90329]"
+                } text-white px-2 py-1 rounded text-xs font-bold text-center shadow-lg inline-block w-auto`}
+              >
                 <span className="animate-pulse">
                   AKTION -{Math.round(multipleVariantsInPromo.maxDiscount)}%
                 </span>

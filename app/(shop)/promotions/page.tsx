@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import Image from "next/image";
 import type { Database } from "@/types";
 import PromotionProductListClient from "@/components/PromotionProductListClient";
 import { getActivePromotionsServer } from "@/lib/supabase/products-server";
@@ -148,16 +149,23 @@ async function PromotionsContent({
       );
     }
 
-    // Batch-lade alle Varianten für Produkte mit Varianten-Promotions in einem Query
+    // Batch-lade alle Varianten und Bilder für Produkte in einem Query
     const productIdsForVariants = allProducts
       .map((p) => p.id)
       .filter((id): id is string => !!id);
 
-    const { data: allVariants } = await supabase
-      .from("product_variants")
-      .select("*")
-      .in("product_id", productIdsForVariants)
-      .eq("is_active", true);
+    const [{ data: allVariants }, { data: allImages }] = await Promise.all([
+      supabase
+        .from("product_variants")
+        .select("*")
+        .in("product_id", productIdsForVariants)
+        .eq("is_active", true),
+      supabase
+        .from("product_images")
+        .select("*")
+        .in("product_id", productIdsForVariants)
+        .order("display_order", { ascending: true }),
+    ]);
 
     // Erstelle Maps für schnellen Zugriff
     const variantsMap = new Map<string, typeof allVariants>();
@@ -166,6 +174,14 @@ async function PromotionsContent({
         variantsMap.set(v.product_id, []);
       }
       variantsMap.get(v.product_id)?.push(v);
+    });
+
+    const imagesMap = new Map<string, typeof allImages>();
+    allImages?.forEach((img) => {
+      if (!imagesMap.has(img.product_id)) {
+        imagesMap.set(img.product_id, []);
+      }
+      imagesMap.get(img.product_id)?.push(img);
     });
 
     const promoMap = new Map<string, (typeof activePromotions)[0]>();
@@ -211,160 +227,170 @@ async function PromotionsContent({
 
       // Füge Varianten und Bilder wie im Shop hinzu (alle Felder der Variante)
       const variantsRaw = variantsMap.get(product.id);
+      const imagesRaw = imagesMap.get(product.id);
       productsInPromotion.push({
         ...product,
         product_variants: Array.isArray(variantsRaw)
           ? (variantsRaw as ProductVariant[])
           : [],
-        product_images: [], // Optional: Hier könnten Bilder geladen werden, falls benötigt
+        product_images: Array.isArray(imagesRaw)
+          ? (imagesRaw as ProductImage[])
+          : [],
       });
     }
 
     return (
-      <div className="container max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          {/* Promotion Description Banner - Mittig und schön gestylt */}
-          {promo &&
-            activePromotions.length > 0 &&
-            activePromotions[0].description && (
-              <div className="my-8 flex justify-center">
-                <div className="max-w-3xl w-full bg-linear-to-r from-red-50 via-orange-50 to-red-50 rounded-2xl shadow-lg border-2 border-red-200 p-6 md:p-8">
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <div className="flex items-center gap-2">
-                      <svg
-                        className="w-8 h-8 text-red-600 animate-pulse"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                        Aktionsangebot
-                      </h2>
-                      <svg
-                        className="w-8 h-8 text-red-600 animate-pulse"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-lg md:text-xl text-gray-800 font-medium leading-relaxed">
-                      {activePromotions[0].description}
-                    </p>
-                    <div className="flex items-center gap-3 mt-4">
-                      <span className="inline-flex items-center px-6 py-2 rounded-full text-lg font-bold bg-red-600 text-white shadow-md">
-                        {activePromotions[0].discount_type === "percentage"
-                          ? `${activePromotions[0].discount_value}% RABATT`
-                          : `€${activePromotions[0].discount_value.toFixed(
-                              2
-                            )} RABATT`}
-                      </span>
+      <>
+        {/* Banner Section */}
+        <section className="w-full mb-8 mt-4">
+          <div className="container max-w-7xl mx-auto px-4">
+            <Image
+              src="/images/banners/sale-banner.webp"
+              alt="Sale Banner"
+              width={1600}
+              height={300}
+              className="w-full h-80 object-cover rounded-2xl shadow-sm"
+              priority
+            />
+          </div>
+        </section>
+
+        <div className="container max-w-7xl mx-auto px-4">
+          {/* Header */}
+          <div>
+            {/* Promotion Description Banner - Mittig und schön gestylt */}
+            {promo &&
+              activePromotions.length > 0 &&
+              activePromotions[0].description && (
+                <div className="my-4 flex justify-center">
+                  <div className="max-w-3xl w-full p-6 md:p-8">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="w-8 h-8 text-primary animate-pulse"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                          Aktionsangebot
+                        </h2>
+                        <svg
+                          className="w-8 h-8 text-primary animate-pulse"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-lg md:text-xl text-red-900 font-medium leading-relaxed">
+                        {activePromotions[0].description}
+                      </p>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-          {/* Für "Alle Angebote" - zeige Grid mit allen Descriptions */}
-          {!promo &&
-            activePromotions.length > 0 &&
-            activePromotions.some((p) => p.description) && (
-              <div className="my-8">
-                <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
-                  Aktuelle Aktionen
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {activePromotions
-                    .filter((p) => p.description)
-                    .map((promo) => (
-                      <div
-                        key={promo.id}
-                        className="bg-linear-to-br from-amber-50 to-orange-50 rounded-xl p-5 shadow-md border-2 border-orange-200 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
-                      >
-                        <div className="flex flex-col space-y-3">
-                          <div className="flex items-center gap-2">
-                            <svg
-                              className="w-6 h-6 text-orange-600"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <h3 className="font-bold text-lg text-gray-900">
-                              {promo.name}
-                            </h3>
-                          </div>
-                          <p className="text-sm text-gray-700 leading-relaxed">
-                            {promo.description}
-                          </p>
-                          <div className="flex justify-between items-center pt-2">
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-600 text-white">
-                              {promo.discount_type === "percentage"
-                                ? `-${promo.discount_value}%`
-                                : `-€${promo.discount_value.toFixed(2)}`}
-                            </span>
-                            <Link
-                              href={`/promotions?promo=${promo.id}`}
-                              className="text-sm font-semibold text-primary hover:text-accent transition-colors underline"
-                            >
-                              Jetzt ansehen →
-                            </Link>
+            {/* Für "Alle Angebote" - zeige Grid mit allen Descriptions */}
+            {!promo &&
+              activePromotions.length > 0 &&
+              activePromotions.some((p) => p.description) && (
+                <div className="my-8">
+                  <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
+                    SALE - sichere dir 10-20% Rabatt
+                  </h2>
+                  <div className="flex flex-wrap justify-center gap-16">
+                    {activePromotions
+                      .filter((p) => p.description)
+                      .map((promo) => (
+                        <div
+                          key={promo.id}
+                          className="bg-linear-to-br from-primary/20 to-orange-50 rounded-xl p-5 shadow-md border hover:shadow-xl hover:scale-[1.02] transition-all duration-300 w-full max-w-sm md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+                        >
+                          <div className="flex flex-col space-y-3">
+                            <div className="flex items-center gap-2">
+                              <svg
+                                className="w-6 h-6 text-primary"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              <h3 className="font-bold text-lg">
+                                {promo.name}
+                              </h3>
+                            </div>
+                            <p className="text-sm  leading-relaxed">
+                              {promo.description}
+                            </p>
+                            <div className="flex justify-between items-center pt-2">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-600 text-white">
+                                {promo.discount_type === "percentage"
+                                  ? `-${promo.discount_value}%`
+                                  : `-€${promo.discount_value.toFixed(2)}`}
+                              </span>
+                              <Link
+                                href={`/promotions?promo=${promo.id}`}
+                                className="text-sm font-semibold text-accent hover:text-primary transition-colors underline"
+                              >
+                                Jetzt ansehen →
+                              </Link>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                  </div>
                 </div>
+              )}
+
+            <p className="text-muted-foreground text-center">
+              {productsInPromotion?.length || 0}{" "}
+              {productsInPromotion?.length === 1 ? "Produkt" : "Produkte"} im
+              Angebot
+            </p>
+          </div>
+
+          {/* Main Layout: Filter + Products */}
+          <div>
+            {/* Zurück-Link wenn spezifische Promotion gefiltert */}
+            {promo && (
+              <div className="mb-6">
+                <Link
+                  href="/promotions"
+                  className="inline-flex items-center gap-2 text-sm text-primary hover:text-accent transition-colors"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  Zurück zu allen Angeboten
+                </Link>
               </div>
             )}
 
-          <p className="text-muted-foreground text-center">
-            {productsInPromotion?.length || 0}{" "}
-            {productsInPromotion?.length === 1 ? "Produkt" : "Produkte"} im
-            Angebot
-          </p>
+            {/* Products Grid */}
+            <PromotionProductListClient products={productsInPromotion} />
+          </div>
         </div>
-
-        {/* Main Layout: Filter + Products */}
-        <div>
-          {/* Zurück-Link wenn spezifische Promotion gefiltert */}
-          {promo && (
-            <div className="mb-6">
-              <Link
-                href="/promotions"
-                className="inline-flex items-center gap-2 text-sm text-primary hover:text-accent transition-colors"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-                Zurück zu allen Angeboten
-              </Link>
-            </div>
-          )}
-
-          {/* Products Grid */}
-          <PromotionProductListClient products={productsInPromotion} />
-        </div>
-      </div>
+      </>
     );
   } catch (error) {
     console.error("Error in PromotionsContent:", error);
