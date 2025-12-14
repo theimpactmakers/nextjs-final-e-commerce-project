@@ -18,13 +18,14 @@ import {
 import type { Database } from "@/types";
 
 // Dynamic imports for below-the-fold components to reduce initial bundle size
+import { Suspense } from "react";
 const RelatedProducts = dynamic(() => import("@/components/RelatedProducts"), {
   loading: () => (
     <div className="flex items-center justify-center p-12">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
     </div>
   ),
-  ssr: true,
+  ssr: false,
 });
 
 const ReviewList = dynamic(() => import("@/components/ReviewList"), {
@@ -33,7 +34,7 @@ const ReviewList = dynamic(() => import("@/components/ReviewList"), {
       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600"></div>
     </div>
   ),
-  ssr: true,
+  ssr: false,
 });
 
 const ReviewForm = dynamic(() => import("@/components/ReviewForm"), {
@@ -42,7 +43,7 @@ const ReviewForm = dynamic(() => import("@/components/ReviewForm"), {
       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600"></div>
     </div>
   ),
-  ssr: true,
+  ssr: false,
 });
 
 type Product = Database["public"]["Tables"]["products"]["Row"] & {
@@ -382,6 +383,10 @@ export default function SingleProductView({
 
   return (
     <div className="space-y-8 sm:space-y-10 md:space-y-12 px-2 sm:px-4 max-w-[1400px] mx-auto">
+      {/* Breadcrumb Navigation (Pfad) */}
+      <nav className="mb-4 ml-4 sm:ml-8" aria-label="Breadcrumb">
+        {/* ...insert your breadcrumb logic here, or keep as placeholder if not implemented... */}
+      </nav>
       {/* Main Product Section */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_0.8fr] gap-6 md:gap-8">
         {/* Left: Image Gallery */}
@@ -1062,51 +1067,61 @@ export default function SingleProductView({
 
               {/* Review Form */}
               {showReviewForm && (
-                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">
-                      {editingReview
-                        ? "Bewertung bearbeiten"
-                        : "Bewertung schreiben"}
-                    </h3>
-                    <button
-                      onClick={() => {
-                        setShowReviewForm(false);
-                        setEditingReview(null);
-                      }}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                <Suspense
+                  fallback={
+                    <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                      Lädt...
+                    </div>
+                  }
+                >
+                  <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold">
+                        {editingReview
+                          ? "Bewertung bearbeiten"
+                          : "Bewertung schreiben"}
+                      </h3>
+                      <button
+                        onClick={() => {
+                          setShowReviewForm(false);
+                          setEditingReview(null);
+                        }}
+                        className="text-gray-500 hover:text-gray-700"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                    <ReviewForm
+                      productId={product.id}
+                      existingReview={editingReview ?? undefined}
+                      onSuccess={handleReviewSubmitted}
+                    />
                   </div>
-                  <ReviewForm
-                    productId={product.id}
-                    existingReview={editingReview ?? undefined}
-                    onSuccess={handleReviewSubmitted}
-                  />
-                </div>
+                </Suspense>
               )}
 
               {/* Review List */}
-              <ReviewList
-                productId={product.id}
-                initialReviews={productReviews}
-                currentUserId={user?.id}
-                onEditReview={handleEditReview}
-                onDeleteReview={handleDeleteReview}
-              />
+              <Suspense fallback={<div>Lädt Bewertungen...</div>}>
+                <ReviewList
+                  productId={product.id}
+                  initialReviews={productReviews}
+                  currentUserId={user?.id}
+                  onEditReview={handleEditReview}
+                  onDeleteReview={handleDeleteReview}
+                />
+              </Suspense>
             </div>
           )}
         </div>
@@ -1114,12 +1129,14 @@ export default function SingleProductView({
 
       {/* Related Products */}
       <div className="mt-10 sm:mt-14 md:mt-16 ml-6">
-        <RelatedProducts
-          productId={product.id}
-          title="Entdecke ähnliche Produkte"
-          subtitle="Produkte, die andere Kunden auch gekauft haben"
-          limit={4}
-        />
+        <Suspense fallback={<div>Lädt ähnliche Produkte...</div>}>
+          <RelatedProducts
+            productId={product.id}
+            title="Entdecke ähnliche Produkte"
+            subtitle="Produkte, die andere Kunden auch gekauft haben"
+            limit={4}
+          />
+        </Suspense>
       </div>
     </div>
   );
