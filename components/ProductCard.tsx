@@ -93,13 +93,13 @@ export default function ProductCard({
             setSelectedWeight(`${weight}kg` as "3kg" | "6kg");
           }
         }
-      } 
+      }
       // If MULTIPLE variants have promotions, store the max discount for badge
       else if (variantsWithPromo.length > 1) {
         const maxDiscount = Math.max(
-          ...variantsWithPromo.map((vp) => 
-            vp.promo!.discountType === "percentage" 
-              ? vp.promo!.discountAmount 
+          ...variantsWithPromo.map((vp) =>
+            vp.promo!.discountType === "percentage"
+              ? vp.promo!.discountAmount
               : 0
           )
         );
@@ -150,7 +150,7 @@ export default function ProductCard({
       }
       // When user selects a variant, hide the multiple variants badge
       setMultipleVariantsInPromo(null);
-      
+
       const promo = await calculatePromotionDiscount(
         product.id,
         selectedVariant.id,
@@ -628,28 +628,30 @@ export default function ProductCard({
               </button>
             </div>
             {/* Price right */}
-            <div className="flex items-end gap-2">
-              {!selectedVariant && (
-                <span
-                  className={`text-lg font-bold mr-1 -mt-2 mb-.5 align-baseline text-black`}
-                >
-                  ab
-                </span>
-              )}
-              <span
-                className={`text-lg font-bold ${
-                  product.is_on_sale || promotionData
-                    ? "text-red-500"
-                    : "text-black"
-                }`}
-              >
-                €{finalPrice?.toFixed(2)}
-              </span>
+            <div className="flex flex-col items-end gap-1">
               {selectedVariant && originalPrice > finalPrice && (
-                <span className="text-sm text-red-400 line-through">
+                <span className="text-sm text-black line-through">
                   €{originalPrice.toFixed(2)}
                 </span>
               )}
+              <div className="flex items-end gap-2">
+                {!selectedVariant && (
+                  <span
+                    className={`text-lg font-bold mr-1 -mt-2 mb-.5 align-baseline text-black`}
+                  >
+                    ab
+                  </span>
+                )}
+                <span
+                  className={`text-lg font-bold ${
+                    product.is_on_sale || promotionData
+                      ? "text-red-700"
+                      : "text-black"
+                  }`}
+                >
+                  €{finalPrice?.toFixed(2)}
+                </span>
+              </div>
             </div>
           </div>
           {/* Stock Status below cart button, centered (only here!) */}

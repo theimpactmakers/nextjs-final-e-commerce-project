@@ -15,6 +15,8 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types";
 import ShopProductListClient from "@/components/ShopProductListClient";
+import { NewProductsCarousel } from "@/components/NewProductsCarouselWrapper";
+import SearchBar from "@/components/SearchBar";
 import Image from "next/image";
 
 // Revalidate alle 60 Sekunden für frische Daten
@@ -69,22 +71,20 @@ async function ShopContent({
 
   // Füge Filter hinzu - unterstützt mehrere Werte (kommagetrennt)
   if (ageFilter) {
-    const ageValues = ageFilter.split(',').map(a => a.trim().toLowerCase());
-    const dbAgeValues = ageValues
-      .map(a => ageEnumValues[a])
-      .filter(Boolean);
-    
+    const ageValues = ageFilter.split(",").map((a) => a.trim().toLowerCase());
+    const dbAgeValues = ageValues.map((a) => ageEnumValues[a]).filter(Boolean);
+
     if (dbAgeValues.length > 0) {
       query = query.in("age_group", dbAgeValues);
     }
   }
 
   if (meatFilter) {
-    const meatValues = meatFilter.split(',').map(m => m.trim().toLowerCase());
+    const meatValues = meatFilter.split(",").map((m) => m.trim().toLowerCase());
     const dbMeatValues = meatValues
-      .map(m => meatEnumValues[m])
+      .map((m) => meatEnumValues[m])
       .filter(Boolean);
-    
+
     if (dbMeatValues.length > 0) {
       query = query.in("meat_type", dbMeatValues);
     }
@@ -160,17 +160,54 @@ async function ShopContent({
           />
         </div>
       </section>
+      {/* Neue Produkte Carousel */}
+      <section className="container max-w-7xl mx-auto px-4  pt-4 pb-8">
+        <div className="mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 text-center">
+            Neue im Sortiment
+          </h2>
+          <p className="text-muted-foreground text-center text-sm">
+            Entdecke unsere neuesten Produkte!
+          </p>
+        </div>
+        <Suspense
+          fallback={
+            <div className="flex gap-4 overflow-hidden px-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[280px] animate-pulse">
+                  <div className="bg-muted rounded-xl h-48 mb-4" />
+                  <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                  <div className="bg-muted rounded h-3 w-1/2" />
+                </div>
+              ))}
+            </div>
+          }
+        >
+          <NewProductsCarousel />
+        </Suspense>
+      </section>
+
+      {/* Trennlinie */}
+      <div className="container max-w-7xl mx-auto px-4">
+        <hr className="border-t border-gray-200" />
+      </div>
+
       <div className="container max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 text-foreground text-left">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground text-left">
             {getPageTitle()}
           </h1>
-          <p className="text-muted-foreground text-left">
-            {productsWithVariants?.length || 0}{" "}
-            {productsWithVariants?.length === 1 ? "Produkt" : "Produkte"}{" "}
-            gefunden
-          </p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <p className="text-muted-foreground text-left">
+              {productsWithVariants?.length || 0}{" "}
+              {productsWithVariants?.length === 1 ? "Produkt" : "Produkte"}{" "}
+              gefunden
+            </p>
+            <div className="w-full md:w-auto md:min-w-[300px]">
+              <SearchBar />
+            </div>
+          </div>
         </div>
         {/* Main Layout: Products */}
         <ShopProductListClient products={productsWithVariants} />

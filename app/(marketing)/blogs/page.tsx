@@ -1,4 +1,4 @@
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
 export const revalidate = 3600; // 1 hour (blogs change more frequently)
 
 export default function BlogsPage() {
@@ -56,12 +56,12 @@ export default function BlogsPage() {
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">
       <div className="container mx-auto px-4">
         <h1 className="text-4xl font-bold text-[hsl(var(--foreground))] mb-8 text-center">
-          Blog & Ratgeber
+          Blogs & Ratgeber
         </h1>
 
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
-            <p className="text-xl text-[hsl(var(--muted-foreground))] text-center">
+            <p className="text-xl text-center">
               Expertenwissen, Tipps und Ratgeber rund um die Hundeernährung und
               -gesundheit
             </p>
@@ -71,14 +71,14 @@ export default function BlogsPage() {
             {blogPosts.map((post, index) => (
               <article
                 key={index}
-                className="bg-white rounded-lg shadow-md border border-[hsl(var(--border))] overflow-hidden hover:shadow-lg transition-shadow"
+                className="bg-white rounded-lg shadow-md border overflow-hidden hover:shadow-lg transition-shadow"
               >
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] px-2 py-1 rounded-full">
+                    <span className="text-xs font-medium bg-primary/80 text-white px-2 py-1 rounded-full">
                       {post.category}
                     </span>
-                    <span className="text-xs text-[hsl(var(--muted-foreground))]">
+                    <span className="text-xs text-black">
                       {post.readTime} lesen
                     </span>
                   </div>
@@ -92,38 +92,19 @@ export default function BlogsPage() {
                   </p>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-[hsl(var(--muted-foreground))]">
+                    <span className="text-sm text-primary">
                       {new Date(post.date).toLocaleDateString("de-DE")}
                     </span>
-                    <button className="text-[hsl(var(--primary))] hover:text-[hsl(var(--accent))] font-medium transition-colors">
-                      Weiterlesen →
+                    <button className="text-accent hover:text-black font-medium transition-colors cursor-pointer">
+                      <span className="underline hover:no-underline mr-1">
+                        Weiterlesen
+                      </span>
+                      →
                     </button>
                   </div>
                 </div>
               </article>
             ))}
-          </div>
-
-          <div className="mt-12 text-center">
-            <div className="bg-[hsl(var(--secondary))] rounded-lg p-8">
-              <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-4">
-                Bleiben Sie informiert
-              </h2>
-              <p className="text-[hsl(var(--muted-foreground))] mb-6">
-                Abonnieren Sie unseren Newsletter und erhalten Sie die neuesten
-                Artikel direkt in Ihr Postfach.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input
-                  type="email"
-                  placeholder="Ihre E-Mail-Adresse"
-                  className="flex-1 px-4 py-3 border border-[hsl(var(--border))] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[hsl(var(--accent))]/30"
-                />
-                <button className="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] px-6 py-3 rounded-lg hover:bg-[hsl(var(--primary))]/90 transition-colors font-semibold">
-                  Abonnieren
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
