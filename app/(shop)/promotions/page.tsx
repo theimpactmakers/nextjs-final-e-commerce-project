@@ -5,6 +5,7 @@ import Image from "next/image";
 import type { Database } from "@/types";
 import PromotionProductListClient from "@/components/PromotionProductListClient";
 import { getActivePromotionsServer } from "@/lib/supabase/products-server";
+import { BestsellerCarouselClient } from "@/components/BestsellerCarousel";
 
 export const revalidate = 60;
 
@@ -204,9 +205,13 @@ async function PromotionsContent({
       product_id: string;
       updated_at: string | null;
     };
+
+    type Promotion = Database["public"]["Tables"]["promotions"]["Row"];
     type ProductWithVariants = ProductWithImage & {
       product_variants?: ProductVariant[];
       product_images?: ProductImage[];
+      discount_value?: number;
+      promotion?: Promotion;
     };
     const productsInPromotion: ProductWithVariants[] = [];
 
@@ -239,62 +244,116 @@ async function PromotionsContent({
       });
     }
 
-    return (
-      <>
-        {/* Banner Section */}
-        <section className="w-full mb-8 mt-4">
-          <div className="container max-w-7xl mx-auto px-4">
-            <Image
-              src="/images/banners/sale-banner.webp"
-              alt="Sale Banner"
-              width={1600}
-              height={300}
-              className="w-full h-80 object-cover rounded-2xl shadow-sm"
-              priority
-            />
-          </div>
-        </section>
+    // Always fetch all active promotions for carousels
+    const allActivePromotions = await getActivePromotionsServer();
 
-        <div className="container max-w-7xl mx-auto px-4">
-          {/* Header */}
-          <div>
-            {/* Promotion Description Banner - Mittig und schön gestylt */}
-            {promo &&
-              activePromotions.length > 0 &&
-              activePromotions[0].description && (
-                <div className="my-4 flex justify-center">
-                  <div className="max-w-3xl w-full p-6 md:p-8">
-                    <div className="flex flex-col items-center text-center space-y-4">
-                      <div className="flex items-center gap-2">
-                        <svg
-                          className="w-8 h-8 text-primary animate-pulse"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                          Aktionsangebot
-                        </h2>
-                        <svg
-                          className="w-8 h-8 text-primary animate-pulse"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-lg md:text-xl text-red-900 font-medium leading-relaxed">
-                        {activePromotions[0].description}
-                      </p>
+    // Helper to build a product list for a given discount
+    function getProductsForDiscount(discount: number): ProductWithVariants[] {
+      // Collect all product and variant IDs for this discount
+      const promoProductIds = new Set<string>();
+      const promoVariantIds = new Set<string>();
+      allActivePromotions.forEach((promo) => {
+        if (promo.discount_value === discount) {
+          if (promo.product_ids) {
+            promo.product_ids.forEach((id) => promoProductIds.add(id));
+          }
+          if (promo.variant_ids) {
+            promo.variant_ids.forEach((id) => promoVariantIds.add(id));
+          }
+        }
+      });
+      // Return products from allProducts that match this discount (even if also in another)
+      return allProducts
+        ? allProducts
+            .filter((p) => {
+              if (!p.id) return false;
+              if (promoProductIds.has(p.id)) return true;
+              const variants: ProductVariant[] = variantsMap.get(p.id) || [];
+              return variants.some((v) => promoVariantIds.has(v.id));
+            })
+            .map((product) => {
+              const variantsRaw: ProductVariant[] =
+                variantsMap.get(product.id!) || [];
+              const promo = allActivePromotions.find(
+                (pr) =>
+                  ((pr.product_ids && pr.product_ids.includes(product.id!)) ||
+                    (pr.variant_ids &&
+                      variantsRaw.some((v) =>
+                        pr.variant_ids!.includes(v.id)
+                      ))) &&
+                  pr.discount_value === discount
+              );
+              return {
+                ...product,
+                product_variants: Array.isArray(variantsRaw)
+                  ? (variantsRaw as ProductVariant[])
+                  : [],
+                product_images: [],
+                discount_value: promo?.discount_value,
+              };
+            })
+        : [];
+    }
+
+    // For the carousels, always use all products for the other discount
+    const products10 = getProductsForDiscount(10);
+    const products20 = getProductsForDiscount(20);
+
+    // Determine the current promotion discount value (if any)
+    const currentPromoDiscount =
+      activePromotions.length === 1
+        ? activePromotions[0].discount_value
+        : undefined;
+
+    return (
+      <div className="container max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          {/* Promotion Description Banner - Mittig und schön gestylt */}
+          {promo &&
+            activePromotions.length > 0 &&
+            activePromotions[0].description && (
+              <div className="my-8 flex justify-center">
+                <div className="max-w-3xl w-full bg-linear-to-r from-red-50 via-orange-50 to-red-50 rounded-2xl shadow-lg border-2 border-red-200 p-6 md:p-8">
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <div className="flex items-center gap-2">
+                      <svg
+                        className="w-8 h-8 text-red-600 animate-pulse"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                        Aktionsangebot
+                      </h2>
+                      <svg
+                        className="w-8 h-8 text-red-600 animate-pulse"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-lg md:text-xl text-gray-800 font-medium leading-relaxed">
+                      {activePromotions[0].description}
+                    </p>
+                    <div className="flex items-center gap-3 mt-4">
+                      <span className="inline-flex items-center px-6 py-2 rounded-full text-lg font-bold bg-red-600 text-white shadow-md">
+                        {activePromotions[0].discount_type === "percentage"
+                          ? `${activePromotions[0].discount_value}% RABATT`
+                          : `€${activePromotions[0].discount_value.toFixed(
+                              2
+                            )} RABATT`}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -368,27 +427,44 @@ async function PromotionsContent({
                   href="/promotions"
                   className="inline-flex items-center gap-2 text-sm text-primary hover:text-accent transition-colors"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                  Zurück zu allen Angeboten
-                </Link>
-              </div>
-            )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Zurück zu allen Angeboten
+              </Link>
+            </div>
+          )}
 
-            {/* Products Grid */}
-            <PromotionProductListClient products={productsInPromotion} />
-          </div>
+          {/* Products Grid */}
+          <PromotionProductListClient products={productsInPromotion} />
+
+          {/* Show the other discount carousel if on a specific promo only */}
+          {promo && currentPromoDiscount === 10 && (
+            <>
+              <hr className="my-12 border-t border-gray-200 w-full" />
+              <div className="mt-12">
+                <h2 className="text-2xl font-bold text-center mb-6">
+                  Produkte mit 20% Rabatt
+                </h2>
+                <BestsellerCarouselClient products={products20} />
+              </div>
+            </>
+          )}
+          {promo && currentPromoDiscount === 20 && (
+            <>
+              <hr className="my-12 border-t border-gray-200 w-full" />
+              <div className="mt-12">
+                <h2 className="text-2xl font-bold text-center mb-6">
+                  Produkte mit 10% Rabatt
+                </h2>
+                <BestsellerCarouselClient products={products10} />
+              </div>
+            </>
+          )}
         </div>
       </>
     );

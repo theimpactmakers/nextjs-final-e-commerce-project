@@ -47,6 +47,7 @@ export default async function AdminLayout({
     { href: "/admin/orders", label: "Bestellungen", icon: ShoppingCart },
     { href: "/admin/customers", label: "Kunden", icon: Users },
     { href: "/admin/reviews", label: "Bewertungen", icon: Star },
+    { href: "/admin/contact-messages", label: "Kontaktanfragen", icon: Users },
     { href: "/admin/settings", label: "Einstellungen", icon: Settings },
   ];
 
@@ -57,6 +58,11 @@ export default async function AdminLayout({
     { href: "/admin/orders", label: "Bestellungen", iconName: "ShoppingCart" },
     { href: "/admin/customers", label: "Kunden", iconName: "Users" },
     { href: "/admin/reviews", label: "Bewertungen", iconName: "Star" },
+    {
+      href: "/admin/contact-messages",
+      label: "Kontaktanfragen",
+      iconName: "Users",
+    },
     { href: "/admin/settings", label: "Einstellungen", iconName: "Settings" },
   ];
 

@@ -13,10 +13,12 @@ type Product = Database["public"]["Tables"]["products"]["Row"];
 type ProductImage = Database["public"]["Tables"]["product_images"]["Row"];
 type ProductVariant = Database["public"]["Tables"]["product_variants"]["Row"];
 
+type Promotion = Database["public"]["Tables"]["promotions"]["Row"];
 interface ProductCardProps {
   product: Product;
   images: ProductImage[];
   variants: ProductVariant[];
+  promotion?: Promotion;
 }
 
 interface PromotionData {
@@ -31,6 +33,7 @@ export default function ProductCard({
   product,
   images,
   variants,
+  promotion,
 }: ProductCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
@@ -62,12 +65,40 @@ export default function ProductCard({
     (a, b) => a.display_order - b.display_order
   );
 
-  // Auto-select variant based on promotion logic
+  // Auto-select variant based on server-provided promotion or promotion logic
   useEffect(() => {
     if (selectedVariantId || !variants || variants.length === 0) return;
 
+    // If a promotion is provided from the server, auto-select the first matching variant
+    if (promotion) {
+      let variantToSelect: ProductVariant | undefined;
+      if (
+        promotion.applies_to === "specific_variants" &&
+        promotion.variant_ids
+      ) {
+        variantToSelect = variants.find((v) =>
+          promotion.variant_ids!.includes(v.id)
+        );
+      } else {
+        // Fallback: select the first variant
+        variantToSelect = variants[0];
+      }
+      if (variantToSelect) {
+        setSelectedVariantId(variantToSelect.id);
+        // Extract weight from variant name
+        const weightMatch = variantToSelect.name?.match(/(\d+)kg/i);
+        if (weightMatch) {
+          const weight = weightMatch[1];
+          if (weight === "3" || weight === "6") {
+            setSelectedWeight(`${weight}kg` as "3kg" | "6kg");
+          }
+        }
+        return;
+      }
+    }
+
+    // Fallback: original logic
     const checkPromotions = async () => {
-      // Check which variants have promotions
       const variantPromotions = await Promise.all(
         variants.map(async (v) => {
           const promo = await calculatePromotionDiscount(
@@ -78,14 +109,10 @@ export default function ProductCard({
           return { variant: v, promo };
         })
       );
-
       const variantsWithPromo = variantPromotions.filter((vp) => vp.promo);
-
-      // If exactly ONE variant has a promotion, auto-select it
       if (variantsWithPromo.length === 1) {
         const variantToSelect = variantsWithPromo[0].variant;
         setSelectedVariantId(variantToSelect.id);
-        // Extract weight from variant name
         const weightMatch = variantToSelect.name?.match(/(\d+)kg/i);
         if (weightMatch) {
           const weight = weightMatch[1];
@@ -93,9 +120,7 @@ export default function ProductCard({
             setSelectedWeight(`${weight}kg` as "3kg" | "6kg");
           }
         }
-      }
-      // If MULTIPLE variants have promotions, store the max discount for badge
-      else if (variantsWithPromo.length > 1) {
+      } else if (variantsWithPromo.length > 1) {
         const maxDiscount = Math.max(
           ...variantsWithPromo.map((vp) =>
             vp.promo!.discountType === "percentage"
@@ -106,9 +131,8 @@ export default function ProductCard({
         setMultipleVariantsInPromo({ hasMultiple: true, maxDiscount });
       }
     };
-
     checkPromotions();
-  }, []); // Only run on mount
+  }, [promotion]); // Only run on mount or when promotion changes
 
   // Switch image based on weight selection (only if user hasn't manually navigated)
   useEffect(() => {
@@ -141,8 +165,22 @@ export default function ProductCard({
     }
   }, [selectedWeight, sortedImages, manualImageChange]);
 
-  // Load promotion data when variant changes
+  // Load promotion data when variant changes, unless promotion is provided from server
   useEffect(() => {
+    if (promotion && selectedVariant) {
+      // If server provided promotion, use it
+      setPromotionData({
+        originalPrice: selectedVariant.price,
+        discountedPrice:
+          promotion.discount_type === "percentage"
+            ? selectedVariant.price * (1 - promotion.discount_value / 100)
+            : selectedVariant.price - promotion.discount_value,
+        promotion,
+        discountAmount: promotion.discount_value,
+        discountType: promotion.discount_type as "percentage" | "fixed_amount",
+      });
+      return;
+    }
     const loadPromotion = async () => {
       if (!selectedVariant) {
         setPromotionData(null);
@@ -160,7 +198,7 @@ export default function ProductCard({
     };
 
     loadPromotion();
-  }, [selectedVariant, product.id]);
+  }, [selectedVariant, product.id, promotion]);
 
   const nextImage = () => {
     setManualImageChange(true);
