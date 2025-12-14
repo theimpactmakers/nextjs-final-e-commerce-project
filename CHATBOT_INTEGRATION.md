@@ -1,7 +1,7 @@
 # KI-Chatbot Integration
 
 ## Übersicht
-Der KI-gestützte Chatbot wurde erfolgreich in die Next.js-Anwendung integriert. Er erscheint auf allen Seiten unten rechts und bietet intelligente Produktempfehlungen basierend auf Nutzerfragen.
+Der KI-gestützte Chatbot wurde erfolgreich in die Next.js-Anwendung integriert. Er erscheint auf allen Seiten unten rechts, stellt autmatisierte Fragen sowie Antwortmöglichkeiten und bietet intelligente Produktempfehlungen basierend auf Nutzerfragen.
 
 ## Features
 
@@ -16,7 +16,6 @@ Der KI-gestützte Chatbot wurde erfolgreich in die Next.js-Anwendung integriert.
 ### 🎨 Design
 - Modernes Gradient-Design
 - Floating Chat-Button mit Animations-Effekten
-- Chat-Fenster mit 600px Höhe und 384px Breite
 - Produktkarten mit Bildern und Preisen
 - Lade-Animationen
 
@@ -49,7 +48,7 @@ Der Chatbot wurde in das Root-Layout eingebunden und ist somit auf allen Seiten 
 
 ### Umgebungsvariablen
 ```env
-OPEN_API_KEY=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
+OPEN_API_KEY
 ```
 
 ## Funktionsweise
@@ -127,30 +126,6 @@ Der Chatbot erkennt automatisch folgende Intents:
 - **Eigenschaften**: nachhaltig, pädagogisch, kreativ
 - **Preis**: preis, günstig, teuer, budget, euro
 
-## Beispiel-Konversationen
-
-### Beispiel 1: Produktempfehlung
-```
-Nutzer: "Ich suche ein Geschenk für ein 5-jähriges Kind"
-Bot: "Gerne helfe ich Ihnen! Für ein 5-jähriges Kind empfehle ich 
-      besonders Lernspielzeug, das die Kreativität fördert..."
-      [Zeigt 3 passende Produkte]
-```
-
-### Beispiel 2: Kategorie-Suche
-```
-Nutzer: "Habt ihr Holzspielzeug?"
-Bot: "Ja, wir haben eine große Auswahl an hochwertigem Holzspielzeug!..."
-      [Zeigt Holzspielzeug-Produkte]
-```
-
-### Beispiel 3: Beratung
-```
-Nutzer: "Was ist das beste für ein Baby?"
-Bot: "Für Babys (0-2 Jahre) empfehle ich besonders sichere und 
-      altersgerechte Produkte..."
-      [Zeigt Baby-Produkte]
-```
 
 ## Troubleshooting
 
@@ -190,16 +165,6 @@ In `/app/api/chatbot/route.ts`:
 .limit(10) // Statt 5 Produkte
 ```
 
-### Design anpassen
-Farben in `AIChatbot.tsx` ändern:
-```typescript
-// Aktuell: Blau zu Lila Gradient
-className="bg-gradient-to-r from-blue-600 to-purple-600"
-
-// Beispiel: Grün zu Türkis
-className="bg-gradient-to-r from-green-600 to-teal-600"
-```
-
 ## Nächste Schritte (Optional)
 
 ### Mögliche Erweiterungen:
@@ -222,14 +187,6 @@ className="bg-gradient-to-r from-green-600 to-teal-600"
 
 ### Rate Limits
 - OpenAI: 500 Anfragen/Minute (Tier 1)
-- Supabase: Abhängig von Ihrem Plan
-
-## Support
-
-Bei Fragen oder Problemen:
-1. Prüfen Sie die Browser-Console auf Fehler
-2. Schauen Sie in die Server-Logs
-3. Überprüfen Sie die API-Keys
 
 ---
 

@@ -71,16 +71,6 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
     return () => clearInterval(intervalId);
   }, [nextSlide, totalSlides]);
 
-  // Error-Handling für das Bild
-  const handleImageError = (
-    e: React.SyntheticEvent<HTMLImageElement, Event>
-  ) => {
-    const target = e.target as HTMLImageElement;
-    target.onerror = null;
-    target.src =
-      "https://placehold.co/720x400/CCCCCC/333333?text=Bild+nicht+gefunden";
-  };
-
   return (
     // Responsive Höhe: Mobile (h-80), Tablet/Small Desktop (md:h-96), Large Desktop (lg:h-[70vh])
     <section className="relative w-full overflow-hidden h-80 md:h-96 lg:h-[70vh] mb-12 shadow-xl">
