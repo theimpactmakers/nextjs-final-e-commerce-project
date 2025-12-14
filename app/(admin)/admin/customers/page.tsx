@@ -300,7 +300,7 @@ export default async function CustomersPage({
             href={`?page=${Math.max(1, page - 1)}${
               search ? `&search=${search}` : ""
             }`}
-            className={`rounded-lg border px-4 py-2 ${
+            className={`cursor-pointer rounded-lg border px-4 py-2 ${
               page === 1
                 ? "pointer-events-none border-border text-muted-foreground opacity-50"
                 : "border-border text-foreground hover:bg-muted"
@@ -315,7 +315,7 @@ export default async function CustomersPage({
             href={`?page=${Math.min(totalPages, page + 1)}${
               search ? `&search=${search}` : ""
             }`}
-            className={`rounded-lg border px-4 py-2 ${
+            className={`cursor-pointer rounded-lg border px-4 py-2 ${
               page === totalPages
                 ? "pointer-events-none border-border text-muted-foreground opacity-50"
                 : "border-border text-foreground hover:bg-muted"

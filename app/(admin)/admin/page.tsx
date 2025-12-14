@@ -134,16 +134,16 @@ async function getAdminStats() {
   });
 
   const orderStatusData = [
-    { name: "Ausstehend", value: statusCounts.pending, color: "#fbbf24" },
-    { name: "Bestätigt", value: statusCounts.confirmed, color: "#3b82f6" },
+    { name: "Ausstehend", value: statusCounts.pending, color: "#C87C28" },
+    { name: "Bestätigt", value: statusCounts.confirmed, color: "#000000" },
     {
       name: "In Bearbeitung",
       value: statusCounts.processing,
-      color: "#8b5cf6",
+      color: "#a90329",
     },
-    { name: "Versandt", value: statusCounts.shipped, color: "#06b6d4" },
-    { name: "Geliefert", value: statusCounts.delivered, color: "#10b981" },
-    { name: "Storniert", value: statusCounts.cancelled, color: "#ef4444" },
+    { name: "Versandt", value: statusCounts.shipped, color: "#6B4423" },
+    { name: "Geliefert", value: statusCounts.delivered, color: "#8B7355" },
+    { name: "Storniert", value: statusCounts.cancelled, color: "#4A4A4A" },
   ].filter((item) => item.value > 0);
 
   // Fetch category sales data - simplified approach
@@ -214,19 +214,19 @@ export default async function AdminDashboard() {
       title: "Produkte Gesamt",
       value: stats.totalProducts,
       icon: Package,
-      color: "bg-blue-500",
+      color: "bg-black",
     },
     {
       title: "Bestellungen Gesamt",
       value: stats.totalOrders,
       icon: ShoppingCart,
-      color: "bg-green-500",
+      color: "bg-primary",
     },
     {
       title: "Kunden",
       value: stats.totalCustomers,
       icon: Users,
-      color: "bg-purple-500",
+      color: "bg-accent",
     },
     {
       title: "Umsatz",
@@ -254,21 +254,17 @@ export default async function AdminDashboard() {
           return (
             <div
               key={stat.title}
-              className="relative overflow-hidden rounded-lg bg-card border border-border p-6 shadow"
+              className="relative overflow-hidden rounded-lg bg-card border border-border p-6 shadow flex flex-col justify-between min-h-[140px]"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </p>
-                  <p className="mt-2 text-3xl font-bold text-foreground">
-                    {stat.value}
-                  </p>
-                </div>
+              <div className="flex items-start justify-between">
+                <p className="text-sm font-bold text-black">{stat.title}</p>
                 <div className={`rounded-full ${stat.color} p-3`}>
-                  <Icon className="h-6 w-6 text-white" />
+                  <Icon className="h-4 w-4 text-white" />
                 </div>
               </div>
+              <p className="text-2xl font-bold text-[#a90329] mt-auto">
+                {stat.value}
+              </p>
             </div>
           );
         })}

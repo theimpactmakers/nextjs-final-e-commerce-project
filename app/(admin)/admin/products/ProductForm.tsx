@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   createProduct,
   updateProduct,
@@ -343,7 +344,7 @@ export function ProductForm({
   const handleImageFieldChange = (
     imageId: string,
     field: keyof ProductImage,
-    value: any
+    value: string | number
   ) => {
     setImages(
       images.map((img) =>
@@ -408,12 +409,12 @@ export function ProductForm({
       {/* Basic Information */}
       <div className="rounded-lg bg-white p-6 shadow">
         <h2 className="mb-4 text-xl font-semibold text-gray-900">
-          Grundinformationen
+          Produktinformationen
         </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">
-              Produktname *
+              Produktname <span className="text-[#a90329]">*</span>
             </label>
             <input
               type="text"
@@ -421,16 +422,16 @@ export function ProductForm({
               value={formData.name}
               onChange={(e) => handleNameChange(e.target.value)}
               placeholder="z.B. Rind Adult Classic"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-accent focus:outline-none"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Der Name wird automatisch in eine URL umgewandelt
             </p>
           </div>
 
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">
-              URL-Pfad (Slug) *
+              URL-Pfad (Slug) <span className="text-[#a90329]">*</span>
             </label>
             <input
               type="text"
@@ -440,9 +441,9 @@ export function ProductForm({
                 setFormData({ ...formData, slug: e.target.value })
               }
               placeholder="rind-adult-classic"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-accent focus:outline-none"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Wird automatisch generiert, nur Kleinbuchstaben und Bindestriche
             </p>
           </div>
@@ -460,13 +461,13 @@ export function ProductForm({
               placeholder="Beschreiben Sie das Produkt, Zutaten, Vorteile..."
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Diese Beschreibung wird auf der Produktseite angezeigt
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-bold text-gray-700">
               Fleischsorte
             </label>
             <select
@@ -474,7 +475,7 @@ export function ProductForm({
               onChange={(e) =>
                 setFormData({ ...formData, meat_type: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-accent px-3 py-2 focus:border-accent focus:outline-none cursor-pointer appearance-none bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23C87C28%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-size-[1.5em] bg-position-[right_0.5rem_center] bg-no-repeat pr-10"
             >
               <option value="">Bitte wählen...</option>
               <option value="ENTE">Ente</option>
@@ -486,13 +487,13 @@ export function ProductForm({
               <option value="LACHS">Lachs</option>
               <option value="HUHN">Huhn</option>
             </select>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Hauptfleischsorte des Produkts
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-bold text-primary">
               Altersgruppe
             </label>
             <select
@@ -500,20 +501,20 @@ export function ProductForm({
               onChange={(e) =>
                 setFormData({ ...formData, age_group: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-accent px-3 py-2 focus:border-accent focus:outline-none cursor-pointer appearance-none bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23C87C28%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-size-[1.5em] bg-position-[right_0.5rem_center] bg-no-repeat pr-10"
             >
               <option value="">Bitte wählen...</option>
               <option value="JUNIOR">Junior (Welpen)</option>
               <option value="ADULT">Adult (Erwachsene)</option>
               <option value="SENIOR">Senior (Ältere)</option>
             </select>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Für welche Altersgruppe ist das Futter geeignet?
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-bold text-gray-700">
               Spezialfutter
             </label>
             <select
@@ -521,7 +522,7 @@ export function ProductForm({
               onChange={(e) =>
                 setFormData({ ...formData, specials: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-accent px-3 py-2 focus:border-accent focus:outline-none cursor-pointer appearance-none bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23C87C28%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-size-[1.5em] bg-position-[right_0.5rem_center] bg-no-repeat pr-10"
             >
               <option value="">Kein Spezialfutter</option>
               <option value="DIAT">Diät</option>
@@ -529,13 +530,13 @@ export function ProductForm({
               <option value="DARM">Darm</option>
               <option value="GELENK">Gelenk</option>
             </select>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Falls das Produkt eine spezielle Funktion hat (optional)
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-bold text-gray-700">
               EAN-Nummer
             </label>
             <input
@@ -545,15 +546,15 @@ export function ProductForm({
                 setFormData({ ...formData, ean: e.target.value })
               }
               placeholder="4260123456789"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-black px-3 py-2 focus:border-accent focus:outline-none"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Barcode-Nummer (optional, meist 13-stellig)
             </p>
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm text-gray-700 font-bold">
               Produktkennzeichnungen
             </label>
             <div className="flex flex-wrap gap-4">
@@ -605,7 +606,7 @@ export function ProductForm({
                 <span className="text-sm text-gray-700">Bestseller</span>
               </label>
             </div>
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-primary">
               Diese Kennzeichnungen werden auf der Website angezeigt
             </p>
           </div>
@@ -631,10 +632,11 @@ export function ProductForm({
                 >
                   {/* Image Preview */}
                   <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded border border-gray-300 bg-white">
-                    <img
+                    <Image
                       src={img.image_url}
                       alt={img.alt_text || "Produktbild"}
-                      className="h-full w-full object-cover"
+                      fill
+                      className="object-cover"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = "https://placehold.co/80x80?text=No+Image";
@@ -660,7 +662,7 @@ export function ProductForm({
                                 e.target.value
                               )
                             }
-                            className="block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                           />
                         </div>
                         <div>
@@ -705,7 +707,7 @@ export function ProductForm({
                           <p className="text-sm font-medium text-gray-900 truncate">
                             {img.alt_text || "Kein Titel"}
                           </p>
-                          <p className="text-xs text-gray-500 truncate mt-1">
+                          <p className="text-xs text-primary truncate mt-1">
                             {img.image_url}
                           </p>
                           <div className="flex items-center gap-3 mt-2">
@@ -731,7 +733,7 @@ export function ProductForm({
                         <button
                           type="button"
                           onClick={() => handleSaveImageEdit(img.id!)}
-                          className="rounded border border-green-300 bg-white px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-50 transition-colors disabled:opacity-50"
+                          className="rounded border border-accent bg-white px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/20 cursor-pointer transition-colors disabled:opacity-50"
                           disabled={isPending}
                         >
                           <Check className="h-4 w-4 inline mr-1" />
@@ -740,9 +742,9 @@ export function ProductForm({
                         <button
                           type="button"
                           onClick={handleCancelImageEdit}
-                          className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                          className="cursor-pointer rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                         >
-                          <X className="h-4 w-4 inline mr-1" />
+                          <X className="h-4 w-4 inline mr-1 cursor-pointer" />
                           Abbrechen
                         </button>
                       </>
@@ -752,7 +754,7 @@ export function ProductForm({
                         <button
                           type="button"
                           onClick={() => handleEditImage(img.id!)}
-                          className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                          className="cursor-pointer rounded border border-accent bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent/80 transition-colors disabled:opacity-50"
                           disabled={isPending}
                           title="Bild bearbeiten"
                         >
@@ -790,18 +792,18 @@ export function ProductForm({
                                 }
                               });
                             }}
-                            className="rounded border border-yellow-300 bg-yellow-50 px-3 py-1.5 text-xs font-medium text-yellow-700 hover:bg-yellow-100 transition-colors disabled:opacity-50"
+                            className="cursor-pointer rounded border border-accent bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent hover:bg-yellow-100 transition-colors disabled:opacity-50"
                             disabled={isPending}
                             title="Hauptbild entfernen"
                           >
-                            <Star className="h-4 w-4 inline mr-1 fill-yellow-600" />
+                            <Star className="h-4 w-4 inline mr-1 fill-accent" />
                             Nicht mehr Hauptbild
                           </button>
                         ) : (
                           <button
                             type="button"
                             onClick={() => handleSetPrimary(img.id!, index)}
-                            className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                            className="cursor-pointer rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
                             disabled={isPending}
                             title="Als Hauptbild setzen"
                           >
@@ -816,7 +818,7 @@ export function ProductForm({
                             type="button"
                             onClick={() => moveImage(index, "up")}
                             disabled={index === 0 || isPending}
-                            className="rounded border border-gray-300 bg-white p-1.5 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="cursor-pointer rounded border border-primary bg-white p-1.5 text-primary hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             title="Nach oben"
                           >
                             <ArrowUp className="h-4 w-4" />
@@ -825,7 +827,7 @@ export function ProductForm({
                             type="button"
                             onClick={() => moveImage(index, "down")}
                             disabled={index === images.length - 1 || isPending}
-                            className="rounded border border-gray-300 bg-white p-1.5 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="cursor-pointer rounded border border-primary bg-white p-1.5 text-primary hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             title="Nach unten"
                           >
                             <ArrowDown className="h-4 w-4" />
@@ -836,7 +838,7 @@ export function ProductForm({
                         <button
                           type="button"
                           onClick={() => handleDeleteImage(img.id!, index)}
-                          className="rounded border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                          className="cursor-pointer rounded border border-black bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
                           disabled={isPending}
                           title="Bild löschen"
                         >
@@ -864,7 +866,7 @@ export function ProductForm({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bild-URL <span className="text-red-500">*</span>
+                Bild-URL <span className="text-[#a90329]">*</span>
               </label>
               <input
                 type="url"
@@ -875,7 +877,7 @@ export function ProductForm({
                 placeholder="https://beispiel.de/bilder/produkt.jpg"
                 className="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 focus:outline-none"
               />
-              <p className="mt-1.5 text-xs text-gray-500">
+              <p className="mt-1.5 text-xs text-primary">
                 Vollständige URL des Bildes (muss mit https:// beginnen)
               </p>
             </div>
@@ -891,9 +893,9 @@ export function ProductForm({
                   setNewImage({ ...newImage, alt_text: e.target.value })
                 }
                 placeholder="z.B. Rind Adult Classic - Hauptbild"
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 focus:outline-none"
+                className="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-accent focus:ring-2 focus:ring-accent focus:ring-opacity-20 focus:outline-none"
               />
-              <p className="mt-1.5 text-xs text-gray-500">
+              <p className="mt-1.5 text-xs text-primary">
                 Beschreibung für Barrierefreiheit (optional)
               </p>
             </div>
@@ -913,9 +915,9 @@ export function ProductForm({
                   })
                 }
                 placeholder="0"
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 focus:outline-none"
+                className="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-accent focus:ring-2 focus:ring-accent focus:ring-opacity-20 focus:outline-none"
               />
-              <p className="mt-1.5 text-xs text-gray-500">
+              <p className="mt-1.5 text-xs text-primary">
                 Position in der Bildergalerie (0 = Standard, 1 = 3kg, 2 = 6kg)
               </p>
             </div>
@@ -925,7 +927,7 @@ export function ProductForm({
             type="button"
             onClick={handleAddImage}
             disabled={!newImage.image_url || isPending}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 rounded-(--app-radius) bg-primary/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Plus className="h-4 w-4" />
             Bild hinzufügen
@@ -959,7 +961,7 @@ export function ProductForm({
                 <button
                   type="button"
                   onClick={() => handleDeleteVariant(variant.id!, index)}
-                  className="text-red-600 hover:text-red-700"
+                  className="cursor-pointer text-[#a90329] hover:text-[#8a0222]"
                   disabled={isPending}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -977,7 +979,7 @@ export function ProductForm({
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Variant Name *
+                Variant Name <span className="text-[#a90329]">*</span>
               </label>
               <input
                 type="text"
@@ -988,11 +990,11 @@ export function ProductForm({
                 placeholder="z.B. 500g, 1kg, 2kg"
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
-              <p className="mt-1 text-xs text-gray-500">Die Packungsgröße</p>
+              <p className="mt-1 text-xs text-primary">Die Packungsgröße</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Verkaufspreis (€) *
+                Verkaufspreis (€) <span className="text-[#a90329]">*</span>
               </label>
               <input
                 type="number"
@@ -1008,13 +1010,13 @@ export function ProductForm({
                 placeholder="19.99"
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-primary">
                 Punkt als Dezimaltrennzeichen (z.B. 19.99)
               </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Gewicht (g) *
+                Gewicht (g) <span className="text-[#a90329]">*</span>
               </label>
               <input
                 type="number"
@@ -1029,7 +1031,7 @@ export function ProductForm({
                 placeholder="500"
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-primary">
                 Nur Gramm (500g = 500, 1kg = 1000)
               </p>
             </div>
@@ -1052,7 +1054,7 @@ export function ProductForm({
                 placeholder="100"
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-primary">
                 Anzahl verfügbarer Stücke
               </p>
             </div>
@@ -1076,7 +1078,7 @@ export function ProductForm({
                 placeholder="24.99"
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-primary">
                 Alter Preis für Rabatt-Anzeige (optional)
               </p>
             </div>
@@ -1100,7 +1102,7 @@ export function ProductForm({
                 placeholder="12.50"
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-primary">
                 Ihr Einkaufspreis für Gewinnberechnung (optional)
               </p>
             </div>
@@ -1109,7 +1111,7 @@ export function ProductForm({
             type="button"
             onClick={handleAddVariant}
             disabled={!newVariant.name || isPending}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="cursor-pointer flex items-center gap-2 rounded-(--app-radius) bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/80 disabled:opacity-50"
           >
             <Plus className="h-4 w-4" />
             Variante hinzufügen
@@ -1139,7 +1141,7 @@ export function ProductForm({
               placeholder="z.B. 200-300g täglich für einen 10kg Hund"
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Empfohlene Füttermenge und Hinweise (optional)
             </p>
           </div>
@@ -1157,7 +1159,7 @@ export function ProductForm({
               placeholder="z.B. Rind Adult Classic - Premium Hundefutter"
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Titel für Suchmaschinen (50-60 Zeichen empfohlen, optional)
             </p>
           </div>
@@ -1175,7 +1177,7 @@ export function ProductForm({
               placeholder="Kurze Beschreibung des Produkts für Google & Co."
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Beschreibung für Suchmaschinen (150-160 Zeichen empfohlen,
               optional)
             </p>
@@ -1194,7 +1196,7 @@ export function ProductForm({
               placeholder="hundefutter, rind, adult, premium, getreidefrei"
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-primary">
               Wichtige Begriffe durch Komma getrennt (optional)
             </p>
           </div>
@@ -1206,16 +1208,16 @@ export function ProductForm({
         <button
           type="button"
           onClick={() => router.back()}
-          className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+          className="flex items-center gap-2 rounded-sm border cursor-pointer border-black px-4 py-2 text-accent hover:bg-accent hover:text-white hover:border-accent"
           disabled={isPending}
         >
-          <X className="h-4 w-4" />
+          <X className=" text-black h-4 w-4" />
           Abbrechen
         </button>
         <button
           type="submit"
           disabled={isPending}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-(--app-radius) bg-accent px-6 py-2 font-medium text-white cursor-pointer hover:bg-accent/90 disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
           {isPending

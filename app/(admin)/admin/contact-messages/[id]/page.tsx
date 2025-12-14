@@ -64,7 +64,7 @@ export default async function ContactMessageDetailPage({
           </div>
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-accent text-white px-4 py-2 rounded hover:bg-accent/80"
           >
             Antwort senden
           </button>

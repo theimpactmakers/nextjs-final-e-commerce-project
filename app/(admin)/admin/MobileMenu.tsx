@@ -84,9 +84,9 @@ export function MobileMenu({ navItems, userEmail }: MobileMenuProps) {
             </nav>
 
             <div className="absolute bottom-0 w-64 border-t border-primary/20 p-4">
-              <div className="text-sm text-primary-foreground/70">
-                Logged in as: <br />
-                <span className="text-primary-foreground">{userEmail}</span>
+              <div className="text-sm">
+                <span className="text-black">Logged in as:</span> <br />
+                <span className="text-black font-medium">{userEmail}</span>
               </div>
             </div>
           </aside>

@@ -74,40 +74,44 @@ export default async function AdminLayout({
           <h1 className="text-xl font-bold">Admin Panel</h1>
         </div>
 
-        <nav className="space-y-1 p-4">
-          {navItems.map((item) => {
+        <nav className="space-y-1 p-4 mt-16">
+          {navItems.map((item, index) => {
             const Icon = item.icon;
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="cursor-pointer flex items-center gap-3 rounded-lg px-4 py-3 text-primary-foreground/70 transition hover:bg-accent hover:text-accent-foreground"
-              >
-                <Icon className="h-5 w-5" />
-                <span>{item.label}</span>
-              </Link>
+              <div key={item.href}>
+                <Link
+                  href={item.href}
+                  className="cursor-pointer font-bold flex items-center gap-3 rounded-(--app-radius) px-4 py-3 text-primary-foreground/70 transition-3 hover:bg-primary-foreground hover:text-accent"
+                >
+                  <Icon className=" text-black h-5 w-5" />
+                  <span>{item.label}</span>
+                </Link>
+                {index < navItems.length - 1 && (
+                  <div className="mx-4 my-1 border-t border-primary-foreground/10" />
+                )}
+              </div>
             );
           })}
         </nav>
 
         <div className="absolute bottom-0 w-64 border-t border-primary/20 p-4">
-          <div className="text-sm text-primary-foreground/70">
-            Logged in as: <br />
-            <span className="text-primary-foreground">{user.email}</span>
+          <div className="text-sm">
+            <span className="text-black font-bold">Logged in as:</span> <br />
+            <span className="text-black font-medium">{user.email}</span>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="lg:ml-64">
+      <div className="lg:ml-64 rounded-(--app-radius)">
         {/* Top Bar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card px-4 shadow-sm lg:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center bg-primary justify-between border-b border-border bg-primray px-4 shadow-sm lg:px-6">
           <div className="flex items-center gap-4">
             <MobileMenu
               navItems={mobileNavItems}
               userEmail={user.email || ""}
             />
-            <h2 className="text-lg font-semibold text-foreground lg:text-xl">
+            <h2 className="text-lg font-semibold text-foreground/90 lg:text-xl">
               Admin Dashboard
             </h2>
           </div>
@@ -115,7 +119,7 @@ export default async function AdminLayout({
             <Link
               href="/"
               target="_blank"
-              className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+              className="cursor-pointer rounded-(--app-radius) bg-black px-4 py-2 text-sm font-medium text-white hover:bg-accent hover:scale-95 transition-colors"
             >
               Shop ansehen
             </Link>
@@ -123,7 +127,7 @@ export default async function AdminLayout({
         </header>
 
         {/* Page Content */}
-        <main className="p-4 lg:p-6">{children}</main>
+        <main className="p-4 lg:p-6 m-4">{children}</main>
       </div>
     </div>
   );

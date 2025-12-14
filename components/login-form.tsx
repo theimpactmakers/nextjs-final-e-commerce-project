@@ -115,7 +115,7 @@ export function LoginForm({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 bg-accent hover:bg-primary/90 text-primary-foreground font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Wird angemeldet..." : "JETZT ANMELDEN"}
             </button>

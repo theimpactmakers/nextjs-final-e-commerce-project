@@ -37,14 +37,14 @@ export function RevenueChart({ data }: RevenueChartProps) {
           />
           <YAxis
             yAxisId="left"
-            stroke="hsl(217 91% 60%)"
+            stroke="#C87C28"
             fontSize={12}
             label={{ value: "Umsatz (€)", angle: -90, position: "insideLeft" }}
           />
           <YAxis
             yAxisId="right"
             orientation="right"
-            stroke="hsl(33 100% 37%)"
+            stroke="#000000"
             fontSize={12}
             label={{
               value: "Bestellungen",
@@ -70,9 +70,9 @@ export function RevenueChart({ data }: RevenueChartProps) {
             yAxisId="left"
             type="monotone"
             dataKey="revenue"
-            stroke="hsl(217 91% 60%)"
+            stroke="#C87C28"
             strokeWidth={3}
-            dot={{ fill: "hsl(217 91% 60%)", r: 5 }}
+            dot={{ fill: "#C87C28", r: 5 }}
             activeDot={{ r: 7 }}
             name="Umsatz"
           />
@@ -80,9 +80,9 @@ export function RevenueChart({ data }: RevenueChartProps) {
             yAxisId="right"
             type="monotone"
             dataKey="orders"
-            stroke="hsl(33 100% 37%)"
+            stroke="#000000"
             strokeWidth={3}
-            dot={{ fill: "hsl(33 100% 37%)", r: 5 }}
+            dot={{ fill: "#000000", r: 5 }}
             activeDot={{ r: 7 }}
             name="Bestellungen"
           />
