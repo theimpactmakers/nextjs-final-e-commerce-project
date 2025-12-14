@@ -383,7 +383,7 @@ export default function SingleProductView({
   return (
     <div className="space-y-8 sm:space-y-10 md:space-y-12 px-2 sm:px-4 max-w-[1400px] mx-auto">
       {/* Main Product Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_0.8fr] gap-6 md:gap-8">
         {/* Left: Image Gallery */}
         <div className="flex flex-col md:flex-row gap-4 md:gap-8">
           {/* Thumbnail Gallery - Left Side (desktop/tablet) */}
@@ -427,7 +427,7 @@ export default function SingleProductView({
           )}
 
           {/* Main Image - Responsive */}
-          <div className="relative w-full h-[220px] xs:h-[300px] sm:h-[420px] md:h-[500px] lg:h-[600px] bg-muted rounded-lg overflow-hidden">
+          <div className="relative w-full aspect-square bg-muted rounded-lg overflow-hidden">
             <Image
               src={sortedImages[currentImageIndex].image_url}
               alt={
@@ -506,11 +506,11 @@ export default function SingleProductView({
             </h1>
             <div className="mb-3 sm:mb-4">
               {reviewStats.totalReviews > 0 ? (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-.5">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <svg
                       key={i}
-                      className={`w-5 h-5 ${
+                      className={`w-4 h-4 ${
                         i < Math.round(reviewStats.averageRating)
                           ? "text-yellow-400"
                           : "text-gray-300"
@@ -521,9 +521,25 @@ export default function SingleProductView({
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.38-2.454a1 1 0 00-1.175 0l-3.38 2.454c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.394c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.967z" />
                     </svg>
                   ))}
-                  <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
+                  <button
+                    type="button"
+                    className="ml-2 text-xs sm:text-sm text-muted-foreground hover:text-accent underline-offset-4 underline cursor-pointer transition-colors"
+                    onClick={() => {
+                      const header = document.getElementById(
+                        "product-tabs-header"
+                      );
+                      if (header) {
+                        const y =
+                          header.getBoundingClientRect().top +
+                          window.scrollY -
+                          100;
+                        window.scrollTo({ top: y, behavior: "smooth" });
+                      }
+                      setTimeout(() => setActiveTab("reviews"), 150);
+                    }}
+                  >
                     ({reviewStats.totalReviews})
-                  </span>
+                  </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-1">
@@ -627,9 +643,9 @@ export default function SingleProductView({
           <div>
             <div className="flex items-center gap-3 flex-wrap">
               <span className="text-sm font-medium text-foreground">
-                Größe:{" "}
+                Größe wählen:{" "}
                 <span className="font-bold text-primary">
-                  {selectedVariant ? selectedVariant.name : "Bitte wählen"}
+                  {selectedVariant ? selectedVariant.name : ""}
                 </span>
               </span>
               <div className="flex gap-3">
@@ -1097,7 +1113,7 @@ export default function SingleProductView({
       </div>
 
       {/* Related Products */}
-      <div className="mt-10 sm:mt-14 md:mt-16">
+      <div className="mt-10 sm:mt-14 md:mt-16 ml-6">
         <RelatedProducts
           productId={product.id}
           title="Entdecke ähnliche Produkte"

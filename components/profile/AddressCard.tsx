@@ -70,13 +70,13 @@ export function AddressCard({
         )}
         <button
           onClick={onEdit}
-          className="text-sm text-primary hover:underline ml-auto hover:cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-accent text-accent-foreground hover:bg-accent/90 h-9 px-4 py-2 ml-auto hover:cursor-pointer shadow-md"
         >
           Bearbeiten
         </button>
         <button
           onClick={() => setShowDeleteConfirm(true)}
-          className="text-sm text-red-600 hover:underline hover:cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-black text-white hover:bg-black/90 h-9 px-4 py-2 hover:cursor-pointer shadow-md"
         >
           Löschen
         </button>

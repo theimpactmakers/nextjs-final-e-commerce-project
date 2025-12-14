@@ -63,7 +63,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/shop"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--app-radius) border-2 border-accent-foreground text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-accent text-accent-foreground hover:bg-accent-700 hover:scale-105 h-11 px-8 mt-4"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--app-radius) border-2 border-accent-foreground text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-accent text-accent-foreground hover:bg-accent-700 hover:scale-105 h-11 px-8 mt-4 shadow-md"
           >
             <ArrowLeft className="w-4 h-4" />
             Weiter einkaufen
@@ -86,9 +86,9 @@ export default function CartPage() {
         {items.length > 0 && (
           <button
             onClick={clearCart}
-            className="inline-flex items-center gap-2 text-sm mr-16 mt-10 text-destructive hover:text-destructive/80 cursor-pointer"
+            className="inline-flex underline items-center gap-2 text-ml mr-16 mt-10 text-red-900 hover:text-red-700 cursor-pointer hover:no-underline"
           >
-            <Trash2 className="w-6 h-6" />
+            <Trash2 className=" text-red-900 w-5 h-5" />
             Gesamten Warenkorb leeren
           </button>
         )}
@@ -153,7 +153,7 @@ export default function CartPage() {
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       disabled={item.quantity <= 1}
-                      className="group inline-flex items-center justify-center w-8 h-8 rounded-md border-2 border-accent bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                      className="group inline-flex items-center justify-center w-8 h-8 rounded-md border-2 border-accent bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md"
                       aria-label="Menge verringern"
                     >
                       <Minus
@@ -169,7 +169,7 @@ export default function CartPage() {
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       disabled={item.quantity >= item.stock_quantity}
-                      className="group inline-flex items-center justify-center w-8 h-8 rounded-md border-2 border-accent bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                      className="group inline-flex items-center justify-center w-8 h-8 rounded-md border-2 border-accent bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md"
                       aria-label="Menge erhöhen"
                     >
                       <Plus
@@ -186,7 +186,10 @@ export default function CartPage() {
                     className="ml-2 text-muted-foreground transition-colors cursor-pointer group"
                     aria-label="Artikel entfernen"
                   >
-                    <Trash2 className="w-7 h-7 mr-4 text-accent group-hover:scale-85 group-hover:text-black transition-transform duration-150" />
+                    <Trash2
+                      className="w-6 h-6 mr-4 text-black group-hover:scale-85 group-hover:text-accent
+                    hover:scale-95 transition-transform duration-150"
+                    />
                   </button>
                 </div>
               </div>
@@ -262,14 +265,14 @@ export default function CartPage() {
 
             <Link
               href="/checkout"
-              className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--app-radius) border-2 border-accent-foreground text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-accent text-accent-foreground hover:bg-accent-700 hover:scale-105 h-11 px-8"
+              className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--app-radius) text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-accent text-accent-foreground hover:bg-accent-700 hover:scale-105 h-11 px-8 shadow-md"
             >
               Zur Kasse
             </Link>
 
             <Link
               href="/shop"
-              className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--app-radius) text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-black bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8"
+              className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--app-radius) text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-black bg-background hover:bg-accent hover:text-accent-foreground hover:border-accent h-11 px-8 shadow-md"
             >
               <ArrowLeft className="w-4 h-4" />
               Weiter einkaufen

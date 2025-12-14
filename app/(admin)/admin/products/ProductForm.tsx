@@ -212,7 +212,9 @@ export function ProductForm({
 
     // For new products, just add to local state
     if (!product?.id) {
-      setImages([...images, { ...newImage }]);
+      // If this is the first image, make it primary
+      const isFirstImage = images.length === 0;
+      setImages([...images, { ...newImage, is_primary: isFirstImage }]);
       setNewImage({
         image_url: "",
         alt_text: "",
@@ -224,9 +226,12 @@ export function ProductForm({
 
     // For existing products, save to database
     startTransition(async () => {
+      // If this is the first image, make it primary
+      const isFirstImage = images.length === 0;
       const result = await addProductImage({
         product_id: product.id!,
         ...newImage,
+        is_primary: isFirstImage,
       });
 
       if (result.success && result.data) {
