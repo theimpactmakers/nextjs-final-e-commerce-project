@@ -29,6 +29,7 @@ async function getNextQuestion(
 ): Promise<{
   message: string;
   quickReplies?: Array<{ label: string; value: string }>;
+  allowMultipleSelection?: boolean;
 } | null> {
   const conversationLength = messages.filter((m) => m.role === "user").length;
 
@@ -216,11 +217,11 @@ async function getNextQuestion(
 
       if (!error && data && data.length > 0) {
         // Extrahiere einzigartige Fleischsorten
-        const availableMeatTypes = [
+        const availableMeatTypes: string[] = [
           ...new Set(
             data
               .map((item: { meat_type?: string }) => item.meat_type)
-              .filter(Boolean)
+              .filter((type): type is string => Boolean(type))
           ),
         ];
 
@@ -252,14 +253,17 @@ async function getNextQuestion(
         }
 
         // Erstelle Quick Replies nur für verfügbare Fleischsorten
-        const meatQuickReplies: Array<{ label: string; value: string }> =
-          availableMeatTypes
-            .map((meat) => ({
+        const meatQuickReplies: { label: string; value: string }[] = [
+          ...availableMeatTypes
+            .map((meat: string) => ({
               label: meatTypeLabels[meat as string] || (meat as string),
               value: meat as string,
             }))
-            .filter((item) => item.label && item.value)
-            .sort((a, b) => a.label.localeCompare(b.label));
+            .filter((item): item is { label: string; value: string } =>
+              Boolean(item.label && item.value)
+            )
+            .sort((a, b) => a.label.localeCompare(b.label)),
+        ];
 
         // Füge "Egal / Alle Sorten" hinzu, wenn mehrere Sorten verfügbar sind
         if (meatQuickReplies.length > 1) {
@@ -270,8 +274,10 @@ async function getNextQuestion(
         }
 
         return {
-          message: "Super! Welche Fleischsorte bevorzugt Ihr Hund?",
+          message:
+            "Super! Welche Fleischsorte bevorzugt Ihr Hund? (Sie können mehrere auswählen)",
           quickReplies: meatQuickReplies,
+          allowMultipleSelection: true,
         };
       } else if (!error && data && data.length === 0) {
         // Keine Produkte gefunden
@@ -411,6 +417,206 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Handle Mehrfachauswahl von Fleischsorten
+    if (context && context.startsWith("MULTI_MEAT:")) {
+      const selectedMeats = context.replace("MULTI_MEAT:", "").split(",");
+
+      // Extrahiere die vorherigen Antworten für Alter und Bedürfnisse
+      const userMessages = messages.filter((m) => m.role === "user");
+      const ageCategory = userMessages[0]?.content.includes("Junior")
+        ? "JUNIOR"
+        : userMessages[0]?.content.includes("Senior")
+        ? "SENIOR"
+        : "ADULT";
+      const specialNeeds = userMessages[1]?.content.includes("Hypoallergen")
+        ? "HYPOALLERGEN"
+        : userMessages[1]?.content.includes("Diät")
+        ? "DIAT"
+        : userMessages[1]?.content.includes("Darm")
+        ? "DARM"
+        : userMessages[1]?.content.includes("Gelenk")
+        ? "GELENK"
+        : "NONE";
+
+      try {
+        const supabase = await createClient();
+
+        let queryBuilder = supabase
+          .from("products")
+          .select(
+            `
+            id, name, description, slug,
+            age_group, meat_type, specials,
+            product_images!inner(image_url, is_primary),
+            product_variants!inner(price)
+          `
+          )
+          .eq("product_images.is_primary", true)
+          .eq("age_group", ageCategory)
+          .in("meat_type", selectedMeats)
+          .limit(10);
+
+        if (specialNeeds !== "NONE") {
+          queryBuilder = queryBuilder.eq("specials", specialNeeds);
+        }
+
+        const { data, error } = await queryBuilder;
+
+        if (!error && data && data.length > 0) {
+          const multiProducts = data.map(
+            (item: {
+              id: number;
+              name: string;
+              description?: string;
+              slug?: string;
+              age_group?: string;
+              meat_type?: string;
+              product_images?: Array<{ image_url?: string }>;
+              product_variants?: Array<{ price: number }>;
+            }) => ({
+              id: item.id,
+              name: item.name,
+              price: item.product_variants?.[0]?.price || 0,
+              description: item.description,
+              slug: item.slug,
+              image_url: item.product_images?.[0]?.image_url,
+              age_category: item.age_group,
+              category: item.meat_type,
+            })
+          );
+
+          // Erstelle eine Zusammenfassung der ausgewählten Fleischsorten
+          const meatTypeLabels: { [key: string]: string } = {
+            ENTE: "🦆 Ente",
+            RIND: "🥩 Rind",
+            KANINCHEN: "🐰 Kaninchen",
+            LAMM: "🐑 Lamm",
+            PFERD: "🐴 Pferd",
+            WILD: "🦌 Wild",
+            LACHS: "🐟 Lachs",
+            HUHN: "🐔 Huhn",
+          };
+
+          const meatLabels = selectedMeats
+            .map((meat: string) => meatTypeLabels[meat] || meat)
+            .join(", ");
+
+          return NextResponse.json({
+            message: `Perfekt! Hier sind passende Produkte mit ${meatLabels}:`,
+            products: multiProducts,
+            quickReplies: [
+              {
+                label: "✅ Ja, weitere Produkte zeigen",
+                value: "MORE_PRODUCTS",
+              },
+              {
+                label: "🔙 Andere Fleischsorten wählen",
+                value: "BACK_TO_MEAT",
+              },
+              { label: "❌ Nein, Beratung beenden", value: "END" },
+            ],
+            userSelection: `Deine Auswahl: [[${userMessages[0]?.content}]] | [[${userMessages[1]?.content}]] | [[${meatLabels}]]`,
+          });
+        } else {
+          return NextResponse.json({
+            message:
+              "Leider haben wir momentan keine Produkte für diese Fleischsorten-Kombination. Möchten Sie andere Fleischsorten probieren?",
+            quickReplies: [
+              {
+                label: "🔙 Andere Fleischsorten wählen",
+                value: "BACK_TO_MEAT",
+              },
+              { label: "✅ Beratung beenden", value: "END" },
+            ],
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching multi-meat products:", error);
+      }
+    }
+
+    // Handle "BACK_TO_MEAT" - zurück zur Fleischsorten-Auswahl
+    if (context === "BACK_TO_MEAT") {
+      const userMessages = messages.filter((m) => m.role === "user");
+      const ageCategory = userMessages[0]?.content.includes("Junior")
+        ? "JUNIOR"
+        : userMessages[0]?.content.includes("Senior")
+        ? "SENIOR"
+        : "ADULT";
+      const specialNeeds = userMessages[1]?.content.includes("Hypoallergen")
+        ? "HYPOALLERGEN"
+        : userMessages[1]?.content.includes("Diät")
+        ? "DIAT"
+        : userMessages[1]?.content.includes("Darm")
+        ? "DARM"
+        : userMessages[1]?.content.includes("Gelenk")
+        ? "GELENK"
+        : "NONE";
+
+      try {
+        const supabase = await createClient();
+        let queryBuilder = supabase
+          .from("products")
+          .select("meat_type")
+          .eq("age_group", ageCategory);
+
+        if (specialNeeds !== "NONE") {
+          queryBuilder = queryBuilder.eq("specials", specialNeeds);
+        }
+
+        const { data, error } = await queryBuilder;
+
+        if (!error && data && data.length > 0) {
+          const availableMeatTypes: string[] = [
+            ...new Set(
+              data
+                .map((item: { meat_type?: string }) => item.meat_type)
+                .filter((type): type is string => Boolean(type))
+            ),
+          ];
+
+          const meatTypeLabels: { [key: string]: string } = {
+            ENTE: "🦆 Ente",
+            RIND: "🥩 Rind",
+            KANINCHEN: "🐰 Kaninchen",
+            LAMM: "🐑 Lamm",
+            PFERD: "🐴 Pferd",
+            WILD: "🦌 Wild",
+            LACHS: "🐟 Lachs",
+            HUHN: "🐔 Huhn",
+          };
+
+          const meatQuickReplies: { label: string; value: string }[] = [
+            ...availableMeatTypes
+              .map((meat: string) => ({
+                label: meatTypeLabels[meat as string] || (meat as string),
+                value: meat as string,
+              }))
+              .filter((item): item is { label: string; value: string } =>
+                Boolean(item.label && item.value)
+              )
+              .sort((a, b) => a.label.localeCompare(b.label)),
+          ];
+
+          if (meatQuickReplies.length > 1) {
+            meatQuickReplies.push({
+              label: "Egal / Alle Sorten",
+              value: "ALL",
+            });
+          }
+
+          return NextResponse.json({
+            message:
+              "Welche Fleischsorte bevorzugt Ihr Hund? (Sie können mehrere auswählen)",
+            quickReplies: meatQuickReplies,
+            allowMultipleSelection: true,
+          });
+        }
+      } catch (error) {
+        console.error("Error in BACK_TO_MEAT handler:", error);
+      }
+    }
+
     // Handle "MORE_PRODUCTS" - zeige weitere passende Produkte
     if (context === "MORE_PRODUCTS") {
       // Extrahiere die LETZTEN Auswahlkriterien aus der Message-History
@@ -525,6 +731,7 @@ export async function POST(request: NextRequest) {
 
 Deine Aufgabe:
 - Begrüße Hundebesitzer herzlich und finde heraus, was ihr Hund braucht
+- Du antwortest nur auf Fragen zu unseren Produkten 
 - Stelle gezielte Fragen zu:
   * Alter des Hundes (Welpe/Junior, Erwachsen/Adult, Senior)
   * Fleischvorlieben (Ente, Rind, Kaninchen, Lamm, Pferd, Wild, Lachs, Huhn)
@@ -674,7 +881,7 @@ ${products
   )
   .join("\n")}
 
-Erstelle eine kurze, freundliche Empfehlung (max. 2-3 Sätze), die erklärt, warum diese Produkte perfekt für den Hund passen.`;
+Erstelle eine kurze, freundliche Empfehlung (max. 2-3 Sätze), die erklärt, warum diese Produkte perfekt für den Hund passen. Erwähne am Ende, dass der Kunde weitere Produkte sehen kann, wenn er möchte.`;
       } else {
         systemMessage = `Leider haben wir momentan keine Produkte, die exakt zu diesen Kriterien passen (Alter: ${ageCategory}, Bedürfnisse: ${specialNeeds}, Fleischsorte: ${meatType}). Empfehle dem Kunden, es mit einer anderen Fleischsorte zu versuchen oder unseren Shop zu durchsuchen.`;
       }
@@ -704,10 +911,20 @@ Erstelle eine kurze, freundliche Empfehlung (max. 2-3 Sätze), die erklärt, war
     // Wenn keine followUp-Buttons da sind, gebe Standard-Optionen zurück
     let quickReplies = followUpQuestion?.quickReplies;
 
-    // Wenn wir nach der 3. Frage sind und Produkte gezeigt wurden, gebe Abschlussoptionen
-    if (!quickReplies && conversationLength >= 3) {
+    // Wenn wir nach der 3. Frage sind und Produkte gezeigt wurden, frage ob weitere Produkte gewünscht sind
+    if (!quickReplies && conversationLength >= 3 && products.length > 0) {
       quickReplies = [
-        { label: "🔍 Weitere Produkte zeigen", value: "MORE_PRODUCTS" },
+        { label: "✅ Ja, weitere Produkte zeigen", value: "MORE_PRODUCTS" },
+        { label: "🔙 Andere Auswahl treffen", value: "BACK" },
+        { label: "❌ Nein, Beratung beenden", value: "END" },
+      ];
+    } else if (
+      !quickReplies &&
+      conversationLength >= 3 &&
+      products.length === 0
+    ) {
+      // Keine Produkte gefunden
+      quickReplies = [
         { label: "🔙 Zurück zur Auswahl", value: "BACK" },
         { label: "✅ Beratung beenden", value: "END" },
       ];

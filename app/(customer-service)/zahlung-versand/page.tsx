@@ -226,15 +226,17 @@ export default function ZahlungVersandPage() {
               Unser Kundenservice hilft Ihnen gerne bei allen Fragen zu Zahlung
               und Versand.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/kontakt">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link href="/contact">
                 <span className="bg-accent text-white px-6 py-3 rounded-sm hover:bg-[hsl(var(--primary))]/90 hover:text-accent hover:border border-accent cursor-pointer transition-colors font-semibold block text-center">
                   Kontakt aufnehmen
                 </span>
               </Link>
-              <button className="border bg-accent/10 border-accent text-accent px-6 py-3 cursor-pointer rounded-sm hover:bg-white transition-colors font-semibold">
-                Live Chat starten
-              </button>
+              <Link href="/beratung">
+                <span className="border bg-accent/10 border-accent text-accent px-6 py-3 cursor-pointer rounded-sm hover:bg-white transition-colors font-semibold">
+                  Live Chat starten
+                </span>
+              </Link>
             </div>
           </div>
         </div>

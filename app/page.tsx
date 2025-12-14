@@ -6,6 +6,7 @@ import Button from "@/components/Button";
 import Image from "next/image";
 import { AgeCategories } from "@/components/AgeCategories";
 import { HeroSlider } from "../components/HeroSlider";
+import LandingPageReviews from "@/components/LandingPageReviews";
 
 export const revalidate = 60;
 
@@ -33,7 +34,7 @@ export default async function Home() {
           {" "}
           {/* Linke Promo-Karte */}
           <a
-            href="/promotions"
+            href="#sale"
             className="relative rounded-3xl border overflow-hidden shadow-sm hover:shadow-xl hover:scale-95 transition-all duration-300 cursor-pointer"
           >
             <div
@@ -265,15 +266,15 @@ export default async function Home() {
             ))}
           </div>
         </section>
-        <section id="neueprodukte">
+        <section id="sale">
           {/* Neue Produkte Carousel */}
           <div className="w-full border-muted-foreground/20 mb-16" />
           <div className=" md:px-16 mb-8 ml-4">
             <h2 className="text-3xl text-center font-bold text-foreground mb-2">
-              Neue Produkte
+              Produkte im Sale
             </h2>
             <p className="text-muted-foreground text-center text-sm">
-              Entdecke unsere neuesten Artikel im Sortiment!
+              Entdecke unsere reduzierte Produkte bis zu 20%!
             </p>
           </div>
           <Suspense
@@ -292,8 +293,115 @@ export default async function Home() {
             <NewProductsCarousel />
           </Suspense>
         </section>
-        <div className="w-full border-t border-muted-foreground/20 mt-16" />
+        <div className="w-full border-t border-muted-foreground/20 mt-16 mb-16" />
 
+        {/* Kundenbewertungen Section */}
+        <Suspense
+          fallback={
+            <div className="max-w-7xl mx-auto mb-16 px-4">
+              <div className="text-center mb-8">
+                <div className="h-8 bg-muted rounded w-64 mx-auto mb-4 animate-pulse" />
+                <div className="h-6 bg-muted rounded w-96 mx-auto animate-pulse" />
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-muted rounded-lg h-48 animate-pulse"
+                  />
+                ))}
+              </div>
+            </div>
+          }
+        >
+          <LandingPageReviews />
+        </Suspense>
+
+        <div className="w-full border-t border-muted-foreground/20" />
+
+        {/* ingredients Section */}
+        <section className="max-w-7xl mx-auto mb-8 px-4 mt-16">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl mb-4 font-bold">
+              Gesunde Zutaten
+            </h2>
+            <p className="text-muted-foreground text-sm max-w-3xl mx-auto">
+              Zu 100% hochwertige, natürliche Zutaten.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-8">
+            {[
+              {
+                image: "/images/ingredients/fleisch.webp",
+                title: "90% Frischfleisch",
+                description: "Unterstützt starke Muskulatur und Wachstum",
+              },
+              {
+                image: "/images/ingredients/seelachs.webp",
+                title: "Seelachs",
+                description: "Omega-3 unterstützt Fell- und Hautgesundheit",
+              },
+              {
+                image: "/images/ingredients/kuerbis.webp",
+                title: "Kürbis",
+                description: "Unterstützt eine gesunde Verdauung",
+              },
+              {
+                image: "/images/ingredients/muschel.webp",
+                title: "Grünlippmuschel",
+                description: "Natürlicher Entzündungshemmer",
+              },
+              {
+                image: "/images/ingredients/suesskartoffel.webp",
+                title: "Süßkartoffel",
+                description: "Hochwertiger Energielieferant",
+              },
+              {
+                image: "/images/ingredients/blaubeere.webp",
+                title: "Blaubeeren",
+                description: "Unterstützt das Immunsystem",
+              },
+            ].map((ingredient, index) => (
+              <div
+                key={index}
+                className="flex flex-col items-center text-center h-full"
+              >
+                <div className="relative w-full h-full">
+                  <div className="w-32 h-32 rounded-full overflow-hidden absolute left-1/2 -translate-x-1/2 top-0 z-10 bg-white shadow-lg">
+                    <Image
+                      src={ingredient.image}
+                      alt={ingredient.title}
+                      width={128}
+                      height={128}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="bg-accent/50 rounded-2xl pt-20 pb-6 px-4 hover:shadow-lg transition-shadow mt-16 flex flex-col h-[220px]">
+                    <h3 className="font-bold text-sm text-primary mb-2">
+                      {ingredient.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {ingredient.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <a
+              href="/shop"
+              className="inline-block px-6 py-3 underline hover:no-underline text-accent hover:text-primary font-semibold transition-colors"
+            >
+              Allen Produkte Entdecken
+            </a>
+          </div>
+        </section>
+
+        <div className="w-full border-t border-muted-foreground/20" />
 
         {/* Tipps & Beratung */}
         <section className="max-w-7xl mx-auto mb-16 px-4">
@@ -329,6 +437,18 @@ export default async function Home() {
                 <p className="text-muted-foreground text-sm">Weiter lesen</p>
               </a>
             ))}
+          </div>
+          <div className="text-center mt-8">
+            <p className="text-muted-foreground text-m my-8 max-w-3xl mx-auto">
+              Nutze unseren Futterberater und lasse dich sofort ganz individuell
+              beraten.
+            </p>
+            <a
+              href="/beratung"
+              className="inline-block px-6 py-3 bg-accent text-white rounded-(--app-radius) font-semibold hover:bg-accent/90 transition-colors"
+            >
+              Zum Futterberater
+            </a>
           </div>
         </section>
       </main>

@@ -107,9 +107,7 @@ async function SpecialsContent({
 
   if (ageFilter) {
     const ageValues = ageFilter.split(",").map((a) => a.trim().toLowerCase());
-    const dbAgeValues = ageValues
-      .map((a) => ageEnumValues[a])
-      .filter(Boolean);
+    const dbAgeValues = ageValues.map((a) => ageEnumValues[a]).filter(Boolean);
 
     if (dbAgeValues.length > 0) {
       query = query.in("age_group", dbAgeValues);
@@ -176,6 +174,20 @@ async function SpecialsContent({
 
   return (
     <>
+      {/* Banner Section */}
+      <section className="w-full my-4">
+        <div className="container max-w-7xl mx-auto px-4">
+          <Image
+            src="/images/banners/sale-banner.webp"
+            alt="Sale Banner"
+            width={1600}
+            height={300}
+            className="w-full h-80 object-cover rounded-2xl shadow-sm"
+            priority
+          />
+        </div>
+      </section>
+
       {/* Bestseller Carousel */}
       <div className="container max-w-7xl mx-auto px-4 py-8">
         <h2 className="text-3xl text-center font-bold mb-6">
@@ -200,30 +212,6 @@ async function SpecialsContent({
           />
         </Suspense>
       </div>
-
-      {/* Banner Section */}
-      <section className="w-full my-4">
-        <div className="container max-w-7xl mx-auto px-4">
-          {/* Desktop Banner */}
-          <Image
-            src="/images/banners/specials-banner.webp"
-            alt="Spezialfutter Banner"
-            width={1600}
-            height={300}
-            className="hidden sm:block w-full h-80 object-cover rounded-2xl shadow-sm"
-            priority
-          />
-          {/* Mobile Banner */}
-          <Image
-            src="/images/categories/spezialfutter.svg"
-            alt="Spezialfutter Mobile Banner"
-            width={600}
-            height={200}
-            className="block sm:hidden w-full h-48 object-cover rounded-2xl shadow-sm"
-            priority
-          />
-        </div>
-      </section>
 
       {/* Scroll Anchor for direct navigation to products */}
       <div id="produkte" className="scroll-mt-20" />

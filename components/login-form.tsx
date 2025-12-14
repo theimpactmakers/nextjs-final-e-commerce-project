@@ -58,8 +58,8 @@ export function LoginForm({
               </svg>
             </div>
           </div>
-          <h1 className="text-4xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mb-3">
-            Willkommen zurück
+          <h1 className="text-2xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mb-3">
+            Bei deinem Profil anmelden
           </h1>
           <p className="text-gray-600 text-base max-w-2xl mx-auto">
             Melden Sie sich an, um auf Ihr Kundenkonto zuzugreifen
