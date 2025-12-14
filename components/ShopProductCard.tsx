@@ -5,10 +5,12 @@ import type { Database } from "@/types";
 type ProductVariant = Database["public"]["Tables"]["product_variants"]["Row"];
 type ProductImage = Database["public"]["Tables"]["product_images"]["Row"];
 
+type Promotion = Database["public"]["Tables"]["promotions"]["Row"];
 type ProductWithImage =
   Database["public"]["Views"]["products_with_primary_image"]["Row"] & {
     product_variants?: ProductVariant[];
     product_images?: ProductImage[];
+    promotion?: Promotion;
   };
 
 export default function ShopProductCard({
@@ -75,6 +77,11 @@ export default function ShopProductCard({
     slug: product.slug ?? "",
   };
   return (
-    <ProductCard product={safeProduct} images={images} variants={variants} />
+    <ProductCard
+      product={safeProduct}
+      images={images}
+      variants={variants}
+      promotion={product.promotion}
+    />
   );
 }

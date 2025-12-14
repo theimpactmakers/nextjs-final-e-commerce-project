@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Database } from "@/types";
 import PromotionProductListClient from "@/components/PromotionProductListClient";
 import { getActivePromotionsServer } from "@/lib/supabase/products-server";
+import { BestsellerCarouselClient } from "@/components/BestsellerCarousel";
 
 export const revalidate = 60;
 
@@ -188,9 +189,13 @@ async function PromotionsContent({
       product_id: string;
       updated_at: string | null;
     };
+
+    type Promotion = Database["public"]["Tables"]["promotions"]["Row"];
     type ProductWithVariants = ProductWithImage & {
       product_variants?: ProductVariant[];
       product_images?: ProductImage[];
+      discount_value?: number;
+      promotion?: Promotion;
     };
     const productsInPromotion: ProductWithVariants[] = [];
 
@@ -211,14 +216,82 @@ async function PromotionsContent({
 
       // Füge Varianten und Bilder wie im Shop hinzu (alle Felder der Variante)
       const variantsRaw = variantsMap.get(product.id);
+
+      // Add discount_value and promotion from promotions
+      const promoObj = promoMap.get(product.id);
+      const discountValue = promoObj?.discount_value ?? undefined;
+
       productsInPromotion.push({
         ...product,
         product_variants: Array.isArray(variantsRaw)
           ? (variantsRaw as ProductVariant[])
           : [],
-        product_images: [], // Optional: Hier könnten Bilder geladen werden, falls benötigt
+        product_images: [],
+        discount_value: discountValue,
+        promotion: promoObj,
       });
     }
+
+    // Always fetch all active promotions for carousels
+    const allActivePromotions = await getActivePromotionsServer();
+
+    // Helper to build a product list for a given discount
+    function getProductsForDiscount(discount: number): ProductWithVariants[] {
+      // Collect all product and variant IDs for this discount
+      const promoProductIds = new Set<string>();
+      const promoVariantIds = new Set<string>();
+      allActivePromotions.forEach((promo) => {
+        if (promo.discount_value === discount) {
+          if (promo.product_ids) {
+            promo.product_ids.forEach((id) => promoProductIds.add(id));
+          }
+          if (promo.variant_ids) {
+            promo.variant_ids.forEach((id) => promoVariantIds.add(id));
+          }
+        }
+      });
+      // Return products from allProducts that match this discount (even if also in another)
+      return allProducts
+        ? allProducts
+            .filter((p) => {
+              if (!p.id) return false;
+              if (promoProductIds.has(p.id)) return true;
+              const variants: ProductVariant[] = variantsMap.get(p.id) || [];
+              return variants.some((v) => promoVariantIds.has(v.id));
+            })
+            .map((product) => {
+              const variantsRaw: ProductVariant[] =
+                variantsMap.get(product.id!) || [];
+              const promo = allActivePromotions.find(
+                (pr) =>
+                  ((pr.product_ids && pr.product_ids.includes(product.id!)) ||
+                    (pr.variant_ids &&
+                      variantsRaw.some((v) =>
+                        pr.variant_ids!.includes(v.id)
+                      ))) &&
+                  pr.discount_value === discount
+              );
+              return {
+                ...product,
+                product_variants: Array.isArray(variantsRaw)
+                  ? (variantsRaw as ProductVariant[])
+                  : [],
+                product_images: [],
+                discount_value: promo?.discount_value,
+              };
+            })
+        : [];
+    }
+
+    // For the carousels, always use all products for the other discount
+    const products10 = getProductsForDiscount(10);
+    const products20 = getProductsForDiscount(20);
+
+    // Determine the current promotion discount value (if any)
+    const currentPromoDiscount =
+      activePromotions.length === 1
+        ? activePromotions[0].discount_value
+        : undefined;
 
     return (
       <div className="container max-w-7xl mx-auto px-4 py-8">
@@ -239,7 +312,7 @@ async function PromotionsContent({
                       >
                         <path
                           fillRule="evenodd"
-                          d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
+                          d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
                           clipRule="evenodd"
                         />
                       </svg>
@@ -363,6 +436,30 @@ async function PromotionsContent({
 
           {/* Products Grid */}
           <PromotionProductListClient products={productsInPromotion} />
+
+          {/* Show the other discount carousel if on a specific promo only */}
+          {promo && currentPromoDiscount === 10 && (
+            <>
+              <hr className="my-12 border-t border-gray-200 w-full" />
+              <div className="mt-12">
+                <h2 className="text-2xl font-bold text-center mb-6">
+                  Produkte mit 20% Rabatt
+                </h2>
+                <BestsellerCarouselClient products={products20} />
+              </div>
+            </>
+          )}
+          {promo && currentPromoDiscount === 20 && (
+            <>
+              <hr className="my-12 border-t border-gray-200 w-full" />
+              <div className="mt-12">
+                <h2 className="text-2xl font-bold text-center mb-6">
+                  Produkte mit 10% Rabatt
+                </h2>
+                <BestsellerCarouselClient products={products10} />
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
