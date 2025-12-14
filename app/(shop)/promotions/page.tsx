@@ -306,54 +306,70 @@ async function PromotionsContent({
         : undefined;
 
     return (
-      <div className="container max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          {/* Promotion Description Banner - Mittig und schön gestylt */}
-          {promo &&
-            activePromotions.length > 0 &&
-            activePromotions[0].description && (
-              <div className="my-8 flex justify-center">
-                <div className="max-w-3xl w-full bg-linear-to-r from-red-50 via-orange-50 to-red-50 rounded-2xl shadow-lg border-2 border-red-200 p-6 md:p-8">
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <div className="flex items-center gap-2">
-                      <svg
-                        className="w-8 h-8 text-red-600 animate-pulse"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                        Aktionsangebot
-                      </h2>
-                      <svg
-                        className="w-8 h-8 text-red-600 animate-pulse"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-lg md:text-xl text-gray-800 font-medium leading-relaxed">
-                      {activePromotions[0].description}
-                    </p>
-                    <div className="flex items-center gap-3 mt-4">
-                      <span className="inline-flex items-center px-6 py-2 rounded-full text-lg font-bold bg-red-600 text-white shadow-md">
-                        {activePromotions[0].discount_type === "percentage"
-                          ? `${activePromotions[0].discount_value}% RABATT`
-                          : `€${activePromotions[0].discount_value.toFixed(
-                              2
-                            )} RABATT`}
-                      </span>
+      <>
+        {/* Banner Section */}
+        <section className="w-full my-4">
+          <div className="container max-w-7xl mx-auto px-4">
+            <Image
+              src="/images/banners/sale-banner.webp"
+              alt="Sale Banner"
+              width={1600}
+              height={300}
+              className="w-full h-80 object-cover rounded-2xl shadow-sm"
+              priority
+            />
+          </div>
+        </section>
+
+        <div className="container max-w-7xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            {/* Promotion Description Banner - Mittig und schön gestylt */}
+            {promo &&
+              activePromotions.length > 0 &&
+              activePromotions[0].description && (
+                <div className="my-8 flex justify-center">
+                  <div className="max-w-3xl w-full bg-linear-to-r from-red-50 via-orange-50 to-red-50 rounded-2xl shadow-lg border-2 border-red-200 p-6 md:p-8">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="w-8 h-8 text-red-600 animate-pulse"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                          Aktionsangebot
+                        </h2>
+                        <svg
+                          className="w-8 h-8 text-red-600 animate-pulse"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-lg md:text-xl text-gray-800 font-medium leading-relaxed">
+                        {activePromotions[0].description}
+                      </p>
+                      <div className="flex items-center gap-3 mt-4">
+                        <span className="inline-flex items-center px-6 py-2 rounded-full text-lg font-bold bg-red-600 text-white shadow-md">
+                          {activePromotions[0].discount_type === "percentage"
+                            ? `${activePromotions[0].discount_value}% RABATT`
+                            : `€${activePromotions[0].discount_value.toFixed(
+                                2
+                              )} RABATT`}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -427,44 +443,51 @@ async function PromotionsContent({
                   href="/promotions"
                   className="inline-flex items-center gap-2 text-sm text-primary hover:text-accent transition-colors"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-                Zurück zu allen Angeboten
-              </Link>
-            </div>
-          )}
-
-          {/* Products Grid */}
-          <PromotionProductListClient products={productsInPromotion} />
-
-          {/* Show the other discount carousel if on a specific promo only */}
-          {promo && currentPromoDiscount === 10 && (
-            <>
-              <hr className="my-12 border-t border-gray-200 w-full" />
-              <div className="mt-12">
-                <h2 className="text-2xl font-bold text-center mb-6">
-                  Produkte mit 20% Rabatt
-                </h2>
-                <BestsellerCarouselClient products={products20} />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  Zurück zu allen Angeboten
+                </Link>
               </div>
-            </>
-          )}
-          {promo && currentPromoDiscount === 20 && (
-            <>
-              <hr className="my-12 border-t border-gray-200 w-full" />
-              <div className="mt-12">
-                <h2 className="text-2xl font-bold text-center mb-6">
-                  Produkte mit 10% Rabatt
-                </h2>
-                <BestsellerCarouselClient products={products10} />
-              </div>
-            </>
-          )}
+            )}
+
+            {/* Products Grid */}
+            <PromotionProductListClient products={productsInPromotion} />
+
+            {/* Show the other discount carousel if on a specific promo only */}
+            {promo && currentPromoDiscount === 10 && (
+              <>
+                <hr className="my-12 border-t border-gray-200 w-full" />
+                <div className="mt-12">
+                  <h2 className="text-2xl font-bold text-center mb-6">
+                    Produkte mit 20% Rabatt
+                  </h2>
+                  <BestsellerCarouselClient products={products20} />
+                </div>
+              </>
+            )}
+            {promo && currentPromoDiscount === 20 && (
+              <>
+                <hr className="my-12 border-t border-gray-200 w-full" />
+                <div className="mt-12">
+                  <h2 className="text-2xl font-bold text-center mb-6">
+                    Produkte mit 10% Rabatt
+                  </h2>
+                  <BestsellerCarouselClient products={products10} />
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </>
     );
