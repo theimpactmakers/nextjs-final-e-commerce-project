@@ -49,7 +49,7 @@ export const SLIDES_DATA: SlideData[] = [
     imageMobile: "/images/slider/slide-3.svg",
     imageDesktop: "/images/slider/slide-3.svg",
     title: "Finde das perfekte Futter",
-    description: "",
+    description: "Lasse dich ganz individuell beraten.",
     cta: "Zum Futterberater",
     ctaLink: "/beratung",
   },

@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
+import AIChatbot from "@/components/AIChatbot";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
@@ -37,6 +38,7 @@ export default function RootLayout({
                 <main className="grow">{children}</main>
                 <Footer />
                 <CookieBanner />
+                <AIChatbot />
                 <Toaster
                   position="top-center"
                   expand={false}

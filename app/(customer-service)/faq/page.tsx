@@ -90,7 +90,9 @@ export default function FAQPage() {
                     +
                   </span>
                 </summary>
-                <div className="px-6 pb-6 text-[hsl(var(--muted-foreground))] ">{faq.answer}</div>
+                <div className="px-6 pb-6 text-[hsl(var(--muted-foreground))] ">
+                  {faq.answer}
+                </div>
               </details>
             ))}
           </div>
@@ -109,7 +111,9 @@ export default function FAQPage() {
               <Button variant="primary" href="/contact">
                 Kontakt aufnehmen
               </Button>
-              <Button variant="outline">Live Chat starten</Button>
+              <Button variant="outline" href="/beratung">
+                zum Futterberater
+              </Button>
             </div>
           </div>
         </div>
