@@ -209,7 +209,7 @@ export function AddressForm({
             {/* Address Type */}
             <div className="grid gap-2">
               <label htmlFor="address_type" className="text-sm font-medium">
-                Adresstyp *
+                Adresstyp <span className="text-[#a90329]">*</span>
               </label>
               <select
                 id="address_type"
@@ -286,7 +286,7 @@ export function AddressForm({
             <div className="grid gap-4 md:grid-cols-2">
               <div className="grid gap-2">
                 <label htmlFor="first_name" className="text-sm font-medium">
-                  Vorname *
+                  Vorname <span className="text-[#a90329]">*</span>
                 </label>
                 <input
                   id="first_name"
@@ -301,7 +301,7 @@ export function AddressForm({
               </div>
               <div className="grid gap-2">
                 <label htmlFor="last_name" className="text-sm font-medium">
-                  Nachname *
+                  Nachname <span className="text-[#a90329]">*</span>
                 </label>
                 <input
                   id="last_name"
@@ -320,7 +320,7 @@ export function AddressForm({
             <div className="grid gap-4 md:grid-cols-3">
               <div className="grid gap-2 md:col-span-2">
                 <label htmlFor="street" className="text-sm font-medium">
-                  Straße *
+                  Straße <span className="text-[#a90329]">*</span>
                 </label>
                 <input
                   id="street"
@@ -335,7 +335,7 @@ export function AddressForm({
               </div>
               <div className="grid gap-2">
                 <label htmlFor="house_number" className="text-sm font-medium">
-                  Nr. *
+                  Nr. <span className="text-[#a90329]">*</span>
                 </label>
                 <input
                   id="house_number"
@@ -370,7 +370,7 @@ export function AddressForm({
             <div className="grid gap-4 md:grid-cols-3">
               <div className="grid gap-2">
                 <label htmlFor="postal_code" className="text-sm font-medium">
-                  PLZ *
+                  PLZ <span className="text-[#a90329]">*</span>
                 </label>
                 <input
                   id="postal_code"
@@ -385,7 +385,7 @@ export function AddressForm({
               </div>
               <div className="grid gap-2 md:col-span-2">
                 <label htmlFor="city" className="text-sm font-medium">
-                  Stadt *
+                  Stadt <span className="text-[#a90329]">*</span>
                 </label>
                 <input
                   id="city"
@@ -419,7 +419,7 @@ export function AddressForm({
             {/* Country */}
             <div className="grid gap-2">
               <label htmlFor="country" className="text-sm font-medium">
-                Land *
+                Land <span className="text-[#a90329]">*</span>
               </label>
               <select
                 id="country"

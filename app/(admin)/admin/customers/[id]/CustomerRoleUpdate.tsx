@@ -61,7 +61,7 @@ export function CustomerRoleUpdate({
       {message && (
         <p
           className={`text-sm ${
-            message.startsWith("✓") ? "text-green-600" : "text-red-600"
+            message.startsWith("✓") ? "text-green-600" : "text-[#a90329]"
           }`}
         >
           {message}

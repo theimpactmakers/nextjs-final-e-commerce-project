@@ -1,12 +1,5 @@
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
-import {
-  Package,
-  Clock,
-  CheckCircle,
-  XCircle,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { OrderStatusSelect, PaymentStatusSelect } from "./OrderStatusSelects";
 
@@ -79,23 +72,6 @@ export default async function OrdersPage({
     currentPage,
     totalPages,
   } = await getOrders(page);
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Clock className="h-5 w-5 text-yellow-500" />;
-      case "processing":
-        return <Package className="h-5 w-5 text-blue-500" />;
-      case "shipped":
-        return <Package className="h-5 w-5 text-purple-500" />;
-      case "delivered":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "cancelled":
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <Clock className="h-5 w-5 text-gray-500" />;
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -207,7 +183,7 @@ export default async function OrdersPage({
           <div className="flex items-center gap-2">
             <Link
               href={`/admin/orders?page=${currentPage - 1}`}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm ${
+              className={`cursor-pointer flex items-center gap-1 rounded-lg px-3 py-2 text-sm ${
                 currentPage === 1
                   ? "cursor-not-allowed bg-gray-100 text-gray-400"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -230,9 +206,9 @@ export default async function OrdersPage({
                       <Link
                         key={pageNum}
                         href={`/admin/orders?page=${pageNum}`}
-                        className={`rounded-lg px-3 py-2 text-sm ${
+                        className={`cursor-pointer rounded-lg px-3 py-2 text-sm ${
                           pageNum === currentPage
-                            ? "bg-blue-600 text-white"
+                            ? "bg-accent text-white"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
                       >
@@ -255,7 +231,7 @@ export default async function OrdersPage({
             </div>
             <Link
               href={`/admin/orders?page=${currentPage + 1}`}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm ${
+              className={`cursor-pointer flex items-center gap-1 rounded-lg px-3 py-2 text-sm ${
                 currentPage === totalPages
                   ? "cursor-not-allowed bg-gray-100 text-gray-400"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"

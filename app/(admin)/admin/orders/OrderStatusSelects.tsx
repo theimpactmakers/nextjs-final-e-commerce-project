@@ -55,7 +55,7 @@ export function OrderStatusSelect({
         status
       )} ${
         isPending ? "opacity-50" : "cursor-pointer"
-      } border-0 focus:ring-2 focus:ring-blue-500`}
+      } border-0 focus:ring-2 focus:ring-accent`}
     >
       <option value="pending">Ausstehend</option>
       <option value="confirmed">Bestätigt</option>
@@ -117,7 +117,7 @@ export function PaymentStatusSelect({
         status
       )} ${
         isPending ? "opacity-50" : "cursor-pointer"
-      } border-0 focus:ring-2 focus:ring-blue-500`}
+      } border-0 focus:ring-2 focus:ring-accent`}
     >
       <option value="pending">Ausstehend</option>
       <option value="paid">Bezahlt</option>

@@ -108,7 +108,7 @@ function UserProfileContent() {
             onClick={() => setActiveTab("profile")}
             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
               activeTab === "profile"
-                ? "border-primary text-primary"
+                ? "border-primary text-accent"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
             }`}
           >
@@ -118,7 +118,7 @@ function UserProfileContent() {
             onClick={() => setActiveTab("addresses")}
             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
               activeTab === "addresses"
-                ? "border-primary text-primary"
+                ? "border-primary text-accent"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
             }`}
           >
@@ -128,7 +128,7 @@ function UserProfileContent() {
             onClick={() => setActiveTab("wishlist")}
             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
               activeTab === "wishlist"
-                ? "border-primary text-primary"
+                ? "border-primary text-accent"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
             }`}
           >
@@ -138,7 +138,7 @@ function UserProfileContent() {
             onClick={() => setActiveTab("orders")}
             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
               activeTab === "orders"
-                ? "border-primary text-primary"
+                ? "border-primary text-accent"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
             }`}
           >

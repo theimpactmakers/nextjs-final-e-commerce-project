@@ -301,7 +301,7 @@ export default async function CustomerDetailPage({
                               order.status === "delivered"
                                 ? "text-green-600"
                                 : order.status === "cancelled"
-                                ? "text-red-600"
+                                ? "text-[#a90329]"
                                 : "text-yellow-600"
                             }`}
                           >

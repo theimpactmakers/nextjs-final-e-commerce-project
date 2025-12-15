@@ -27,14 +27,16 @@ export default async function ContactMessagesPage() {
 
   if (error) {
     return (
-      <div className="p-8 text-red-600">Fehler beim Laden: {error.message}</div>
+      <div className="p-8 text-[#a90329]">
+        Fehler beim Laden: {error.message}
+      </div>
     );
   }
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Kontaktanfragen</h1>
-      <table className="min-w-full border text-sm">
+      <table className="min-w-full border bg-white text-sm">
         <thead>
           <tr className="bg-gray-100">
             <th className="border px-3 py-2">Datum</th>
@@ -57,13 +59,13 @@ export default async function ContactMessagesPage() {
                 <td className="border px-3 py-2">{msg.last_name}</td>
                 <td className="border px-3 py-2">{msg.email}</td>
                 <td className="border px-3 py-2">{msg.phone || "-"}</td>
-                <td className="border px-3 py-2 max-w-xs wrap-break-word">
+                <td className="border px-3 py-2 max-w-xs text-primary wrap-break-word">
                   {msg.message}
                 </td>
                 <td className="border px-3 py-2">
                   <a
                     href={`/admin/contact-messages/${msg.id}`}
-                    className="text-blue-600 underline"
+                    className="text-accent hover:text-black underline"
                   >
                     Ansehen
                   </a>

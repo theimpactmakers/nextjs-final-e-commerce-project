@@ -379,8 +379,8 @@ async function PromotionsContent({
             {!promo &&
               activePromotions.length > 0 &&
               activePromotions.some((p) => p.description) && (
-                <div className="my-8">
-                  <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
+                <div className="mb-16">
+                  <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
                     SALE - sichere dir 10-20% Rabatt
                   </h2>
                   <div className="flex flex-wrap justify-center gap-16">
@@ -427,7 +427,7 @@ async function PromotionsContent({
                 </div>
               )}
 
-            <p className="text-muted-foreground text-center">
+            <p className="text-muted-foreground ">
               {productsInPromotion?.length || 0}{" "}
               {productsInPromotion?.length === 1 ? "Produkt" : "Produkte"} im
               Angebot

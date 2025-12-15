@@ -28,14 +28,14 @@ export function ProductDeleteButton({ productId, productName }: Props) {
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className="cursor-pointer rounded bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700 disabled:opacity-50"
+          className="cursor-pointer rounded-(--app-radius) bg-black px-2 py-1 text-xs text-white hover:bg-gray-800 disabled:opacity-50"
         >
           {isPending ? "..." : "Ja"}
         </button>
         <button
           onClick={() => setShowConfirm(false)}
           disabled={isPending}
-          className="cursor-pointer rounded bg-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-400 disabled:opacity-50"
+          className="cursor-pointer rounded-(--app-radius) bg-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-400 disabled:opacity-50"
         >
           Nein
         </button>
@@ -46,7 +46,7 @@ export function ProductDeleteButton({ productId, productName }: Props) {
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="cursor-pointer text-red-600 hover:text-red-700"
+      className="cursor-pointer text-[#a90329] hover:text-[#8a0222]"
       title="Produkt löschen"
     >
       <Trash2 className="h-4 w-4" />

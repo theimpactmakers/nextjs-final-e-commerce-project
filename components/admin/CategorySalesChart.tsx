@@ -42,7 +42,7 @@ export function CategorySalesChart({ data }: CategorySalesChartProps) {
           />
           <YAxis
             yAxisId="left"
-            stroke="hsl(142 71% 45%)"
+            stroke="#000000"
             fontSize={12}
             label={{
               value: "Bestellungen",
@@ -54,7 +54,7 @@ export function CategorySalesChart({ data }: CategorySalesChartProps) {
           <YAxis
             yAxisId="right"
             orientation="right"
-            stroke="hsl(33 100% 37%)"
+            stroke="#C87C28"
             fontSize={12}
             label={{
               value: "Umsatz (€)",
@@ -86,14 +86,14 @@ export function CategorySalesChart({ data }: CategorySalesChartProps) {
           <Bar
             yAxisId="left"
             dataKey="orders"
-            fill="hsl(142 71% 45%)"
+            fill="#000000"
             name="orders"
             radius={[8, 8, 0, 0]}
           />
           <Bar
             yAxisId="right"
             dataKey="revenue"
-            fill="hsl(33 100% 37%)"
+            fill="#C87C28"
             name="revenue"
             radius={[8, 8, 0, 0]}
           />

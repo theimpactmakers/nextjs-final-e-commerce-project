@@ -89,7 +89,7 @@ export default async function ProductsPage({
         </div>
         <Link
           href="/admin/products/new"
-          className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="cursor-pointer flex items-center gap-2 rounded-(--app-radius) bg-accent px-4 py-2 text-white hover:bg-black"
         >
           <Plus className="h-5 w-5" />
           Produkt hinzufügen
@@ -97,26 +97,26 @@ export default async function ProductsPage({
       </div>
 
       {/* Search Bar */}
-      <form method="GET" className="rounded-lg bg-white p-4 shadow">
+      <form method="GET" className="rounded-lg bg-white p-4 shadow ">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-accent" />
           <input
             type="text"
             name="q"
             defaultValue={search}
             placeholder="Produkte nach Name, Slug oder Beschreibung suchen..."
-            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-accent py-2 pl-10 pr-4 bg-accent/10 focus:border-accent focus:outline-none focus:ring-1 focus:accent"
           />
         </div>
         {search && (
           <div className="mt-2 flex items-center justify-between">
             <p className="text-sm text-gray-600">
               Zeige Ergebnisse für:{" "}
-              <span className="font-semibold">"{search}"</span>
+              <span className="font-semibold">&ldquo;{search}&rdquo;</span>
             </p>
             <Link
               href="/admin/products"
-              className="text-sm text-blue-600 hover:underline"
+              className="cursor-pointer text-sm text-black underline hover:no-underline"
             >
               Suche löschen
             </Link>
@@ -130,11 +130,11 @@ export default async function ProductsPage({
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr className="text-left text-sm font-medium text-gray-700">
-                <th className="px-6 py-4">Produkt</th>
+                <th className="px-6 py-4 w-[30%]">Produkt</th>
                 <th className="px-6 py-4">Kategorie</th>
                 <th className="px-6 py-4">Altersgruppe</th>
-                <th className="px-6 py-4">Varianten</th>
-                <th className="px-6 py-4">Bilder</th>
+                <th className="px-6 py-4 w-[8%]">Varianten</th>
+                <th className="px-6 py-4 w-[8%]">Bilder</th>
                 <th className="px-6 py-4">Aktiv</th>
                 <th className="px-6 py-4">Aktionen</th>
               </tr>
@@ -156,7 +156,7 @@ export default async function ProductsPage({
                     {product.meat_type || "N/A"}
                   </td>
                   <td className="px-6 py-4">
-                    <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800">
+                    <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-black">
                       {product.age_group}
                     </span>
                   </td>
@@ -171,7 +171,7 @@ export default async function ProductsPage({
                       className={`rounded-full px-2 py-1 text-xs font-medium ${
                         product.is_active
                           ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                          : "bg-red-100 text-black"
                       }`}
                     >
                       {product.is_active ? "Aktiv" : "Inaktiv"}
@@ -182,14 +182,14 @@ export default async function ProductsPage({
                       <Link
                         href={`/products/${product.slug}`}
                         target="_blank"
-                        className="rounded p-1 text-gray-600 hover:bg-gray-100"
+                        className="cursor-pointer rounded p-1 text-gray-600 hover:bg-gray-100"
                         title="Ansehen"
                       >
                         <Eye className="h-4 w-4" />
                       </Link>
                       <Link
                         href={`/admin/products/${product.id}/edit`}
-                        className="rounded p-1 text-blue-600 hover:bg-blue-50"
+                        className="cursor-pointer rounded p-1 bg-accent text-white hover:bg-accent/80"
                         title="Bearbeiten"
                       >
                         <Edit className="h-4 w-4" />
@@ -225,7 +225,7 @@ export default async function ProductsPage({
               href={`/admin/products?page=${currentPage - 1}${
                 search ? `&q=${encodeURIComponent(search)}` : ""
               }`}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm ${
+              className={`cursor-pointer flex items-center gap-1 rounded-lg px-3 py-2 text-sm ${
                 currentPage === 1
                   ? "cursor-not-allowed bg-gray-100 text-gray-400"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -250,9 +250,9 @@ export default async function ProductsPage({
                         href={`/admin/products?page=${pageNum}${
                           search ? `&q=${encodeURIComponent(search)}` : ""
                         }`}
-                        className={`rounded-lg px-3 py-2 text-sm ${
+                        className={`cursor-pointer rounded-lg px-3 py-2 text-sm ${
                           pageNum === currentPage
-                            ? "bg-blue-600 text-white"
+                            ? "bg-accent text-white"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
                       >
@@ -277,7 +277,7 @@ export default async function ProductsPage({
               href={`/admin/products?page=${currentPage + 1}${
                 search ? `&q=${encodeURIComponent(search)}` : ""
               }`}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm ${
+              className={`cursor-pointer flex items-center gap-1 rounded-lg px-3 py-2 text-sm ${
                 currentPage === totalPages
                   ? "cursor-not-allowed bg-gray-100 text-gray-400"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"

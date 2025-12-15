@@ -1,5 +1,5 @@
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
-import { Star, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Star, CheckCircle, Clock } from "lucide-react";
 import { ReviewActions } from "./ReviewActions";
 
 // Cache for 2 minutes
@@ -60,7 +60,7 @@ export default async function ReviewsPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Bewertungen</h1>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-black">
           Moderieren und verwalten Sie Kundenbewertungen
         </p>
       </div>
@@ -70,7 +70,7 @@ export default async function ReviewsPage() {
         <div className="rounded-lg bg-white p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Genehmigte Bewertungen</p>
+              <p className="text-sm text-gray-600 font-bold">Genehmigte Bewertungen</p>
               <p className="mt-2 text-3xl font-bold text-gray-900">
                 {approvedCount}
               </p>
@@ -81,23 +81,23 @@ export default async function ReviewsPage() {
         <div className="rounded-lg bg-white p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Ausstehende Bewertungen</p>
+              <p className="text-sm text-gray-600 font-bold">Ausstehende Bewertungen</p>
               <p className="mt-2 text-3xl font-bold text-gray-900">
                 {pendingCount}
               </p>
             </div>
-            <Clock className="h-8 w-8 text-yellow-500" />
+            <Clock className="h-8 w-8 text-primary" />
           </div>
         </div>
         <div className="rounded-lg bg-white p-6 shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Durchschnittsbewertung</p>
+              <p className="text-sm text-gray-600 font-bold">Rating der Durchschnitts-Bewertung</p>
               <p className="mt-2 text-3xl font-bold text-gray-900">
                 {avgRating}
               </p>
             </div>
-            <Star className="h-8 w-8 text-yellow-500 fill-yellow-500" />
+            <Star className="h-10 w-10 mt-2 text-yellow-500 fill-yellow-500" />
           </div>
         </div>
       </div>

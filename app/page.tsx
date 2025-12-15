@@ -30,8 +30,7 @@ export default async function Home() {
       <HeroSlider slides={SLIDES_DATA} />
       <main className="container max-w-7xl px-4 flex flex-col">
         {/* Kategorien Section */}
-        <section className="grid md:grid-cols-3 gap-x-4 gap-y-4 mt-2 mb-16">
-          {" "}
+        <section className="grid md:grid-cols-3 gap-x-4 gap-y-4">
           {/* Linke Promo-Karte */}
           <a
             href="#sale"
@@ -41,7 +40,6 @@ export default async function Home() {
               className="absolute inset-0"
               style={{ backgroundColor: "#e7a46d", zIndex: 0 }}
             />
-
             <Image
               src="/images/categories/sale.svg"
               alt="Sale Background"
@@ -80,6 +78,7 @@ export default async function Home() {
               </div>
             </div>
           </a>
+          {/* Rechte Säule: */}
           {/* Rechte Säule: */}
           <div className="md:col-span-2 grid gap-4">
             {" "}
@@ -154,8 +153,7 @@ export default async function Home() {
         </section>
         {/* Bestseller Carousel  */}
         <section>
-          <div className="w-full border-t border-muted-foreground/20 pb-16" />
-          <div className="px-12 md:px-16 mb-8 ml-4">
+          <div className="px-12 mt-16 md:px-16 mb-8 ml-4">
             <h2 className="text-3xl text-center font-bold text-foreground mb-2">
               Bestseller im Sortiment
             </h2>
@@ -266,61 +264,8 @@ export default async function Home() {
             ))}
           </div>
         </section>
-        <section id="sale">
-          {/* Neue Produkte Carousel */}
-          <div className="w-full border-muted-foreground/20 mb-16" />
-          <div className=" md:px-16 mb-8 ml-4">
-            <h2 className="text-3xl text-center font-bold text-foreground mb-2">
-              Produkte im Sale
-            </h2>
-            <p className="text-muted-foreground text-center text-sm">
-              Entdecke unsere reduzierte Produkte bis zu 20%!
-            </p>
-          </div>
-          <Suspense
-            fallback={
-              <div className="flex gap-4 overflow-hidden px-4">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="min-w-[280px] animate-pulse">
-                    <div className="bg-muted rounded-xl h-48 mb-4" />
-                    <div className="bg-muted rounded h-4 w-3/4 mb-2" />
-                    <div className="bg-muted rounded h-3 w-1/2" />
-                  </div>
-                ))}
-              </div>
-            }
-          >
-            <NewProductsCarousel />
-          </Suspense>
-        </section>
-        <div className="w-full border-t border-muted-foreground/20 mt-16 mb-16" />
-
-        {/* Kundenbewertungen Section */}
-        <Suspense
-          fallback={
-            <div className="max-w-7xl mx-auto mb-16 px-4">
-              <div className="text-center mb-8">
-                <div className="h-8 bg-muted rounded w-64 mx-auto mb-4 animate-pulse" />
-                <div className="h-6 bg-muted rounded w-96 mx-auto animate-pulse" />
-              </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-muted rounded-lg h-48 animate-pulse"
-                  />
-                ))}
-              </div>
-            </div>
-          }
-        >
-          <LandingPageReviews />
-        </Suspense>
-
-        <div className="w-full border-t border-muted-foreground/20" />
-
         {/* ingredients Section */}
-        <section className="max-w-7xl mx-auto mb-8 px-4 mt-16">
+        <section className=" max-w-7xl mx-auto px-4 mt-16 rounded-2xl">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl mb-4 font-bold">
               Gesunde Zutaten
@@ -396,15 +341,62 @@ export default async function Home() {
               href="/shop"
               className="inline-block px-6 py-3 underline hover:no-underline text-accent hover:text-primary font-semibold transition-colors"
             >
-              Allen Produkte Entdecken
+              Alle Produkte ansehen
             </a>
           </div>
         </section>
+        <div className="w-full border-t border-muted-foreground/20 mt-16 " />
+        <section id="sale">
+          {/* Sale Carousel */}
+          <div className="w-full border-muted-foreground/20 mb-16" />
+          <div className=" md:px-16 mb-8 ml-4">
+            <h2 className="text-3xl text-center font-bold text-foreground mb-2">
+              Produkte im Sale
+            </h2>
+            <p className="text-muted-foreground text-center text-sm">
+              Entdecke unsere reduzierte Produkte bis zu 20%!
+            </p>
+          </div>
+          <Suspense
+            fallback={
+              <div className="flex gap-4 overflow-hidden px-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="min-w-[280px] animate-pulse">
+                    <div className="bg-muted rounded-xl h-48 mb-4" />
+                    <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                    <div className="bg-muted rounded h-3 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            }
+          >
+            <NewProductsCarousel />
+          </Suspense>
+        </section>
 
-        <div className="w-full border-t border-muted-foreground/20" />
+        {/* Kundenbewertungen Section */}
+        <section className="bg-muted pt-16  rounded-2xl mt-16">
+          <Suspense
+            fallback={
+              <div className="max-w-7xl mx-auto px-4 ">
+                <div className="text-center mb-8">
+                  <div className="h-8 bg-muted rounded w-64 mx-auto mb-4 animate-pulse" />
+                  <div className="h-6 bg-muted rounded w-96 mx-auto animate-pulse" />
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="bg-muted rounded-lg h-48" />
+                  ))}
+                </div>
+              </div>
+            }
+          >
+            <LandingPageReviews />
+          </Suspense>
+        </section>
 
         {/* Tipps & Beratung */}
-        <section className="max-w-7xl mx-auto mb-16 px-4">
+        <section className="max-w-7xl mx-auto mb-8 px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 mt-16 text-center">
             Tipps & Beratung
           </h2>
@@ -414,38 +406,46 @@ export default async function Home() {
           <div className="grid md:grid-cols-3 gap-4 mt-6">
             {[
               {
-                title: "Fütterungsratgeber",
-                href: "/marketing/beratung",
+                title: "Über Uns",
+                href: "/about",
               },
               {
                 title: "Unsere Story",
-                href: "/marketing/story",
+                href: "/story",
               },
               {
                 title: "Blog & News",
-                href: "/marketing/blogs",
+                href: "/blogs",
               },
             ].map((item) => (
               <a
                 key={item.title}
                 href={item.href}
-                className="group rounded-xl border bg-card p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="group rounded-xl border bg-primary/40 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full"
               >
-                <h3 className="text-lg font-semibold group-brown brown-glow">
-                  {item.title}
-                </h3>
-                <p className="text-muted-foreground text-sm">Weiter lesen</p>
+                <div className="flex flex-row justify-between items-center w-full">
+                  <h3 className="text-lg font-semibold group-brown brown-glow">
+                    {item.title}
+                  </h3>
+                  <span
+                    className="text-primary hover:text-black underline underline-offset-4 text-sm font-medium transition-colors cursor-pointer ml-4"
+                    aria-label={`Weiter lesen über ${item.title}`}
+                  >
+                    Weiterlesen
+                  </span>
+                </div>
               </a>
             ))}
           </div>
           <div className="text-center mt-8">
-            <p className="text-muted-foreground text-m my-8 max-w-3xl mx-auto">
-              Nutze unseren Futterberater und lasse dich sofort ganz individuell
-              beraten.
+            <p className="text-primary text-sm my-8 max-w-3xl mx-auto">
+              Nutze einfach unseren KI-Futterberater und lasse dich sofort ganz
+              individuell beraten.
             </p>
             <a
               href="/beratung"
-              className="inline-block px-6 py-3 bg-accent text-white rounded-(--app-radius) font-semibold hover:bg-accent/90 transition-colors"
+              className="inline-block px-6 py-2 bg-accent text-white rounded-(--app-radius) font-semibold hover:bg-accent/90 transition hover:scale-95"
+              style={{ position: "relative", overflow: "hidden" }}
             >
               Zum Futterberater
             </a>
