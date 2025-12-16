@@ -3,9 +3,10 @@ import { redirect } from "next/navigation";
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = createClient();
+  const { id } = await params;
+  const supabase = await createClient();
   const formData = await request.formData();
   const answer = formData.get("answer") as string;
 
@@ -17,7 +18,7 @@ export async function POST(
   const { error } = await supabase
     .from("contact_messages")
     .update({ answered: true, answer })
-    .eq("id", params.id);
+    .eq("id", id);
 
   if (error) {
     return new Response("Fehler beim Speichern der Antwort", { status: 500 });
@@ -25,5 +26,5 @@ export async function POST(
 
   // Optionally: send email to the user here
 
-  redirect(`/admin/contact-messages/${params.id}`);
+  redirect(`/admin/contact-messages/${id}`);
 }
