@@ -1,30 +1,48 @@
+// Loading State
+function ShopLoading() {
+  return (
+    <div className="container max-w-7xl mx-auto px-4 py-16">
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Produkte werden geladen...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 import type { Database } from "@/types";
-import { FilterPanel } from "@/components/FilterPanel";
-import ShopProductCard from "@/components/ShopProductCard";
+import ShopProductListClient from "@/components/ShopProductListClient";
+import { NewProductsCarousel } from "@/components/NewProductsCarouselWrapper";
+import SearchBar from "@/components/SearchBar";
+import Image from "next/image";
 
 // Revalidate alle 60 Sekunden für frische Daten
 export const revalidate = 60;
 
+export const metadata = {
+  title: "Shop - Alle Hundefutter & Leckerlis | Elite Dog TREATS",
+  description:
+    "Stöbern Sie durch unser komplettes Sortiment an Premium Hundefutter und Leckerlis. Filter nach Alter, Fleischsorte & mehr. Jetzt entdecken!",
+  keywords: "Hundefutter Shop, Leckerlis kaufen, Premium Hundefutter online",
+};
+
 type ProductWithImage =
   Database["public"]["Views"]["products_with_primary_image"]["Row"];
 
-// Diese Komponente wird serverseitig gerendert
 async function ShopContent({
   searchParams,
 }: {
-  searchParams: { age?: string; meat?: string };
+  searchParams: Promise<{ age?: string; meat?: string }>;
 }) {
-  // Entpacke searchParams asynchron
-  const { age, meat } = await searchParams;
-
   const supabase = createClient();
 
-  // Hole Filter-Parameter
-  const ageFilter = age;
-  const meatFilter = meat;
+  // Await searchParams before accessing its properties
+  const params = await searchParams;
+  const ageFilter = params.age;
+  const meatFilter = params.meat;
 
   // Starte Query mit der View
   let query = supabase
@@ -44,22 +62,31 @@ async function ShopContent({
     ente: "ENTE",
     rind: "RIND",
     kaninchen: "KANINCHEN",
-    lamm: "LAHM",
+    lamm: "LAMM",
     pferd: "PFERD",
     wild: "WILD",
     lachs: "LACHS",
+    huhn: "HUHN",
   };
 
-  // Füge Filter hinzu (korrekte Enum-Werte verwenden)
-  if (ageFilter && ageEnumValues[ageFilter.toLowerCase()]) {
-    query = query.eq("age_group", ageEnumValues[ageFilter.toLowerCase()]);
+  // Füge Filter hinzu - unterstützt mehrere Werte (kommagetrennt)
+  if (ageFilter) {
+    const ageValues = ageFilter.split(",").map((a) => a.trim().toLowerCase());
+    const dbAgeValues = ageValues.map((a) => ageEnumValues[a]).filter(Boolean);
+
+    if (dbAgeValues.length > 0) {
+      query = query.in("age_group", dbAgeValues);
+    }
   }
 
   if (meatFilter) {
-    const normalizedMeat = meatFilter.toLowerCase();
-    const dbValue = meatEnumValues[normalizedMeat];
-    if (dbValue) {
-      query = query.eq("meat_type", dbValue);
+    const meatValues = meatFilter.split(",").map((m) => m.trim().toLowerCase());
+    const dbMeatValues = meatValues
+      .map((m) => meatEnumValues[m])
+      .filter(Boolean);
+
+    if (dbMeatValues.length > 0) {
+      query = query.in("meat_type", dbMeatValues);
     }
   }
 
@@ -80,98 +107,112 @@ async function ShopContent({
     );
   }
 
-  // Erstelle Titel basierend auf Filtern
-  const getPageTitle = () => {
-    const parts = [];
+  // Load variants and all images for all products
+  const productIds = products?.map((p) => p.id).filter(Boolean) || [];
 
-    if (ageFilter) {
-      const ageLabels: Record<string, string> = {
-        junior: "Junior",
-        adult: "Adult",
-        senior: "Senior",
+  const [{ data: variants }, { data: allImages }] = await Promise.all([
+    supabase.from("product_variants").select("*").in("product_id", productIds),
+    supabase
+      .from("product_images")
+      .select("*")
+      .in("product_id", productIds)
+      .order("display_order", { ascending: true }),
+  ]);
+
+  // Attach variants and all images to products (replace view's single image with full array)
+  const productsWithVariants =
+    products?.map((product) => {
+      const productImages =
+        allImages?.filter((img) => img.product_id === product.id) || [];
+      return {
+        ...product,
+        product_variants:
+          variants?.filter((v) => v.product_id === product.id) || [],
+        product_images: productImages,
       };
-      parts.push(ageLabels[ageFilter.toLowerCase()] || ageFilter.toUpperCase());
-    }
+    }) || [];
 
-    if (meatFilter) {
-      const meatLabels: Record<string, string> = {
-        ente: "Ente",
-        rind: "Rind",
-        kaninchen: "Kaninchen",
-        lamm: "Lamm",
-        pferd: "Pferd",
-        wild: "Wild",
-        lachs: "Lachs",
-      };
-      parts.push(
-        meatLabels[meatFilter.toLowerCase()] || meatFilter.toUpperCase()
-      );
-    }
-
-    if (parts.length > 0) {
-      return `Hundefutter - ${parts.join(" & ")}`;
-    }
-
-    return "Hundefutter";
-  };
+  // Titel basierend auf Filtern
+  const getPageTitle = () => "Alle Produkte";
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2 text-foreground">
-          {getPageTitle()}
-        </h1>
-        <p className="text-muted-foreground">
-          {products?.length || 0}{" "}
-          {products?.length === 1 ? "Produkt" : "Produkte"} gefunden
-        </p>
-      </div>
-
-      {/* Main Layout: Filter + Products */}
-      <div>
-        {/* Filter Panel - Above Products */}
-        <FilterPanel />
-
-        {/* Products Grid */}
-        {products && products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((p) => (
-              <ShopProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <p className="text-xl text-muted-foreground mb-4">
-              Keine Produkte gefunden
-            </p>
-            <p className="text-sm text-muted-foreground mb-6">
-              Versuche es mit anderen Filtereinstellungen
-            </p>
-            <Link
-              href="/shop"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-            >
-              Alle Produkte anzeigen
-            </Link>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Loading State
-function ShopLoading() {
-  return (
-    <div className="container max-w-7xl mx-auto px-4 py-16">
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Produkte werden geladen...</p>
+    <>
+      {/* Banner Section */}
+      <section className="w-full my-4">
+        <div className="container max-w-7xl mx-auto px-4">
+          {/* Desktop Banner */}
+          <Image
+            src="/images/shopbanner.webp"
+            alt="Shop Banner"
+            width={1600}
+            height={300}
+            className="hidden sm:block w-full h-80 object-cover rounded-2xl shadow-sm"
+            priority
+          />
+          {/* Mobile Banner */}
+          <Image
+            src="/images/mobile-banner.svg"
+            alt="Shop Mobile Banner"
+            width={600}
+            height={200}
+            className="block sm:hidden w-full h-48 object-cover rounded-2xl shadow-sm"
+            priority
+          />
         </div>
+      </section>
+      {/* Neue Produkte Carousel */}
+      <section className="container max-w-7xl mx-auto px-4  pt-4 pb-8">
+        <div className="mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 text-center">
+            Neue im Sortiment
+          </h2>
+          <p className="text-muted-foreground text-center text-sm">
+            Entdecke unsere neuesten Produkte!
+          </p>
+        </div>
+        <Suspense
+          fallback={
+            <div className="flex gap-4 overflow-hidden px-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[280px] animate-pulse">
+                  <div className="bg-muted rounded-xl h-48 mb-4" />
+                  <div className="bg-muted rounded h-4 w-3/4 mb-2" />
+                  <div className="bg-muted rounded h-3 w-1/2" />
+                </div>
+              ))}
+            </div>
+          }
+        >
+          <NewProductsCarousel />
+        </Suspense>
+      </section>
+
+      {/* Trennlinie */}
+      <div className="container max-w-7xl mx-auto px-4">
+        <hr className="border-t border-gray-200" />
       </div>
-    </div>
+
+      <div className="container max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground text-left">
+            {getPageTitle()}
+          </h1>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <p className="text-muted-foreground text-left">
+              {productsWithVariants?.length || 0}{" "}
+              {productsWithVariants?.length === 1 ? "Produkt" : "Produkte"}{" "}
+              gefunden
+            </p>
+            <div className="w-full md:w-auto md:min-w-[300px]">
+              <SearchBar />
+            </div>
+          </div>
+        </div>
+        {/* Main Layout: Products */}
+        <ShopProductListClient products={productsWithVariants} />
+      </div>
+    </>
   );
 }
 
@@ -179,7 +220,7 @@ function ShopLoading() {
 export default async function ShopPage({
   searchParams,
 }: {
-  searchParams: { age?: string; meat?: string };
+  searchParams: Promise<{ age?: string; meat?: string }>;
 }) {
   return (
     <Suspense fallback={<ShopLoading />}>

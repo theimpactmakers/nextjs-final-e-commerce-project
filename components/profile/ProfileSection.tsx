@@ -2,10 +2,11 @@
 
 import { useProfile } from "@/contexts/ProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import type { ProfileUpdateData } from "@/types/profile";
 
-export function ProfileSection() {
+// ✅ Memoize component to prevent unnecessary re-renders
+export const ProfileSection = memo(function ProfileSection() {
   const { profile, updateProfile, isLoading } = useProfile();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
@@ -86,7 +87,7 @@ export function ProfileSection() {
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 hover:cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-accent text-accent-foreground hover:bg-accent/90 h-10 px-4 py-2 hover:cursor-pointer shadow-md"
           >
             Bearbeiten
           </button>
@@ -127,7 +128,7 @@ export function ProfileSection() {
             {/* First Name */}
             <div className="grid gap-2">
               <label htmlFor="first_name" className="text-sm font-medium">
-                Vorname *
+                Vorname <span className="text-[#a90329]">*</span>
               </label>
               <input
                 id="first_name"
@@ -145,7 +146,7 @@ export function ProfileSection() {
             {/* Last Name */}
             <div className="grid gap-2">
               <label htmlFor="last_name" className="text-sm font-medium">
-                Nachname *
+                Nachname <span className="text-[#a90329]">*</span>
               </label>
               <input
                 id="last_name"
@@ -231,4 +232,4 @@ export function ProfileSection() {
       </div>
     </div>
   );
-}
+});

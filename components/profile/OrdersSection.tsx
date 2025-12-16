@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Database } from "@/types/supabase";
 import Link from "next/link";
+import Image from "next/image";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
@@ -17,7 +18,12 @@ interface ProductSlug {
   [productId: string]: string;
 }
 
-export function OrdersSection() {
+interface ProductImage {
+  [productId: string]: string;
+}
+
+// ✅ Memoize to prevent unnecessary re-renders
+export const OrdersSection = memo(function OrdersSection() {
   const { user } = useAuth();
   const supabase = createClient();
   const [orders, setOrders] = useState<OrderWithItems[]>([]);
@@ -26,57 +32,81 @@ export function OrdersSection() {
     "months3"
   );
   const [productSlugs, setProductSlugs] = useState<ProductSlug>({});
+  const [productImages, setProductImages] = useState<ProductImage>({});
 
   useEffect(() => {
-    if (user) {
-      loadOrders();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+    let mounted = true;
 
-  const loadOrders = async () => {
-    if (!user) return;
+    const loadOrders = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
 
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select(`*, order_items (*)`)
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("orders")
+          .select(`*, order_items (*)`)
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setOrders((data as OrderWithItems[]) || []);
+        if (error) throw error;
 
-      // Load product slugs
-      if (data && data.length > 0) {
-        const productIds = Array.from(
-          new Set(
-            data.flatMap((order) =>
-              order.order_items.map((item: OrderItem) => item.product_id)
+        if (!mounted) return;
+
+        setOrders((data as OrderWithItems[]) || []);
+
+        // Load product slugs and images
+        if (data && data.length > 0) {
+          const productIds = Array.from(
+            new Set(
+              data.flatMap((order) =>
+                order.order_items.map((item: OrderItem) => item.product_id)
+              )
             )
-          )
-        );
+          );
 
-        const { data: products } = await supabase
-          .from("products")
-          .select("id, slug")
-          .in("id", productIds);
+          const [productsResult, imagesResult] = await Promise.all([
+            supabase.from("products").select("id, slug").in("id", productIds),
+            supabase
+              .from("product_images")
+              .select("product_id, image_url")
+              .in("product_id", productIds)
+              .eq("is_primary", true),
+          ]);
 
-        if (products) {
-          const slugMap: ProductSlug = {};
-          products.forEach((product) => {
-            slugMap[product.id] = product.slug;
-          });
-          setProductSlugs(slugMap);
+          if (productsResult.data && mounted) {
+            const slugMap: ProductSlug = {};
+            productsResult.data.forEach((product) => {
+              slugMap[product.id] = product.slug;
+            });
+            setProductSlugs(slugMap);
+          }
+
+          if (imagesResult.data && mounted) {
+            const imageMap: ProductImage = {};
+            imagesResult.data.forEach((image) => {
+              imageMap[image.product_id] = image.image_url;
+            });
+            setProductImages(imageMap);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading orders:", error);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
         }
       }
-    } catch (error) {
-      console.error("Error loading orders:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+
+    loadOrders();
+
+    return () => {
+      mounted = false;
+    };
+  }, [user, supabase]);
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -258,21 +288,31 @@ export function OrdersSection() {
                   <div className="space-y-4">
                     {order.order_items.map((item) => (
                       <div key={item.id} className="flex gap-4">
-                        {/* Product Image Placeholder */}
-                        <div className="w-24 h-24 bg-muted/50 rounded flex items-center justify-center shrink-0">
-                          <svg
-                            className="w-12 h-12 text-muted-foreground/50"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1.5}
-                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        {/* Product Image */}
+                        <div className="w-24 h-24 bg-muted/50 rounded flex items-center justify-center shrink-0 overflow-hidden">
+                          {item.product_id && productImages[item.product_id] ? (
+                            <Image
+                              src={productImages[item.product_id]}
+                              alt={item.product_name || "Produkt"}
+                              width={96}
+                              height={96}
+                              className="object-cover w-full h-full"
                             />
-                          </svg>
+                          ) : (
+                            <svg
+                              className="w-12 h-12 text-muted-foreground/50"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={1.5}
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                          )}
                         </div>
 
                         {/* Product Details */}
@@ -330,4 +370,4 @@ export function OrdersSection() {
       )}
     </div>
   );
-}
+});

@@ -1,18 +1,50 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useReviews } from "@/contexts/ReviewContext";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
-import RelatedProducts from "@/components/RelatedProducts";
+import ReviewStats from "@/components/ReviewStats";
 import {
   AddToCartButton,
   BuyNowButton,
   AddToWishlistButton,
 } from "@/components/Button";
 import type { Database } from "@/types";
+
+// Dynamic imports for below-the-fold components to reduce initial bundle size
+import { Suspense } from "react";
+const RelatedProducts = dynamic(() => import("@/components/RelatedProducts"), {
+  loading: () => (
+    <div className="flex items-center justify-center p-12">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
+    </div>
+  ),
+  ssr: false,
+});
+
+const ReviewList = dynamic(() => import("@/components/ReviewList"), {
+  loading: () => (
+    <div className="flex items-center justify-center p-8">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600"></div>
+    </div>
+  ),
+  ssr: false,
+});
+
+const ReviewForm = dynamic(() => import("@/components/ReviewForm"), {
+  loading: () => (
+    <div className="flex items-center justify-center p-8">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600"></div>
+    </div>
+  ),
+  ssr: false,
+});
 
 type Product = Database["public"]["Tables"]["products"]["Row"] & {
   product_images: Database["public"]["Tables"]["product_images"]["Row"][];
@@ -23,8 +55,26 @@ type Product = Database["public"]["Tables"]["products"]["Row"] & {
   feeding_guidelines: Database["public"]["Tables"]["feeding_guidelines"]["Row"][];
 };
 
+type Review = Database["public"]["Tables"]["reviews"]["Row"] & {
+  profiles?: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+  };
+};
+
+type ReviewStats = {
+  averageRating: number;
+  totalReviews: number;
+  ratingDistribution: {
+    [key: number]: number;
+  };
+};
+
 interface SingleProductViewProps {
   product: Product;
+  reviews: Review[];
+  reviewStats: ReviewStats;
 }
 
 interface PromotionData {
@@ -35,23 +85,29 @@ interface PromotionData {
   discountType: "percentage" | "fixed_amount";
 }
 
-export default function SingleProductView({ product }: SingleProductViewProps) {
+export default function SingleProductView({
+  product,
+  reviews: initialReviews,
+  reviewStats,
+}: SingleProductViewProps) {
   const searchParams = useSearchParams();
-  const variantIdFromUrl = searchParams.get('variant');
-  
-  // Finde die initiale Variante basierend auf URL-Parameter oder nehme die erste
+  const variantIdFromUrl = searchParams.get("variant");
+
+  // Finde die initiale Variante basierend auf URL-Parameter oder nehme null (keine Auswahl)
   const getInitialVariant = () => {
     if (variantIdFromUrl) {
       const variantFromUrl = product.product_variants.find(
-        v => v.id === variantIdFromUrl
+        (v) => v.id === variantIdFromUrl
       );
       if (variantFromUrl) return variantFromUrl;
     }
-    return product.product_variants[0];
+    return null; // Start with no variant selected
   };
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState(getInitialVariant());
+  const [selectedVariant, setSelectedVariant] = useState<
+    (typeof product.product_variants)[0] | null
+  >(getInitialVariant());
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<
     "description" | "ingredients" | "feeding" | "reviews"
@@ -61,10 +117,26 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
     null
   );
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [canReview, setCanReview] = useState(false);
+  const [productReviews, setProductReviews] =
+    useState<Review[]>(initialReviews);
+  const [manualImageChange, setManualImageChange] = useState(false);
 
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { user } = useAuth();
+  const { deleteReview, getProductReviews, checkUserCanReview } = useReviews();
   const router = useRouter();
+
+  // Refresh reviews function (must be defined before useEffect)
+  const refreshReviews = useCallback(async () => {
+    const { data } = await getProductReviews(product.id);
+    if (data) {
+      setProductReviews(data);
+    }
+  }, [getProductReviews, product.id]);
 
   const inWishlist = isInWishlist(product.id);
 
@@ -72,7 +144,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
   useEffect(() => {
     if (!hasInitialized && variantIdFromUrl) {
       const variantFromUrl = product.product_variants.find(
-        v => v.id === variantIdFromUrl
+        (v) => v.id === variantIdFromUrl
       );
       if (variantFromUrl) {
         setSelectedVariant(variantFromUrl);
@@ -122,8 +194,42 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           },
         ];
 
+  // Switch image based on selected variant weight (only if user hasn't manually navigated)
+  useEffect(() => {
+    if (manualImageChange) return; // Don't auto-switch if user manually changed image
+
+    if (!selectedVariant) {
+      // No variant selected: show default image (display_order 0)
+      const defaultImageIndex = sortedImages.findIndex(
+        (img) => img.display_order === 0
+      );
+      if (defaultImageIndex !== -1) {
+        setCurrentImageIndex(defaultImageIndex);
+      } else {
+        setCurrentImageIndex(0);
+      }
+    } else if (selectedVariant.weight_grams === 3000) {
+      // 3kg variant: show image with display_order 1
+      const image3kg = sortedImages.findIndex((img) => img.display_order === 1);
+      if (image3kg !== -1) {
+        setCurrentImageIndex(image3kg);
+      }
+    } else if (selectedVariant.weight_grams === 6000) {
+      // 6kg variant: show image with display_order 2
+      const image6kg = sortedImages.findIndex((img) => img.display_order === 2);
+      if (image6kg !== -1) {
+        setCurrentImageIndex(image6kg);
+      }
+    }
+  }, [selectedVariant, sortedImages, manualImageChange]);
+
   // Load promotion data when variant changes
   useEffect(() => {
+    if (!selectedVariant) {
+      setPromotionData(null);
+      return;
+    }
+
     const loadPromotion = async () => {
       const promo = await calculatePromotionDiscount(
         product.id,
@@ -136,19 +242,72 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
     loadPromotion();
   }, [selectedVariant, product.id]);
 
+  // Check if user can leave a review
+  useEffect(() => {
+    const checkReviewPermission = async () => {
+      if (user) {
+        const result = await checkUserCanReview(product.id);
+        setCanReview(result.canReview);
+      }
+    };
+
+    checkReviewPermission();
+  }, [user, product.id, checkUserCanReview]);
+
+  // Refresh reviews when switching to reviews tab
+  useEffect(() => {
+    if (activeTab === "reviews") {
+      refreshReviews();
+    }
+  }, [activeTab, refreshReviews]);
+
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review);
+    setShowReviewForm(true);
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (confirm("Möchten Sie diese Bewertung wirklich löschen?")) {
+      await deleteReview(reviewId);
+      await refreshReviews();
+    }
+  };
+
+  const handleReviewSubmitted = async () => {
+    setShowReviewForm(false);
+    setEditingReview(null);
+    await refreshReviews();
+  };
+
+  // Get the lowest variant price for "ab" display
+  const lowestVariantPrice =
+    product.product_variants.length > 0
+      ? Math.min(...product.product_variants.map((v) => v.price))
+      : 0;
+
   // Get the final price
-  const finalPrice = promotionData
-    ? promotionData.discountedPrice
-    : selectedVariant.price;
+  const finalPrice = selectedVariant
+    ? promotionData
+      ? promotionData.discountedPrice
+      : selectedVariant.price
+    : lowestVariantPrice;
 
-  const originalPrice = promotionData
-    ? promotionData.originalPrice
-    : selectedVariant.compare_at_price || selectedVariant.price;
+  const originalPrice = selectedVariant
+    ? promotionData
+      ? promotionData.originalPrice
+      : selectedVariant.compare_at_price || selectedVariant.price
+    : 0;
 
-  const hasDiscount = finalPrice < originalPrice;
+  const hasDiscount =
+    selectedVariant && finalPrice > 0 && finalPrice < originalPrice;
 
   // Handle add to cart
   const handleAddToCart = async () => {
+    if (!selectedVariant) {
+      alert("Bitte wählen Sie eine Größe aus");
+      return;
+    }
+
     if (
       !selectedVariant.stock_quantity ||
       selectedVariant.stock_quantity === 0
@@ -168,9 +327,6 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
         selectedVariant.stock_quantity || 0,
         quantity
       );
-
-      // Show success message
-      alert("Produkt wurde zum Warenkorb hinzugefügt!");
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Fehler beim Hinzufügen zum Warenkorb");
@@ -190,6 +346,11 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
 
   // Handle buy now - add to cart and redirect to checkout
   const handleBuyNow = async () => {
+    if (!selectedVariant) {
+      alert("Bitte wählen Sie eine Größe aus");
+      return;
+    }
+
     if (
       !selectedVariant.stock_quantity ||
       selectedVariant.stock_quantity === 0
@@ -221,18 +382,37 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 sm:space-y-10 md:space-y-12 px-2 sm:px-4 max-w-[1400px] mx-auto">
+      {/* Breadcrumb Navigation (Pfad) */}
+      <nav className="mb-4 ml-4 sm:ml-8" aria-label="Breadcrumb">
+        {/* ...insert your breadcrumb logic here, or keep as placeholder if not implemented... */}
+      </nav>
       {/* Main Product Section */}
-      <div className="grid grid-cols-1 md:grid-cols-[2fr_0.8fr] gap-6 lg:gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_0.8fr] gap-6 md:gap-8">
         {/* Left: Image Gallery */}
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8">
           {/* Thumbnail Gallery - Left Side (desktop/tablet) */}
           {sortedImages.length > 0 && (
             <div className="hidden md:flex md:flex-col gap-3 w-20 md:w-24 shrink-0">
               {sortedImages.slice(0, 4).map((image, index) => (
                 <button
                   key={image.id}
-                  onClick={() => setCurrentImageIndex(index)}
+                  onClick={() => {
+                    setManualImageChange(true);
+                    setCurrentImageIndex(index);
+                    // Auto-select variant based on image display_order
+                    if (image.display_order === 1) {
+                      const variant3kg = product.product_variants.find(
+                        (v) => v.weight_grams === 3000
+                      );
+                      if (variant3kg) setSelectedVariant(variant3kg);
+                    } else if (image.display_order === 2) {
+                      const variant6kg = product.product_variants.find(
+                        (v) => v.weight_grams === 6000
+                      );
+                      if (variant6kg) setSelectedVariant(variant6kg);
+                    }
+                  }}
                   className={`aspect-square rounded-lg overflow-hidden border-2 transition-all relative cursor-pointer ${
                     currentImageIndex === index
                       ? "border-accent ring-2 ring-accent/20"
@@ -252,7 +432,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           )}
 
           {/* Main Image - Responsive */}
-          <div className="relative w-full md:w-[560px] lg:w-[600px] h-[340px] sm:h-[420px] md:h-[520px] lg:h-[600px] bg-muted rounded-lg overflow-hidden">
+          <div className="relative w-full aspect-square bg-muted rounded-lg overflow-hidden">
             <Image
               src={sortedImages[currentImageIndex].image_url}
               alt={
@@ -267,9 +447,14 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
             />
 
             {/* Badges */}
-            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-col gap-2">
+            <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-1 sm:gap-2">
+              {product.age_group && (
+                <span className="bg-primary/90 text-white px-1.5 py-0.5 rounded text-[10px] xs:text-xs font-semibold tracking-wide flex items-center justify-center text-center min-w-10 xs:min-w-12">
+                  {product.age_group}
+                </span>
+              )}
               {promotionData && (
-                <span className="bg-red-600 text-white px-2.5 py-1 rounded text-[10px] sm:text-xs font-bold">
+                <span className="bg-accent text-white px-2 py-0.5 rounded text-[10px] xs:text-xs font-bold">
                   Sparpreis
                 </span>
               )}
@@ -278,12 +463,27 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
 
           {/* Thumbnail Gallery - Below Main Image (mobile) */}
           {sortedImages.length > 0 && (
-            <div className="flex md:hidden gap-3 mt-1">
+            <div className="flex md:hidden gap-2 mt-1">
               {sortedImages.slice(0, 4).map((image, index) => (
                 <button
                   key={image.id}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                  onClick={() => {
+                    setManualImageChange(true);
+                    setCurrentImageIndex(index);
+                    // Auto-select variant based on image display_order
+                    if (image.display_order === 1) {
+                      const variant3kg = product.product_variants.find(
+                        (v) => v.weight_grams === 3000
+                      );
+                      if (variant3kg) setSelectedVariant(variant3kg);
+                    } else if (image.display_order === 2) {
+                      const variant6kg = product.product_variants.find(
+                        (v) => v.weight_grams === 6000
+                      );
+                      if (variant6kg) setSelectedVariant(variant6kg);
+                    }
+                  }}
+                  className={`relative w-14 h-14 xs:w-16 xs:h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                     currentImageIndex === index
                       ? "border-accent ring-2 ring-accent/20"
                       : "border-muted-foreground/30 hover:border-accent/50"
@@ -303,41 +503,87 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
         </div>
 
         {/* Right: Product Info */}
-        <div className="space-y-6">
-          {/* Title & Rating */}
+        <div className="space-y-2 sm:space-y-3">
+          {/* Title */}
           <div>
-            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            {/* Star Rating */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex text-yellow-500">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <svg
-                    key={star}
-                    className="w-4 h-4 fill-current"
-                    viewBox="0 0 20 20"
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 wrap-break-word">
+              {product.name}
+            </h1>
+            <div className="mb-3 sm:mb-4">
+              {reviewStats.totalReviews > 0 ? (
+                <div className="flex items-center gap-.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <svg
+                      key={i}
+                      className={`w-4 h-4 ${
+                        i < Math.round(reviewStats.averageRating)
+                          ? "text-yellow-400"
+                          : "text-gray-300"
+                      }`}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.38-2.454a1 1 0 00-1.175 0l-3.38 2.454c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.394c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.967z" />
+                    </svg>
+                  ))}
+                  <button
+                    type="button"
+                    className="ml-2 text-xs sm:text-sm text-muted-foreground hover:text-accent underline-offset-4 underline cursor-pointer transition-colors"
+                    onClick={() => {
+                      const header = document.getElementById(
+                        "product-tabs-header"
+                      );
+                      if (header) {
+                        const y =
+                          header.getBoundingClientRect().top +
+                          window.scrollY -
+                          100;
+                        window.scrollTo({ top: y, behavior: "smooth" });
+                      }
+                      setTimeout(() => setActiveTab("reviews"), 150);
+                    }}
                   >
-                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                  </svg>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("reviews");
-                  setTimeout(() => {
-                    const el = document.getElementById("reviews-section");
-                    el?.scrollIntoView({ behavior: "smooth" });
-                  }, 0);
-                }}
-                className="text-xs text-muted-foreground underline hover:text-foreground cursor-pointer hover:no-underline"
-              >
-                4,2 (10) Produktbewertungen
-              </button>
+                    ({reviewStats.totalReviews})
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <svg
+                      key={i}
+                      className="w-5 h-5 text-gray-300"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.38-2.454a1 1 0 00-1.175 0l-3.38 2.454c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.394c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.967z" />
+                    </svg>
+                  ))}
+                  <button
+                    type="button"
+                    className="ml-2 text-xs text-primary underline underline-offset-4 hover:text-accent hover:no-underline focus:outline-none transition-colors cursor-pointer"
+                    onClick={() => {
+                      const header = document.getElementById(
+                        "product-tabs-header"
+                      );
+                      if (header) {
+                        const y =
+                          header.getBoundingClientRect().top +
+                          window.scrollY -
+                          100;
+                        window.scrollTo({ top: y, behavior: "smooth" });
+                      }
+                      setTimeout(() => setActiveTab("reviews"), 150);
+                    }}
+                  >
+                    (Noch keine Bewertungen)
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Key Features */}
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
             <li className="flex items-start gap-2">
               <span className="text-muted-foreground">•</span>
               <span>Enthält die Muskelmasse</span>
@@ -353,9 +599,9 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           </ul>
 
           {/* Small Links above first divider */}
-          <div className="mt-1 mb-8 text-xs text-primary flex items-center gap-2">
+          <div className="mt-1 mb-8 text-xs flex items-center gap-2">
             <button
-              className="underline underline-offset-4 hover:no-underline cursor-pointer"
+              className="underline underline-offset-4 text-accent hover:text-primary hover:no-underline cursor-pointer transition-colors"
               onClick={() => {
                 const header = document.getElementById("product-tabs-header");
                 if (header) {
@@ -369,7 +615,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
               Inhaltsstoffe
             </button>
             <button
-              className="underline underline-offset-4 hover:no-underline cursor-pointer"
+              className="underline underline-offset-4 text-accent hover:text-primary hover:no-underline cursor-pointer transition-colors"
               onClick={() => {
                 const header = document.getElementById("product-tabs-header");
                 if (header) {
@@ -383,7 +629,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
               Fütterungsempfehlung
             </button>
             <button
-              className="underline underline-offset-4 hover:no-underline cursor-pointer"
+              className="underline underline-offset-4 text-accent hover:text-primary hover:no-underline cursor-pointer transition-colors"
               onClick={() => {
                 const header = document.getElementById("product-tabs-header");
                 if (header) {
@@ -402,18 +648,21 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           <div>
             <div className="flex items-center gap-3 flex-wrap">
               <span className="text-sm font-medium text-foreground">
-                Größe:{" "}
+                Größe wählen:{" "}
                 <span className="font-bold text-primary">
-                  {selectedVariant.name}
+                  {selectedVariant ? selectedVariant.name : ""}
                 </span>
               </span>
               <div className="flex gap-3">
                 {product.product_variants.map((variant) => (
                   <button
                     key={variant.id}
-                    onClick={() => setSelectedVariant(variant)}
+                    onClick={() => {
+                      setManualImageChange(false); // Allow auto-switch when variant selected
+                      setSelectedVariant(variant);
+                    }}
                     className={`px-4 py-2 rounded-(--app-radius) border-2 font-medium transition-all cursor-pointer ${
-                      selectedVariant.id === variant.id
+                      selectedVariant?.id === variant.id
                         ? "border-accent bg-accent/10 text-primary"
                         : "border-muted-foreground/30 hover:border-accent/50 text-foreground"
                     }`}
@@ -428,11 +677,16 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           {/* Price */}
           <div className="border-t border-b py-4">
             <div className="flex items-baseline gap-2">
+              {!selectedVariant && (
+                <span className="text-lg font-normal text-muted-foreground">
+                  ab
+                </span>
+              )}
               <span className="text-2xl font-bold text-foreground">
                 {finalPrice.toFixed(2)} €
               </span>
               {hasDiscount && (
-                <span className="text-base text-muted-foreground line-through">
+                <span className="text-base line-through text-red-400">
                   {originalPrice.toFixed(2)} €
                 </span>
               )}
@@ -459,7 +713,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                 <input
                   type="number"
                   min="1"
-                  max={selectedVariant.stock_quantity || 1}
+                  max={selectedVariant?.stock_quantity || 1}
                   value={quantity}
                   onChange={(e) =>
                     setQuantity(
@@ -467,7 +721,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                         1,
                         Math.min(
                           parseInt(e.target.value) || 1,
-                          selectedVariant.stock_quantity || 1
+                          selectedVariant?.stock_quantity || 1
                         )
                       )
                     )
@@ -478,7 +732,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                   onClick={() =>
                     setQuantity(
                       Math.min(
-                        selectedVariant.stock_quantity || 1,
+                        selectedVariant?.stock_quantity || 1,
                         quantity + 1
                       )
                     )
@@ -499,8 +753,9 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
               onClick={handleAddToCart}
               isLoading={isAddingToCart}
               disabled={
-                !selectedVariant.stock_quantity ||
-                selectedVariant.stock_quantity === 0 ||
+                !selectedVariant ||
+                !selectedVariant?.stock_quantity ||
+                selectedVariant?.stock_quantity === 0 ||
                 isAddingToCart
               }
             />
@@ -510,8 +765,9 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
               onClick={handleBuyNow}
               isLoading={isAddingToCart}
               disabled={
-                !selectedVariant.stock_quantity ||
-                selectedVariant.stock_quantity === 0 ||
+                !selectedVariant ||
+                !selectedVariant?.stock_quantity ||
+                selectedVariant?.stock_quantity === 0 ||
                 isAddingToCart
               }
             />
@@ -521,7 +777,7 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           </div>
 
           {/* Shipping Info */}
-          <div className="space-y-3 text-sm border-t pt-4">
+          <div className="space-y-2 text-sm border-t pt-4">
             <div className="flex items-start gap-3">
               <svg
                 className="w-5 h-5 text-green-600 mt-0.5"
@@ -537,9 +793,11 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                 />
               </svg>
               <div>
-                <strong>Versandkostenfrei mit Click & Collect</strong>
-                <p className="text-muted-foreground">
-                  Bestellungen kostenfreie ab 49,00 €
+                <strong className="text-xs font-semibold">
+                  Versandkostenfrei mit Click & Collect
+                </strong>
+                <p className="text-muted-foreground text-xs">
+                  Kostenfreie Bestellungen schon ab 49,- €
                 </p>
               </div>
             </div>
@@ -558,7 +816,9 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                 />
               </svg>
               <div>
-                <strong>Kostenlose Rücksendung</strong>
+                <strong className="text-xs font-semibold">
+                  Kostenlose Rücksendung
+                </strong>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -576,9 +836,11 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
                 />
               </svg>
               <div>
-                <strong>Auf Lager - In 1-3 Werktagen bei Ihnen</strong>
-                {selectedVariant.stock_quantity && (
-                  <span className="text-muted-foreground ml-1">
+                <strong className="text-xs font-semibold">
+                  Auf Lager - In 1-3 Werktagen bei Ihnen
+                </strong>
+                {selectedVariant?.stock_quantity && (
+                  <span className="text-muted-foreground ml-1 text-xs">
                     ({selectedVariant.stock_quantity} verfügbar)
                   </span>
                 )}
@@ -589,7 +851,10 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
       </div>
 
       {/* Tabs Section */}
-      <div id="product-tabs" className="border rounded-lg overflow-hidden">
+      <div
+        id="product-tabs"
+        className="border rounded-lg overflow-hidden mt-16"
+      >
         {/* Tab Headers */}
         <div
           id="product-tabs-header"
@@ -753,24 +1018,126 @@ export default function SingleProductView({ product }: SingleProductViewProps) {
           )}
 
           {activeTab === "reviews" && (
-            <div
-              id="reviews-section"
-              className="text-center py-8 text-muted-foreground"
-            >
-              Noch keine Bewertungen vorhanden. Seien Sie der Erste, der dieses
-              Produkt bewertet!
+            <div id="reviews-section" className="space-y-6">
+              {/* Review Stats */}
+              {reviewStats.totalReviews > 0 && (
+                <ReviewStats stats={reviewStats} />
+              )}
+
+              {/* Write Review Button or Info Message */}
+              {user && canReview && !showReviewForm && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => setShowReviewForm(true)}
+                    className="px-6 py-3 bg-linear-to-r from-amber-500 to-amber-600 text-white rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all shadow-md hover:shadow-lg"
+                  >
+                    Bewertung schreiben
+                  </button>
+                </div>
+              )}
+
+              {/* Info message when user cannot review */}
+              {user && !canReview && !showReviewForm && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                  <p className="text-sm text-blue-800">
+                    Sie können dieses Produkt nur bewerten, wenn Sie es bereits
+                    gekauft haben.
+                  </p>
+                </div>
+              )}
+
+              {/* Login prompt for guests */}
+              {!user && (
+                <div className="bg-slate-100 border border-slate-200 rounded-lg p-4 text-center">
+                  <p className="text-sm text-slate-700 mb-3">
+                    Melden Sie sich an, um eine Bewertung zu schreiben
+                  </p>
+                  <button
+                    onClick={() =>
+                      router.push(
+                        "/auth/login?redirect=" + window.location.pathname
+                      )
+                    }
+                    className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors"
+                  >
+                    Anmelden
+                  </button>
+                </div>
+              )}
+
+              {/* Review Form */}
+              {showReviewForm && (
+                <Suspense
+                  fallback={
+                    <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                      Lädt...
+                    </div>
+                  }
+                >
+                  <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold">
+                        {editingReview
+                          ? "Bewertung bearbeiten"
+                          : "Bewertung schreiben"}
+                      </h3>
+                      <button
+                        onClick={() => {
+                          setShowReviewForm(false);
+                          setEditingReview(null);
+                        }}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                    <ReviewForm
+                      productId={product.id}
+                      existingReview={editingReview ?? undefined}
+                      onSuccess={handleReviewSubmitted}
+                    />
+                  </div>
+                </Suspense>
+              )}
+
+              {/* Review List */}
+              <Suspense fallback={<div>Lädt Bewertungen...</div>}>
+                <ReviewList
+                  productId={product.id}
+                  initialReviews={productReviews}
+                  currentUserId={user?.id}
+                  onEditReview={handleEditReview}
+                  onDeleteReview={handleDeleteReview}
+                />
+              </Suspense>
             </div>
           )}
         </div>
       </div>
 
       {/* Related Products */}
-      <RelatedProducts
-        productId={product.id}
-        title="Entdecke ähnliche Produkte"
-        subtitle="Produkte, die andere Kunden auch gekauft haben"
-        limit={4}
-      />
+      <div className="mt-10 sm:mt-14 md:mt-16 ml-6">
+        <Suspense fallback={<div>Lädt ähnliche Produkte...</div>}>
+          <RelatedProducts
+            productId={product.id}
+            title="Entdecke ähnliche Produkte"
+            subtitle="Produkte, die andere Kunden auch gekauft haben"
+            limit={4}
+          />
+        </Suspense>
+      </div>
     </div>
   );
 }

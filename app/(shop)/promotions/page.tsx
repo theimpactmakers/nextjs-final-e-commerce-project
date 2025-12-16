@@ -1,12 +1,20 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import Image from "next/image";
 import type { Database } from "@/types";
-import { FilterPanel } from "@/components/FilterPanel";
-import PromotionProductCard from "@/components/PromotionProductCard";
-import { getActivePromotions } from "@/lib/supabase/products";
+import PromotionProductListClient from "@/components/PromotionProductListClient";
+import { getActivePromotionsServer } from "@/lib/supabase/products-server";
+import { BestsellerCarouselClient } from "@/components/BestsellerCarousel";
 
 export const revalidate = 60;
+
+export const metadata = {
+  title: "Angebote & Aktionen | Hundefutter Sale bis zu 20% Rabatt",
+  description:
+    "Aktuelle Rabatte auf Premium Hundefutter! Bis zu 20% sparen auf ausgewählte Produkte. Limitierte Angebote - jetzt zugreifen!",
+  keywords: "Hundefutter Angebote, Leckerlis Sale, Rabatt Hundefutter",
+};
 
 type ProductWithImage =
   Database["public"]["Views"]["products_with_primary_image"]["Row"];
@@ -20,8 +28,8 @@ async function PromotionsContent({
   const supabase = await createClient();
 
   try {
-    // Hole alle aktiven Promotions
-    let activePromotions = await getActivePromotions();
+    // Hole alle aktiven Promotions (Server-Side, Caching via Page revalidate)
+    let activePromotions = await getActivePromotionsServer();
 
     // Filtere nach spezifischer Promotion, wenn promo-Parameter vorhanden
     if (promo) {
@@ -43,17 +51,19 @@ async function PromotionsContent({
       );
     }
 
-    // Sammle alle Produkt-IDs aus den aktiven Promotions
-    const productIds: string[] = [];
-    const variantIds: string[] = [];
+    // Sammle alle Produkt-IDs und Varianten-IDs aus den aktiven Promotions
+    const productIdsSet = new Set<string>();
+    const variantIdsSet = new Set<string>();
+    const hasAllPromotion = activePromotions.some(
+      (p) => p.applies_to === "all"
+    );
 
     activePromotions.forEach((promo) => {
-      if (promo.applies_to === "all") {
-        // Für "all" brauchen wir später alle Produkte zu filtern
-      } else if (promo.product_ids) {
-        productIds.push(...promo.product_ids);
-      } else if (promo.variant_ids) {
-        variantIds.push(...promo.variant_ids);
+      if (promo.product_ids) {
+        promo.product_ids.forEach((id) => productIdsSet.add(id));
+      }
+      if (promo.variant_ids) {
+        promo.variant_ids.forEach((id) => variantIdsSet.add(id));
       }
     });
 
@@ -75,7 +85,7 @@ async function PromotionsContent({
       ente: "ENTE",
       rind: "RIND",
       kaninchen: "KANINCHEN",
-      lamm: "LAHM",
+      lamm: "LAMM",
       pferd: "PFERD",
       wild: "WILD",
       lachs: "LACHS",
@@ -85,11 +95,11 @@ async function PromotionsContent({
     // Filter nach Altersgruppe wenn vorhanden
     if (age) {
       // Unterstütze mehrere Werte, getrennt durch Komma
-      const ageValues = age.split(',').map(a => a.trim().toLowerCase());
+      const ageValues = age.split(",").map((a) => a.trim().toLowerCase());
       const dbAgeValues = ageValues
-        .map(a => ageEnumValues[a])
+        .map((a) => ageEnumValues[a])
         .filter(Boolean);
-      
+
       if (dbAgeValues.length > 0) {
         query = query.in("age_group", dbAgeValues);
       }
@@ -98,11 +108,11 @@ async function PromotionsContent({
     // Filter nach Fleischsorte wenn vorhanden
     if (meat) {
       // Unterstütze mehrere Werte, getrennt durch Komma
-      const meatValues = meat.split(',').map(m => m.trim().toLowerCase());
+      const meatValues = meat.split(",").map((m) => m.trim().toLowerCase());
       const dbMeatValues = meatValues
-        .map(m => meatEnumValues[m])
+        .map((m) => meatEnumValues[m])
         .filter(Boolean);
-      
+
       if (dbMeatValues.length > 0) {
         query = query.in("meat_type", dbMeatValues);
       }
@@ -125,259 +135,361 @@ async function PromotionsContent({
       );
     }
 
-    // Filtere Produkte, die im Angebot sind
-    // Wir erstellen ein erweitertes Array mit Promotion-Infos
-    type ProductWithPromotionInfo = ProductWithImage & {
-      promotionDetails?: {
-        promotion: typeof activePromotions[0];
-        variantsInPromotion?: Array<{
-          id: string;
-          name: string;
-          weight_grams: number;
-          price: number;
-          discountedPrice: number;
-        }>;
-      };
-    };
-
-    const productsInPromotion: ProductWithPromotionInfo[] = [];
-
-    if (allProducts) {
-      for (const product of allProducts) {
-        if (!product.id) continue;
-
-        let productPromotion: ProductWithPromotionInfo["promotionDetails"] = undefined;
-
-        // Prüfe ob das Produkt selbst in einer Promotion ist
-        for (const promo of activePromotions) {
-          if (promo.applies_to === "all") {
-            productPromotion = { promotion: promo };
-            break;
-          } else if (promo.applies_to === "specific_products" && promo.product_ids) {
-            if (promo.product_ids.includes(product.id)) {
-              productPromotion = { promotion: promo };
-              break;
-            }
-          } else if (promo.applies_to === "specific_variants" && promo.variant_ids) {
-            // Hole alle Varianten des Produkts um zu prüfen, welche davon im Angebot sind
-            const { data: variants } = await supabase
-              .from("product_variants")
-              .select("id, name, weight_grams, price")
-              .eq("product_id", product.id)
-              .in("id", promo.variant_ids);
-
-            if (variants && variants.length > 0) {
-              // Berechne rabattierte Preise
-              const variantsWithDiscount = variants.map((v) => {
-                let discountedPrice = v.price;
-                if (promo.discount_type === "percentage") {
-                  discountedPrice = v.price * (1 - promo.discount_value / 100);
-                } else if (promo.discount_type === "fixed_amount") {
-                  discountedPrice = v.price - promo.discount_value;
-                }
-                return {
-                  ...v,
-                  discountedPrice: Math.max(0, discountedPrice),
-                };
-              });
-
-              productPromotion = {
-                promotion: promo,
-                variantsInPromotion: variantsWithDiscount,
-              };
-              break;
-            }
-          }
-        }
-
-        if (productPromotion) {
-          productsInPromotion.push({
-            ...product,
-            promotionDetails: productPromotion,
-          });
-        }
-      }
+    if (!allProducts || allProducts.length === 0) {
+      return (
+        <div className="container max-w-7xl mx-auto px-4 py-16">
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+              Aktuelle Angebote
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Keine Produkte gefunden
+            </p>
+          </div>
+        </div>
+      );
     }
 
-    // Erstelle Titel basierend auf Filtern
-    const getPageTitle = () => {
-      // Wenn spezifische Promotion ausgewählt, zeige deren Namen
-      if (promo && activePromotions.length > 0) {
-        return activePromotions[0].name;
+    // Batch-lade alle Varianten und Bilder für Produkte in einem Query
+    const productIdsForVariants = allProducts
+      .map((p) => p.id)
+      .filter((id): id is string => !!id);
+
+    const [{ data: allVariants }, { data: allImages }] = await Promise.all([
+      supabase
+        .from("product_variants")
+        .select("*")
+        .in("product_id", productIdsForVariants)
+        .eq("is_active", true),
+      supabase
+        .from("product_images")
+        .select("*")
+        .in("product_id", productIdsForVariants)
+        .order("display_order", { ascending: true }),
+    ]);
+
+    // Erstelle Maps für schnellen Zugriff
+    const variantsMap = new Map<string, typeof allVariants>();
+    allVariants?.forEach((v) => {
+      if (!variantsMap.has(v.product_id)) {
+        variantsMap.set(v.product_id, []);
       }
+      variantsMap.get(v.product_id)?.push(v);
+    });
 
-      const parts = ["Aktuelle Angebote"];
-
-      if (age) {
-        const ageLabels: Record<string, string> = {
-          junior: "Junior",
-          adult: "Adult",
-          senior: "Senior",
-        };
-        parts.push(ageLabels[age.toLowerCase()] || age.toUpperCase());
+    const imagesMap = new Map<string, typeof allImages>();
+    allImages?.forEach((img) => {
+      if (!imagesMap.has(img.product_id)) {
+        imagesMap.set(img.product_id, []);
       }
+      imagesMap.get(img.product_id)?.push(img);
+    });
 
-      if (meat) {
-        const meatLabels: Record<string, string> = {
-          ente: "Ente",
-          rind: "Rind",
-          kaninchen: "Kaninchen",
-          lamm: "Lamm",
-          pferd: "Pferd",
-          wild: "Wild",
-          lachs: "Lachs",
-          huhn: "Huhn",
-        };
-        parts.push(meatLabels[meat.toLowerCase()] || meat.toUpperCase());
+    const promoMap = new Map<string, (typeof activePromotions)[0]>();
+    activePromotions.forEach((p) => {
+      if (p.applies_to === "specific_products" && p.product_ids) {
+        p.product_ids.forEach((id) => promoMap.set(id, p));
       }
+    });
 
-      return parts.join(" - ");
+    // Filtere Produkte, die im Angebot sind und baue sie wie im Shop-Client auf
+    type ProductVariant =
+      Database["public"]["Tables"]["product_variants"]["Row"];
+    type ProductImage = {
+      alt_text: string | null;
+      created_at: string | null;
+      display_order: number;
+      id: string;
+      image_url: string;
+      is_primary: boolean | null;
+      product_id: string;
+      updated_at: string | null;
     };
 
+    type Promotion = Database["public"]["Tables"]["promotions"]["Row"];
+    type ProductWithVariants = ProductWithImage & {
+      product_variants?: ProductVariant[];
+      product_images?: ProductImage[];
+      discount_value?: number;
+      promotion?: Promotion;
+    };
+    const productsInPromotion: ProductWithVariants[] = [];
+
+    for (const product of allProducts) {
+      if (!product.id) continue;
+
+      // Nur Produkte, die in einer Promotion sind (wie vorher)
+      let isPromo = false;
+      if (hasAllPromotion) isPromo = true;
+      if (promoMap.has(product.id)) isPromo = true;
+      if (!isPromo && variantIdsSet.size > 0) {
+        const productVariants = variantsMap.get(product.id) || [];
+        if (productVariants.some((v) => variantIdsSet.has(v.id))) {
+          isPromo = true;
+        }
+      }
+      if (!isPromo) continue;
+
+      // Füge Varianten und Bilder wie im Shop hinzu (alle Felder der Variante)
+      const variantsRaw = variantsMap.get(product.id);
+      const imagesRaw = imagesMap.get(product.id);
+      productsInPromotion.push({
+        ...product,
+        product_variants: Array.isArray(variantsRaw)
+          ? (variantsRaw as ProductVariant[])
+          : [],
+        product_images: Array.isArray(imagesRaw)
+          ? (imagesRaw as ProductImage[])
+          : [],
+      });
+    }
+
+    // Always fetch all active promotions for carousels
+    const allActivePromotions = await getActivePromotionsServer();
+
+    // Helper to build a product list for a given discount
+    function getProductsForDiscount(discount: number): ProductWithVariants[] {
+      // Collect all product and variant IDs for this discount
+      const promoProductIds = new Set<string>();
+      const promoVariantIds = new Set<string>();
+      allActivePromotions.forEach((promo) => {
+        if (promo.discount_value === discount) {
+          if (promo.product_ids) {
+            promo.product_ids.forEach((id) => promoProductIds.add(id));
+          }
+          if (promo.variant_ids) {
+            promo.variant_ids.forEach((id) => promoVariantIds.add(id));
+          }
+        }
+      });
+      // Return products from allProducts that match this discount (even if also in another)
+      return allProducts
+        ? allProducts
+            .filter((p) => {
+              if (!p.id) return false;
+              if (promoProductIds.has(p.id)) return true;
+              const variants: ProductVariant[] = variantsMap.get(p.id) || [];
+              return variants.some((v) => promoVariantIds.has(v.id));
+            })
+            .map((product) => {
+              const variantsRaw: ProductVariant[] =
+                variantsMap.get(product.id!) || [];
+              const promo = allActivePromotions.find(
+                (pr) =>
+                  ((pr.product_ids && pr.product_ids.includes(product.id!)) ||
+                    (pr.variant_ids &&
+                      variantsRaw.some((v) =>
+                        pr.variant_ids!.includes(v.id)
+                      ))) &&
+                  pr.discount_value === discount
+              );
+              return {
+                ...product,
+                product_variants: Array.isArray(variantsRaw)
+                  ? (variantsRaw as ProductVariant[])
+                  : [],
+                product_images: [],
+                discount_value: promo?.discount_value,
+              };
+            })
+        : [];
+    }
+
+    // For the carousels, always use all products for the other discount
+    const products10 = getProductsForDiscount(10);
+    const products20 = getProductsForDiscount(20);
+
+    // Determine the current promotion discount value (if any)
+    const currentPromoDiscount =
+      activePromotions.length === 1
+        ? activePromotions[0].discount_value
+        : undefined;
+
     return (
-      <div className="container max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
+      <>
+        {/* Banner Section */}
+        <section className="w-full my-4">
+          <div className="container max-w-7xl mx-auto px-4">
+            <Image
+              src="/images/banners/sale-banner.webp"
+              alt="Sale Banner"
+              width={1600}
+              height={300}
+              className="w-full h-80 object-cover rounded-2xl shadow-sm"
+              priority
+            />
+          </div>
+        </section>
 
-          {/* Promotion Description Banner - Mittig und schön gestylt */}
-          {promo && activePromotions.length > 0 && activePromotions[0].description && (
-            <div className="my-8 flex justify-center">
-              <div className="max-w-3xl w-full bg-linear-to-r from-red-50 via-orange-50 to-red-50 rounded-2xl shadow-lg border-2 border-red-200 p-6 md:p-8">
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-8 h-8 text-red-600 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
-                    </svg>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                      Aktionsangebot
-                    </h2>
-                    <svg className="w-8 h-8 text-red-600 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <p className="text-lg md:text-xl text-gray-800 font-medium leading-relaxed">
-                    {activePromotions[0].description}
-                  </p>
-                  <div className="flex items-center gap-3 mt-4">
-                    <span className="inline-flex items-center px-6 py-2 rounded-full text-lg font-bold bg-red-600 text-white shadow-md">
-                      {activePromotions[0].discount_type === "percentage"
-                        ? `${activePromotions[0].discount_value}% RABATT`
-                        : `€${activePromotions[0].discount_value.toFixed(2)} RABATT`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Für "Alle Angebote" - zeige Grid mit allen Descriptions */}
-          {!promo && activePromotions.length > 0 && activePromotions.some(p => p.description) && (
-            <div className="my-8">
-              <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
-                Aktuelle Aktionen
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {activePromotions
-                  .filter((p) => p.description)
-                  .map((promo) => (
-                    <div
-                      key={promo.id}
-                      className="bg-linear-to-br from-amber-50 to-orange-50 rounded-xl p-5 shadow-md border-2 border-orange-200 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
-                    >
-                      <div className="flex flex-col space-y-3">
-                        <div className="flex items-center gap-2">
-                          <svg className="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                          <h3 className="font-bold text-lg text-gray-900">
-                            {promo.name}
-                          </h3>
-                        </div>
-                        <p className="text-sm text-gray-700 leading-relaxed">
-                          {promo.description}
-                        </p>
-                        <div className="flex justify-between items-center pt-2">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-600 text-white">
-                            {promo.discount_type === "percentage"
-                              ? `-${promo.discount_value}%`
-                              : `-€${promo.discount_value.toFixed(2)}`}
-                          </span>
-                          <Link
-                            href={`/promotions?promo=${promo.id}`}
-                            className="text-sm font-semibold text-primary hover:text-accent transition-colors underline"
-                          >
-                            Jetzt ansehen →
-                          </Link>
-                        </div>
+        <div className="container max-w-7xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            {/* Promotion Description Banner - Mittig und schön gestylt */}
+            {promo &&
+              activePromotions.length > 0 &&
+              activePromotions[0].description && (
+                <div className="my-8 flex justify-center">
+                  <div className="max-w-3xl w-full bg-linear-to-r from-red-50 via-orange-50 to-red-50 rounded-2xl shadow-lg border-2 border-red-200 p-6 md:p-8">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="w-8 h-8 text-red-600 animate-pulse"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                          Aktionsangebot
+                        </h2>
+                        <svg
+                          className="w-8 h-8 text-red-600 animate-pulse"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-lg md:text-xl text-gray-800 font-medium leading-relaxed">
+                        {activePromotions[0].description}
+                      </p>
+                      <div className="flex items-center gap-3 mt-4">
+                        <span className="inline-flex items-center px-6 py-2 rounded-full text-lg font-bold bg-red-600 text-white shadow-md">
+                          {activePromotions[0].discount_type === "percentage"
+                            ? `${activePromotions[0].discount_value}% RABATT`
+                            : `€${activePromotions[0].discount_value.toFixed(
+                                2
+                              )} RABATT`}
+                        </span>
                       </div>
                     </div>
-                  ))}
-              </div>
-            </div>
-          )}
+                  </div>
+                </div>
+              )}
 
-          <p className="text-muted-foreground text-center">
-            {productsInPromotion?.length || 0}{" "}
-            {productsInPromotion?.length === 1 ? "Produkt" : "Produkte"} im
-            Angebot
-          </p>
-        </div>
+            {/* Für "Alle Angebote" - zeige Grid mit allen Descriptions */}
+            {!promo &&
+              activePromotions.length > 0 &&
+              activePromotions.some((p) => p.description) && (
+                <div className="mb-16">
+                  <h2 className="text-2xl font-bold text-center mb-8 text-foreground">
+                    SALE - sichere dir 10-20% Rabatt
+                  </h2>
+                  <div className="flex flex-wrap justify-center gap-16">
+                    {activePromotions
+                      .filter((p) => p.description)
+                      .map((promo) => (
+                        <div
+                          key={promo.id}
+                          className="bg-linear-to-br from-primary/20 to-orange-50 rounded-xl p-5 shadow-md border hover:shadow-xl hover:scale-[1.02] transition-all duration-300 w-full max-w-sm md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+                        >
+                          <div className="flex flex-col space-y-3">
+                            <div className="flex items-center gap-2">
+                              <svg
+                                className="w-6 h-6 text-primary"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              <h3 className="font-bold text-lg">
+                                {promo.name}
+                              </h3>
+                            </div>
+                            <p className="text-sm  leading-relaxed">
+                              {promo.description}
+                            </p>
+                            <div className="flex justify-between items-center pt-2">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-600 text-white">
+                                {promo.discount_type === "percentage"
+                                  ? `-${promo.discount_value}%`
+                                  : `-€${promo.discount_value.toFixed(2)}`}
+                              </span>
+                              <Link
+                                href={`/promotions?promo=${promo.id}`}
+                                className="text-sm font-semibold text-accent hover:text-primary transition-colors underline"
+                              >
+                                Jetzt ansehen →
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
 
-        {/* Main Layout: Filter + Products */}
-        <div>
-          {/* Zurück-Link wenn spezifische Promotion gefiltert */}
-          {promo && (
-            <div className="mb-6">
-              <Link
-                href="/promotions"
-                className="inline-flex items-center gap-2 text-sm text-primary hover:text-accent transition-colors"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            <p className="text-muted-foreground ">
+              {productsInPromotion?.length || 0}{" "}
+              {productsInPromotion?.length === 1 ? "Produkt" : "Produkte"} im
+              Angebot
+            </p>
+          </div>
+
+          {/* Main Layout: Filter + Products */}
+          <div>
+            {/* Zurück-Link wenn spezifische Promotion gefiltert */}
+            {promo && (
+              <div className="mb-6">
+                <Link
+                  href="/promotions"
+                  className="inline-flex items-center gap-2 text-sm text-primary hover:text-accent transition-colors"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-                Zurück zu allen Angeboten
-              </Link>
-            </div>
-          )}
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  Zurück zu allen Angeboten
+                </Link>
+              </div>
+            )}
 
-          {/* Filter Panel - Mit Altersgruppe und Fleischsorte für Promotions-Seite */}
-          <PromotionsFilterPanel />
+            {/* Products Grid */}
+            <PromotionProductListClient products={productsInPromotion} />
 
-          {/* Products Grid */}
-          {productsInPromotion && productsInPromotion.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
-              {productsInPromotion.map((p) => (
-                <PromotionProductCard key={p.id} product={p} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <p className="text-xl text-muted-foreground mb-4">
-                Keine Produkte im Angebot gefunden
-              </p>
-              <p className="text-sm text-muted-foreground mb-6">
-                Versuche es mit anderen Filtereinstellungen
-              </p>
-              <Link
-                href="/promotions"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-              >
-                Alle Angebote anzeigen
-              </Link>
-            </div>
-          )}
+            {/* Show the other discount carousel if on a specific promo only */}
+            {promo && currentPromoDiscount === 10 && (
+              <>
+                <hr className="my-12 border-t border-gray-200 w-full" />
+                <div className="mt-12">
+                  <h2 className="text-2xl font-bold text-center mb-6">
+                    Produkte mit 20% Rabatt
+                  </h2>
+                  <BestsellerCarouselClient products={products20} />
+                </div>
+              </>
+            )}
+            {promo && currentPromoDiscount === 20 && (
+              <>
+                <hr className="my-12 border-t border-gray-200 w-full" />
+                <div className="mt-12">
+                  <h2 className="text-2xl font-bold text-center mb-6">
+                    Produkte mit 10% Rabatt
+                  </h2>
+                  <BestsellerCarouselClient products={products10} />
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      </>
     );
   } catch (error) {
     console.error("Error in PromotionsContent:", error);
@@ -392,13 +504,6 @@ async function PromotionsContent({
 }
 
 // Spezieller Filter für Promotions-Seite (mit Altersgruppe und Fleischsorte)
-function PromotionsFilterPanel() {
-  return (
-    <div className="mb-8">
-      <FilterPanel currentAge="promotions" />
-    </div>
-  );
-}
 
 function PromotionsLoading() {
   return (

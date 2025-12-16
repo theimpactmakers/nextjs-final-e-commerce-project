@@ -1,3 +1,11 @@
+export const dynamic = 'force-static';
+export const revalidate = 604800; // 7 days (legal pages change rarely)
+
+export const metadata = {
+  title: "AGB - Allgemeine Geschäftsbedingungen | Elite Dog TREATS",
+  description: "Lesen Sie unsere Allgemeinen Geschäftsbedingungen für den Online-Kauf von Hundefutter und Leckerlis.",
+};
+
 export default function AGBPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">
@@ -7,7 +15,7 @@ export default function AGBPage() {
         </h1>
 
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-8 border border-[hsl(var(--border))]">
+          <div className=" p-8">
             <div className="prose prose-lg max-w-none text-[hsl(var(--foreground))]">
               <p className="text-sm text-[hsl(var(--muted-foreground))] mb-6">
                 Stand: Januar 2024
@@ -28,20 +36,19 @@ export default function AGBPage() {
               </h2>
               <div className="bg-[hsl(var(--secondary))] p-4 rounded-lg mb-4">
                 <p>
-                  <strong>Elite Dog TREATS GmbH</strong>
+                  <strong>EliteDogTREATS GmbH</strong>
                   <br />
-                  Musterstraße 123
+                  Hunde Straße 11
                   <br />
-                  12345 Musterstadt
+                  12345 Wuff
                   <br />
                   Deutschland
-                  <br />
-                  Handelsregister: Amtsgericht Musterstadt, HRB 12345
-                  <br />
-                  Geschäftsführer: Max Mustermann
-                  <br />
-                  USt-ID: DE123456789
                 </p>
+                <p className="mt-2">Handelsregister: Amtsgericht Musterstadt, HRB 12345
+                  <br />
+                  Geschäftsführer: Dog Lover
+                  <br />
+                  USt-ID: DE123456789</p>
               </div>
 
               <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-4">
@@ -165,7 +172,7 @@ export default function AGBPage() {
               </p>
 
               <div className="mt-8 p-4 bg-[hsl(var(--secondary))] rounded-lg">
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                <p className="text-sm text-primary">
                   <strong>Hinweis:</strong> Diese AGB wurden mit größter
                   Sorgfalt erstellt. Bei Fragen zu diesen AGB kontaktieren Sie
                   uns bitte.

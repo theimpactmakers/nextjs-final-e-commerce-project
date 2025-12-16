@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 type WishlistItem = {
   productId: string;
@@ -126,11 +127,11 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const isInWishlist = (productId: string): boolean => {
+  const isInWishlist = useCallback((productId: string): boolean => {
     return wishlist.some((item) => item.productId === productId);
-  };
+  }, [wishlist]);
 
-  const addToWishlist = async (productId: string) => {
+  const addToWishlist = useCallback(async (productId: string) => {
     if (isInWishlist(productId)) return;
 
     const newItem = { productId, addedAt: new Date().toISOString() };
@@ -161,9 +162,39 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       setWishlist(updated);
       localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(updated));
     }
-  };
 
-  const removeFromWishlist = async (productId: string) => {
+    // Show success toast with heart animation
+    toast.custom(
+      () => (
+        <div className="flex items-center gap-3 bg-card border-2 border-primary/20 rounded-lg p-4 shadow-xl animate-slide-in-right">
+          <div className="shrink-0">
+            <div className="relative">
+              <svg
+                className="w-10 h-10 text-primary animate-heartbeat"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </div>
+          </div>
+          <div className="flex-1">
+            <p className="font-bold text-primary text-base">
+              Zur Wunschliste hinzugefügt!
+            </p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Produkt wurde gespeichert
+            </p>
+          </div>
+        </div>
+      ),
+      {
+        duration: 3000,
+      }
+    );
+  }, [user, wishlist, isInWishlist]);
+
+  const removeFromWishlist = useCallback(async (productId: string) => {
     if (user) {
       // Authenticated: remove from database
       const supabase = createClient();
@@ -189,9 +220,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       setWishlist(updated);
       localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(updated));
     }
-  };
+  }, [user, wishlist]);
 
-  const clearWishlist = async () => {
+  const clearWishlist = useCallback(async () => {
     if (user) {
       // Authenticated: clear database
       const supabase = createClient();
@@ -213,20 +244,23 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       setWishlist([]);
       localStorage.removeItem(WISHLIST_STORAGE_KEY);
     }
-  };
+  }, [user]);
+
+  const contextValue = useMemo(
+    () => ({
+      wishlist,
+      isInWishlist,
+      addToWishlist,
+      removeFromWishlist,
+      clearWishlist,
+      wishlistCount: wishlist.length,
+      isLoading,
+    }),
+    [wishlist, isInWishlist, addToWishlist, removeFromWishlist, clearWishlist, isLoading]
+  );
 
   return (
-    <WishlistContext.Provider
-      value={{
-        wishlist,
-        isInWishlist,
-        addToWishlist,
-        removeFromWishlist,
-        clearWishlist,
-        wishlistCount: wishlist.length,
-        isLoading,
-      }}
-    >
+    <WishlistContext.Provider value={contextValue}>
       {children}
     </WishlistContext.Provider>
   );

@@ -1,23 +1,48 @@
+export const dynamic = "force-static";
+export const revalidate = 86400; // 24 hours
+
+export const metadata = {
+  title: "Über uns | Elite Dog TREATS - Unsere Mission & Werte",
+  description:
+    "Erfahren Sie mehr über Elite Dog TREATS: Unsere Mission, Werte und Leidenschaft für hochwertige Hundeleckerlis seit 2018.",
+};
+
+import Image from "next/image";
+import Link from "next/link";
+
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-[hsl(var(--foreground))] mb-8 text-center">
-          Über Elite Dog TREATS
+        <h1 className="text-3xl font-bold text-[hsl(var(--foreground))] mt-4 mb-8 text-center">
+          Über EliteDogTREATS
         </h1>
 
+        <div className="flex justify-center">
+          <Link href="/">
+            <Image
+              src="/images/Logo.webp"
+              alt="Elite Dog TREATS Logo"
+              width={160}
+              height={96}
+              className="h-24 w-auto"
+              priority={false}
+            />
+          </Link>
+        </div>
+
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-8 border border-[hsl(var(--border))] mb-8">
-            <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-6">
+          <div className=" pb-8 mb-8">
+            <h2 className="text-2xl font-bold text-primary mb-6">
               Unsere Mission
             </h2>
             <p className="text-[hsl(var(--foreground))] mb-6">
               Bei Elite Dog TREATS sind wir leidenschaftlich darum bemüht, die
-              besten Leckerlis für Ihren Vierbeiner zu kreieren. Wir glauben,
-              dass jeder Hund das Recht auf hochwertige, gesunde und
-              schmackhafte Belohnungen hat.
+              besten Nahrungsmittel für Ihren Vierbeiner zu kreieren. Wir
+              glauben, dass jeder Hund hochwertiges, gesundes und schmackhaftes
+              Futter verdient.
             </p>
-            <p className="text-[hsl(var(--foreground))] mb-6">
+            <p className="text-[hsl(var(--foreground))] ">
               Seit unserer Gründung im Jahr 2018 haben wir uns darauf
               konzentriert, innovative und natürliche Produkte zu entwickeln,
               die nicht nur Ihren Hund glücklich machen, sondern auch seine
@@ -26,42 +51,63 @@ export default function AboutPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-md p-6 border border-[hsl(var(--border))] text-center">
-              <div className="text-4xl mb-4">🌱</div>
+            <div className="bg-white rounded-lg shadow-md p-6 border text-center">
+              <div className="flex justify-center  mb-4">
+                <Image
+                  src="/images/icons/natural.webp"
+                  alt="Zufriedener Hund Icon"
+                  width={48}
+                  height={48}
+                />
+              </div>
               <h3 className="font-semibold text-[hsl(var(--primary))] mb-2">
                 100% Natürlich
               </h3>
-              <p className="text-[hsl(var(--muted-foreground))]">
+              <p className="text-primary">
                 Alle unsere Zutaten stammen aus natürlichen Quellen ohne
                 künstliche Zusätze.
               </p>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6 border border-[hsl(var(--border))] text-center">
-              <div className="text-4xl mb-4">🏆</div>
+            <div className="bg-white rounded-lg shadow-md p-6 border text-center">
+              <div className="flex justify-center mb-4">
+                <Image
+                  src="/images/icons/zufrieden.svg"
+                  alt="Zufriedener Hund Icon"
+                  width={48}
+                  height={48}
+                />
+              </div>
               <h3 className="font-semibold text-[hsl(var(--primary))] mb-2">
                 Premium Qualität
               </h3>
-              <p className="text-[hsl(var(--muted-foreground))]">
+              <p className="text-primary">
                 Wir verwenden nur die besten Zutaten und höchste
                 Qualitätsstandards.
               </p>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6 border border-[hsl(var(--border))] text-center">
-              <div className="text-4xl mb-4">❤️</div>
+            <div className="bg-white rounded-lg shadow-md p-6 border text-center">
+              <div className="text-4xl mb-2 flex justify-center">
+                <Image
+                  src="/images/icons/mitliebe.svg"
+                  alt="Zufriedener Hund Icon"
+                  width={48}
+                  height={48}
+                />
+              </div>
               <h3 className="font-semibold text-[hsl(var(--primary))] mb-2">
                 Tierliebe
               </h3>
-              <p className="text-[hsl(var(--muted-foreground))]">
+              <p className="text-primary">
                 Jedes Produkt wird mit Liebe zum Tier entwickelt und
                 hergestellt.
               </p>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-8 border border-[hsl(var(--border))] mb-8">
-            <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-6">
+          <div className="bg-white rounded-lg shadow-md p-8 border mb-8">
+            <h2 className="text-2xl font-bold text-primary mb-6">
               Unser Team
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -85,21 +131,6 @@ export default function AboutPage() {
                   die höchsten Qualitätsstandards zu gewährleisten.
                 </p>
               </div>
-            </div>
-          </div>
-
-          <div className="text-center">
-            <div className="bg-linear-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] text-white rounded-lg p-8">
-              <h2 className="text-2xl font-bold mb-4">
-                Werden Sie Teil unserer Community
-              </h2>
-              <p className="mb-6">
-                Abonnieren Sie unseren Newsletter und erhalten Sie exklusive
-                Angebote und Tipps für die Pflege Ihres Hundes.
-              </p>
-              <button className="bg-white text-[hsl(var(--primary))] px-8 py-3 rounded-lg hover:bg-[hsl(var(--secondary))] transition-colors font-semibold">
-                Newsletter abonnieren
-              </button>
             </div>
           </div>
         </div>

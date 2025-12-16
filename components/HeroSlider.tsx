@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { SlideData, HeroSliderProps } from "../app/(data)/slideData"; // Importiere Typen
 import Button from "@/components/Button";
 
@@ -70,16 +71,6 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
     return () => clearInterval(intervalId);
   }, [nextSlide, totalSlides]);
 
-  // Error-Handling für das Bild
-  const handleImageError = (
-    e: React.SyntheticEvent<HTMLImageElement, Event>
-  ) => {
-    const target = e.target as HTMLImageElement;
-    target.onerror = null;
-    target.src =
-      "https://placehold.co/720x400/CCCCCC/333333?text=Bild+nicht+gefunden";
-  };
-
   return (
     // Responsive Höhe: Mobile (h-80), Tablet/Small Desktop (md:h-96), Large Desktop (lg:h-[70vh])
     <section className="relative w-full overflow-hidden h-80 md:h-96 lg:h-[70vh] mb-12 shadow-xl">
@@ -90,17 +81,17 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
       >
         {slides.map((slide: SlideData, index: number) => (
           <div key={slide.id} className="w-full shrink-0 relative h-full">
-            {/* Bild-Element mit Mobile-First-Optimierung */}
-            <picture>
-              <source media="(min-width: 768px)" srcSet={slide.imageDesktop} />
-              <img
-                src={slide.imageMobile}
-                alt={slide.title}
-                // Deckt den gesamten Container ab und zentriert das Bild
-                className="absolute inset-0 w-full h-full object-cover"
-                onError={handleImageError}
-              />
-            </picture>
+            {/* Bild-Element mit Next.js Image-Optimierung */}
+            <Image
+              src={slide.imageDesktop}
+              alt={slide.title}
+              fill
+              priority={index === 0}
+              loading={index === 0 ? undefined : "lazy"}
+              sizes="100vw"
+              className="object-cover"
+              quality={90}
+            />
 
             {/* Overlay-Maske (leicht dunkler) für besseren Textkontrast */}
             <div className="absolute inset-0 bg-black/30"></div>
@@ -108,7 +99,11 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
             {/* Content Overlay (Text direkt auf dem Bild) - Mobile First */}
             <div
               className="absolute inset-0 flex flex-col items-center justify-center px-16 sm:px-20 md:px-24 py-4 sm:py-8 text-center text-white drop-shadow-lg animated-slide"
-              style={{ willChange: 'transform, opacity', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+              style={{
+                willChange: "transform, opacity",
+                backfaceVisibility: "hidden",
+                transform: "translateZ(0)",
+              }}
             >
               {/* Titel: Größer auf Desktop (md:text-5xl) */}
               <h1
@@ -117,7 +112,11 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
                     ? "animate-[slideInUp_0.8s_ease-out_0.2s_both]"
                     : "opacity-0"
                 } animated-slide`}
-                style={{ willChange: 'transform, opacity', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+                style={{
+                  willChange: "transform, opacity",
+                  backfaceVisibility: "hidden",
+                  transform: "translateZ(0)",
+                }}
               >
                 {slide.title}
               </h1>
@@ -128,7 +127,11 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
                     ? "animate-[slideInUp_0.8s_ease-out_0.4s_both]"
                     : "opacity-0"
                 } animated-slide`}
-                style={{ willChange: 'transform, opacity', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+                style={{
+                  willChange: "transform, opacity",
+                  backfaceVisibility: "hidden",
+                  transform: "translateZ(0)",
+                }}
               >
                 {slide.description}
               </p>
@@ -139,7 +142,11 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
                     ? "animate-[popIn_0.6s_ease-out_0.8s_both] animated-slide"
                     : "opacity-0 animated-slide"
                 }
-                style={{ willChange: 'transform, opacity', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+                style={{
+                  willChange: "transform, opacity",
+                  backfaceVisibility: "hidden",
+                  transform: "translateZ(0)",
+                }}
               >
                 <Button
                   href={slide.ctaLink}
@@ -157,7 +164,11 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
         onClick={prevSlide}
         aria-label="Previous slide"
         className="absolute top-1/2 left-1 md:left-4 transform -translate-y-1/2 p-3 bg-black/30 backdrop-blur-md hover:bg-black/50 hover:scale-90 text-white rounded-full transition-all shadow-md cursor-pointer"
-        style={{ willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+        style={{
+          willChange: "transform",
+          backfaceVisibility: "hidden",
+          transform: "translateZ(0)",
+        }}
       >
         <ChevronLeft className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" />
       </button>
@@ -165,7 +176,11 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
         onClick={nextSlide}
         aria-label="Next slide"
         className="absolute top-1/2 right-1 md:right-4 transform -translate-y-1/2 p-3 bg-black/30 backdrop-blur-md hover:bg-black/50 hover:scale-90 text-white rounded-full transition-all shadow-md cursor-pointer"
-        style={{ willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+        style={{
+          willChange: "transform",
+          backfaceVisibility: "hidden",
+          transform: "translateZ(0)",
+        }}
       >
         <ChevronRight className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10" />
       </button>
@@ -182,7 +197,11 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
                 ? "bg-accent shadow-md"
                 : "bg-white/70 hover:bg-white"
             }`}
-            style={{ willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+            style={{
+              willChange: "transform",
+              backfaceVisibility: "hidden",
+              transform: "translateZ(0)",
+            }}
           />
         ))}
       </div>

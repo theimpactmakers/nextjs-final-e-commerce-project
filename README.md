@@ -1,109 +1,333 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Elite Dog Treats - E-Commerce Platform
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+Ein modernes E-Commerce-Projekt für Premium-Hundefutter mit intelligenter KI-Beratung, gebaut mit Next.js 19, Supabase und Stripe.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+**[Features](#features)** · **[AI Chatbot](#ai-chatbot)** · **[Tech Stack](#tech-stack)** · **[Getting Started](#getting-started)** · **[Projektstruktur](#project-structure)**
+
+---
 
 ## Features
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+### 🛒 E-Commerce Funktionalität
 
-## Demo
+- **Produktkatalog** mit Filterung nach Altersgruppe (Junior/Adult/Senior)
+- **Erweiterte Filteroptionen**: Fleischsorte, spezielle Bedürfnisse
+- **Warenkorb & Checkout** mit Stripe Payment Integration
+- **Bestellverwaltung** mit automatischen Bestätigungs-E-Mails
+- **Produktbewertungen & Reviews** mit Sternesystem
+- **Wishlist-Funktion** für registrierte Benutzer
+- **Promotions & Bestseller** Bereiche
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+### 🤖 AI-Powered Chatbot
 
-## Deploy to Vercel
+- **Intelligente Produktberatung** mit OpenAI GPT-4o-mini
+- **Dynamische Fragenabfolge** basierend auf verfügbaren Produkten
+- **Glasmorphismus-Design** mit modernem UI/UX
+- **Minimieren-Funktion** für bessere Benutzererfahrung
+- **Personalisierte Empfehlungen** basierend auf:
+  - Alter des Hundes (Welpe/Erwachsen/Senior)
+  - Besondere Bedürfnisse (Hypoallergen, Diät, Darm, Gelenke)
+  - Bevorzugte Fleischsorte (8 Optionen)
+- **Navigation-Features**:
+  - Zurück-Button zur vorherigen Auswahl
+  - "Weitere Produkte" zeigt alle altersgerechten Produkte
+  - Beratung jederzeit beenden oder neu starten
 
-Vercel deployment will guide you through creating a Supabase account and project.
+### 👤 Benutzer-Features
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+- **Authentifizierung** mit Supabase Auth (Sign-up, Login, Password Reset)
+- **Benutzerprofil** mit:
+  - Persönliche Informationen
+  - Lieferadressen
+  - Bestellhistorie
+  - Wishlist-Verwaltung
+- **Admin-Dashboard** für Produktverwaltung
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+### 🎨 UI/UX
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
-hotfix
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+- **Responsive Design** für alle Geräte
+- **Tailwind CSS** für modernes Styling
+- **Glasmorphismus-Effekte** im Chatbot
+- **Cookie-Banner** mit DSGVO-Konformität
+- **SEO-optimiert** mit Next.js Metadata API
 
-## Clone and run locally
+### 💳 Payment & Orders
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+- **Stripe Integration** für sichere Zahlungen
+- **Webhook-basierte Bestellverarbeitung**
+- **Automatische E-Mail-Benachrichtigungen**
+- **Bestellstatus-Tracking**
 
-2. Create a Next.js app using the Supabase Starter template npx command
+---
+
+## AI Chatbot
+
+Der AI-Chatbot ist das Herzstück der Produktberatung und bietet eine intelligente, personalisierte Einkaufserfahrung:
+
+### Design Features
+
+- 🎨 **Glasmorphismus-Effekt**: Modernes, transparentes Design mit Backdrop-Blur
+- 📏 **Minimieren-Funktion**: Nutzer können den Chat auf Titelleiste reduzieren
+- 🎯 **Dynamische Buttons**: Nur verfügbare Optionen werden angezeigt
+- 🔙 **Navigation**: Zurück-Button ermöglicht Korrektur von Auswahlen
+- ⚫ **Klares UI**: Schwarzes X zum Schließen, durchdachte Farbgestaltung
+
+### Produktfilterung Workflow
+
+Der Chatbot nutzt eine mehrstufige Filterung:
+
+1. **Altersgruppen-Auswahl**: Zeigt nur Optionen mit verfügbaren Produkten
+2. **Bedürfnis-Auswahl**: Gefiltert nach Altersgruppe
+3. **Fleischsorten-Auswahl**: Gefiltert nach Altersgruppe + Bedürfnisse
+4. **Produktempfehlungen**: Passende Produkte mit Links
+5. **Weitere Produkte**: Zeigt ALLE Produkte der Altersgruppe für mehr Auswahl
+
+### Technische Details
+
+- **OpenAI GPT-4o-mini** für natürliche Konversation
+- **Supabase Queries** für Echtzeit-Produktverfügbarkeit
+- **Rückwärts-Suche** in Message-History für aktuellste Auswahl
+- **Automatisches Überspringen** bei nur einer verfügbaren Option
+- **Fallback-Handling** für bessere User Experience
+
+---
+
+## Tech Stack
+
+### Frontend
+
+- **Next.js 19.2.3** mit App Router
+- **React 19** mit Server Components
+- **TypeScript** für Type Safety
+- **Tailwind CSS** für Styling
+- **Lucide React** für Icons
+
+### Backend & Database
+
+- **Supabase** (PostgreSQL)
+  - Authentication & Authorization
+  - Database (Products, Orders, Reviews, Wishlists)
+  - Storage für Produktbilder
+- **Supabase Auth** mit Cookie-based Sessions
+
+### Payment & APIs
+
+- **Stripe** für Zahlungsabwicklung
+- **OpenAI API** (GPT-4o-mini) für AI Chatbot
+- **Resend** für E-Mail-Versand
+
+### Development Tools
+
+- **ESLint** & **Prettier** für Code-Qualität
+- **Git** für Versionskontrolle
+
+---
+
+## Getting Started
+
+### Voraussetzungen
+
+- Node.js 18+ installiert
+- Supabase Account ([erstellen](https://database.new))
+- Stripe Account ([erstellen](https://stripe.com))
+- OpenAI API Key ([erstellen](https://platform.openai.com))
+
+### Installation
+
+1. **Repository klonen**
 
    ```bash
-   npx create-next-app --example with-supabase with-supabase-app
+   git clone <repository-url>
+   cd nextjs-final-e-commerce-project
    ```
+
+2. **Dependencies installieren**
 
    ```bash
-   yarn create next-app --example with-supabase with-supabase-app
+   npm install
    ```
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
+3. **Umgebungsvariablen konfigurieren**
+   
+   Erstelle eine `.env.local` Datei:
+
+   ```env
+   # Supabase
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   
+   # Stripe
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+   STRIPE_SECRET_KEY=your_stripe_secret_key
+   STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+   
+   # OpenAI
+   OPENAI_API_KEY=your_openai_api_key
+   
+   # Email (Resend)
+   RESEND_API_KEY=your_resend_api_key
+   EMAIL_FROM=your_email@domain.com
+   
+   # App
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
    ```
 
-3. Use `cd` to change into the app's directory
+4. **Supabase Datenbank Setup**
+   
+   Führe die SQL-Schemas aus `database/` aus:
+   - `products.sql` - Produkttabellen
+   - `orders.sql` - Bestellverwaltung
+   - `reviews.sql` - Bewertungssystem
+   - `wishlists.sql` - Wishlist-Funktionalität
 
-   ```bash
-   cd with-supabase-app
-   ```
+5. **Stripe Webhooks konfigurieren**
+   
+   Siehe [WEBHOOK_SETUP_GUIDE.md](WEBHOOK_SETUP_GUIDE.md) für Details.
 
-4. Rename `.env.example` to `.env.local` and update the following:
-
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
-
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
-
-5. You can now run the Next.js local development server:
+6. **Development Server starten**
 
    ```bash
    npm run dev
    ```
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+   Die App läuft jetzt auf [http://localhost:3000](http://localhost:3000)
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+---
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+## Projektstruktur
 
-## Feedback and issues
+```text
+nextjs-final-e-commerce-project/
+├── app/                          # Next.js App Router
+│   ├── (admin)/                 # Admin-Bereich
+│   ├── (customer-service)/      # Kundenservice-Seiten
+│   ├── (legal)/                 # Rechtliche Seiten (AGB, Datenschutz)
+│   ├── (marketing)/             # Marketing-Seiten (About, Blog)
+│   ├── (shop)/                  # Shop-Funktionalität
+│   │   ├── cart/               # Warenkorb
+│   │   ├── checkout/           # Checkout-Prozess
+│   │   ├── products/           # Produktseiten
+│   │   └── [category]/         # Kategorieseiten
+│   ├── (user)/                  # Benutzerprofil
+│   ├── api/                     # API Routes
+│   │   ├── chatbot/            # AI Chatbot Endpoint
+│   │   ├── webhooks/           # Stripe Webhooks
+│   │   └── ...
+│   └── auth/                    # Authentifizierung
+├── components/                   # React Components
+│   ├── AIChatbot.tsx           # AI Chatbot mit Glaseffekt
+│   ├── Header.tsx              # Navigation
+│   ├── Footer.tsx              # Footer
+│   ├── ProductCard.tsx         # Produktkarte
+│   └── ...
+├── contexts/                     # React Contexts
+│   ├── AuthContext.tsx         # Auth-State
+│   ├── CartContext.tsx         # Warenkorb-State
+│   └── WishlistContext.tsx     # Wishlist-State
+├── lib/                         # Utilities
+│   ├── supabase/               # Supabase Client
+│   └── stripe/                 # Stripe Utilities
+└── types/                       # TypeScript Types
+```
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+---
 
-## More Supabase examples
+## Wichtige Dokumentationen
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+- [CART_IMPLEMENTATION.md](CART_IMPLEMENTATION.md) - Warenkorb-Implementierung
+- [CHECKOUT_SUPABASE_INTEGRATION.md](CHECKOUT_SUPABASE_INTEGRATION.md) - Checkout-Prozess
+- [WEBHOOK_SETUP_GUIDE.md](WEBHOOK_SETUP_GUIDE.md) - Stripe Webhooks Setup
+- [BESTSELLER_USAGE.md](BESTSELLER_USAGE.md) - Bestseller-Feature
+- [PROMOTIONS_IMPLEMENTATION.md](PROMOTIONS_IMPLEMENTATION.md) - Promotions-System
+- [COOKIE_BANNER.md](COOKIE_BANNER.md) - Cookie-Banner Implementierung
+
+---
+
+## AI Chatbot Features im Detail
+
+### Glasmorphismus-Design
+
+```tsx
+// Transparenter Hintergrund mit Blur-Effekt
+backdrop-blur-xl bg-white/80
+border border-white/20
+box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37)
+```
+
+### Minimieren-Funktion
+
+- Nutzer können Chat auf Headerzeile minimieren
+- State-Management mit React useState
+- Smooth Transitions für besseres UX
+- Inhalte werden ausgeblendet, nur Header sichtbar
+
+### Produktfilterung Details
+
+1. **Nur verfügbare Optionen anzeigen**
+   - Dynamische Supabase-Queries
+   - Filtert nach Altersgruppe → Bedürfnisse → Fleischsorten
+
+2. **Rückwärts-Suche in Message History**
+
+   ```typescript
+   // Findet die LETZTE Auswahl des Users
+   for (let i = userMessages.length - 1; i >= 0; i--) {
+     if (userMessages[i]?.content.includes("Junior")) {
+       ageCategory = "JUNIOR";
+       break;
+     }
+   }
+   ```
+
+3. **Auto-Skip bei einzelner Option**
+
+
+   - Überspringt Fleischsorten-Frage wenn nur eine verfügbar
+   - Verbessert User Flow
+
+### Navigation Features
+- **BACK Button**: Zurück zur Bedürfnis-Auswahl
+- **Weitere Produkte**: Zeigt alle Produkte der Altersgruppe
+- **Neu starten**: Kompletter Reset der Konversation
+- **Beenden**: Freundliche Verabschiedung
+
+---
+
+## Deployment
+
+### Vercel Deployment
+
+1. **Repository mit Vercel verbinden**
+
+   ```bash
+   vercel
+   ```
+
+2. **Umgebungsvariablen in Vercel hinzufügen**
+
+
+   - Alle `.env.local` Variablen in Vercel Dashboard eintragen
+
+3. **Domain konfigurieren**
+   - Custom Domain in Vercel Settings hinzufügen
+   - `NEXT_PUBLIC_SITE_URL` aktualisieren
+
+4. **Stripe Webhooks aktualisieren**
+   - Production Webhook URL in Stripe Dashboard eintragen
+   - `https://your-domain.com/api/webhooks/stripe`
+
+---
+
+## Support & Feedback
+
+Bei Fragen oder Problemen, bitte ein Issue erstellen oder Kontakt aufnehmen.
+
+## Lizenz
+
+Dieses Projekt ist lizenziert unter der MIT License - siehe [LICENSE](LICENSE) Datei für Details.
+
+---
+
+## Entwickelt mit ❤️
+
+Elite Dog Treats - Premium Hundefutter mit intelligenter Beratung !

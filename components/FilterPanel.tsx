@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
-import { ChevronDown, X } from 'lucide-react';
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { ChevronDown, X } from "lucide-react";
 
 interface FilterOption {
   label: string;
@@ -16,76 +16,112 @@ interface FilterGroup {
 }
 
 interface FilterPanelProps {
-  currentAge?: 'junior' | 'adult' | 'senior' | 'promotions';
+  currentAge?: "junior" | "adult" | "senior" | "promotions" | "specials";
 }
 
 const MEAT_OPTIONS: FilterOption[] = [
-  { label: 'Ente', value: 'ente' },
-  { label: 'Rind', value: 'rind' },
-  { label: 'Kaninchen', value: 'kaninchen' },
-  { label: 'Lamm', value: 'lamm' },
-  { label: 'Pferd', value: 'pferd' },
-  { label: 'Wild', value: 'wild' },
-  { label: 'Lachs', value: 'lachs' },
-  { label: 'Huhn', value: 'huhn' },
+  { label: "Ente", value: "ente" },
+  { label: "Rind", value: "rind" },
+  { label: "Kaninchen", value: "kaninchen" },
+  { label: "Lamm", value: "lamm" },
+  { label: "Pferd", value: "pferd" },
+  { label: "Wild", value: "wild" },
+  { label: "Lachs", value: "lachs" },
+  { label: "Huhn", value: "huhn" },
 ];
 
 const AGE_OPTIONS: FilterOption[] = [
-  { label: 'Junior', value: 'junior' },
-  { label: 'Adult', value: 'adult' },
-  { label: 'Senior', value: 'senior' },
+  { label: "Junior", value: "junior" },
+  { label: "Adult", value: "adult" },
+  { label: "Senior", value: "senior" },
+];
+
+const SPECIAL_OPTIONS: FilterOption[] = [
+  { label: "Diätfutter", value: "diat" },
+  { label: "Hypoallergen", value: "hypoallergen" },
+  { label: "Darmgesundheit", value: "darm" },
+  { label: "Gelenkfit", value: "gelenk" },
 ];
 
 export function FilterPanel({ currentAge }: FilterPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
-  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+  const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [selectedFilters, setSelectedFilters] = useState<
+    Record<string, string[]>
+  >({});
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Bestimme welche Filter angezeigt werden
-  const filterGroups: FilterGroup[] = currentAge === 'promotions'
-    ? [
-        {
-          id: 'age',
-          label: 'Altersgruppe',
-          options: AGE_OPTIONS,
-        },
-        {
-          id: 'meat',
-          label: 'Fleischsorte',
-          options: MEAT_OPTIONS,
-        },
-      ]
-    : currentAge
-    ? [
-        {
-          id: 'meat',
-          label: 'Fleischsorte',
-          options: MEAT_OPTIONS,
-        },
-      ]
-    : [
-        {
-          id: 'age',
-          label: 'Altersgruppe',
-          options: AGE_OPTIONS,
-        },
-        {
-          id: 'meat',
-          label: 'Fleischsorte',
-          options: MEAT_OPTIONS,
-        },
-      ];
+  const filterGroups: FilterGroup[] =
+    currentAge === "promotions"
+      ? [
+          {
+            id: "age",
+            label: "Altersgruppe",
+            options: AGE_OPTIONS,
+          },
+          {
+            id: "meat",
+            label: "Fleischsorte",
+            options: MEAT_OPTIONS,
+          },
+        ]
+      : currentAge === "specials"
+      ? [
+          {
+            id: "special",
+            label: "Spezialfutter",
+            options: SPECIAL_OPTIONS,
+          },
+          {
+            id: "age",
+            label: "Altersgruppe",
+            options: AGE_OPTIONS,
+          },
+          {
+            id: "meat",
+            label: "Fleischsorte",
+            options: MEAT_OPTIONS,
+          },
+        ]
+      : currentAge
+      ? [
+          {
+            id: "meat",
+            label: "Fleischsorte",
+            options: MEAT_OPTIONS,
+          },
+        ]
+      : [
+          {
+            id: "age",
+            label: "Altersgruppe",
+            options: AGE_OPTIONS,
+          },
+          {
+            id: "meat",
+            label: "Fleischsorte",
+            options: MEAT_OPTIONS,
+          },
+        ];
 
   // Initialize filters from URL
   useEffect(() => {
     const filters: Record<string, string[]> = {};
-    if (searchParams.get('meat')) {
-      filters['meat'] = searchParams.get('meat')!.split(',').filter(Boolean);
+    if (searchParams.get("meat")) {
+      filters["meat"] = searchParams.get("meat")!.split(",").filter(Boolean);
     }
-    if (searchParams.get('age')) {
-      filters['age'] = searchParams.get('age')!.split(',').filter(Boolean);
+    if (searchParams.get("age")) {
+      filters["age"] = searchParams.get("age")!.split(",").filter(Boolean);
+    }
+    if (searchParams.get("special")) {
+      filters["special"] = searchParams
+        .get("special")!
+        .split(",")
+        .filter(Boolean);
     }
     setSelectedFilters(filters);
   }, [searchParams]);
@@ -104,8 +140,8 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
       });
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdowns]);
 
   const toggleDropdown = (groupId: string) => {
@@ -115,87 +151,115 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
     }));
   };
 
-  const handleFilterChange = (groupId: string, value: string, checked: boolean) => {
-    setSelectedFilters((prev) => {
-      const current = prev[groupId] || [];
-      let updated: string[];
+  const handleFilterChange = (
+    groupId: string,
+    value: string,
+    checked: boolean
+  ) => {
+    const newFilters = { ...selectedFilters };
+    const current = newFilters[groupId] || [];
+    let updated: string[];
 
-      if (checked) {
-        updated = [...current, value];
-      } else {
-        updated = current.filter((v) => v !== value);
-      }
+    if (checked) {
+      updated = [...current, value];
+    } else {
+      updated = current.filter((v) => v !== value);
+    }
 
-      return {
-        ...prev,
-        [groupId]: updated,
-      };
-    });
+    newFilters[groupId] = updated;
 
-    applyFilters({
-      ...selectedFilters,
-      [groupId]: checked
-        ? [...(selectedFilters[groupId] || []), value]
-        : (selectedFilters[groupId] || []).filter((v) => v !== value),
-    });
+    // Update state
+    setSelectedFilters(newFilters);
 
     // Close dropdown after selection
     setOpenDropdowns((prev) => ({
       ...prev,
       [groupId]: false,
     }));
+
+    // Apply filters after state update (outside of setState)
+    applyFilters(newFilters);
   };
 
   const applyFilters = (filters: Record<string, string[]>) => {
     const params = new URLSearchParams();
 
-    if (currentAge === 'promotions') {
+    if (currentAge === "promotions") {
       // On promotions page, navigate to promotions route with both filters
-      if (filters['age']?.length > 0) {
-        params.set('age', filters['age'].join(','));
+      if (filters["age"]?.length > 0) {
+        params.set("age", filters["age"].join(","));
       }
-      if (filters['meat']?.length > 0) {
-        params.set('meat', filters['meat'].join(','));
+      if (filters["meat"]?.length > 0) {
+        params.set("meat", filters["meat"].join(","));
       }
       const queryString = params.toString();
-      router.push(queryString ? `/promotions?${queryString}` : '/promotions', { scroll: false });
+      router.push(queryString ? `/promotions?${queryString}` : "/promotions", {
+        scroll: false,
+      });
+    } else if (currentAge === "specials") {
+      // On specials page, navigate with special, age and meat filters
+      if (filters["special"]?.length > 0) {
+        params.set("special", filters["special"].join(","));
+      }
+      if (filters["age"]?.length > 0) {
+        params.set("age", filters["age"].join(","));
+      }
+      if (filters["meat"]?.length > 0) {
+        params.set("meat", filters["meat"].join(","));
+      }
+      const queryString = params.toString();
+      router.push(queryString ? `/specials?${queryString}` : "/specials", {
+        scroll: false,
+      });
     } else if (currentAge) {
       // On age-specific pages, navigate within that page
-      if (filters['meat']?.length > 0) {
-        params.set('meat', filters['meat'].join(','));
+      if (filters["meat"]?.length > 0) {
+        params.set("meat", filters["meat"].join(","));
       }
       const queryString = params.toString();
-      router.push(queryString ? `/${currentAge}?${queryString}` : `/${currentAge}`, { scroll: false });
+      router.push(
+        queryString ? `/${currentAge}?${queryString}` : `/${currentAge}`,
+        { scroll: false }
+      );
     } else {
       // On shop page, apply both filters
-      if (filters['age']?.length > 0) {
-        params.set('age', filters['age'].join(','));
+      if (filters["age"]?.length > 0) {
+        params.set("age", filters["age"].join(","));
       }
-      if (filters['meat']?.length > 0) {
-        params.set('meat', filters['meat'].join(','));
+      if (filters["meat"]?.length > 0) {
+        params.set("meat", filters["meat"].join(","));
       }
       const queryString = params.toString();
-      router.push(queryString ? `/shop?${queryString}` : '/shop', { scroll: false });
+      router.push(queryString ? `/shop?${queryString}` : "/shop", {
+        scroll: false,
+      });
     }
   };
 
   const resetFilters = () => {
     setSelectedFilters({});
-    if (currentAge === 'promotions') {
-      router.push('/promotions', { scroll: false });
+    if (currentAge === "promotions") {
+      router.push("/promotions", { scroll: false });
+    } else if (currentAge === "specials") {
+      router.push("/specials", { scroll: false });
     } else if (currentAge) {
       router.push(`/${currentAge}`, { scroll: false });
     } else {
-      router.push('/shop', { scroll: false });
+      router.push("/shop", { scroll: false });
     }
   };
 
-  const hasActiveFilters = Object.values(selectedFilters).some((v) => v.length > 0);
+  const hasActiveFilters = Object.values(selectedFilters).some(
+    (v) => v.length > 0
+  );
 
   return (
-    <div className="w-full mb-8">
+    <div className="w-full">
       {/* Filter Dropdowns */}
-      <div className="flex flex-wrap gap-3 mb-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="mr-1 text-base font-semibold text-muted-foreground">
+          Filter:
+        </span>
         {filterGroups.map((group) => (
           <div
             key={group.id}
@@ -206,37 +270,44 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
           >
             <button
               onClick={() => toggleDropdown(group.id)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-(--app-radius) text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
             >
               {group.label}
               <ChevronDown
                 size={18}
-                className={`transition-transform duration-200 ${
-                  openDropdowns[group.id] ? 'rotate-180' : ''
+                className={`text-accent transition-transform duration-200 ${
+                  openDropdowns[group.id] ? "rotate-180" : ""
                 }`}
               />
             </button>
 
             {openDropdowns[group.id] && (
-              <div className="absolute top-full left-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-xl z-50 min-w-max">
+              <div className="absolute top-full left-0 mt-2 bg-white border border-gray-300 rounded-(--app-radius) shadow-xl z-50 min-w-max">
                 <div className="p-3 space-y-2">
                   {group.options.map((option) => {
                     const isChecked =
-                      selectedFilters[group.id]?.includes(option.value) || false;
+                      selectedFilters[group.id]?.includes(option.value) ||
+                      false;
                     return (
                       <label
                         key={`${group.id}-${option.value}`}
-                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded transition-colors"
+                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-(--app-radius) transition-colors"
                       >
                         <input
                           type="checkbox"
                           checked={isChecked}
                           onChange={(e) =>
-                            handleFilterChange(group.id, option.value, e.target.checked)
+                            handleFilterChange(
+                              group.id,
+                              option.value,
+                              e.target.checked
+                            )
                           }
-                          className="w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer accent-blue-600"
+                          className="w-4 h-4 rounded border-gray-300 text-accent cursor-pointer accent-accent"
                         />
-                        <span className="text-sm text-gray-700">{option.label}</span>
+                        <span className="text-sm text-gray-700">
+                          {option.label}
+                        </span>
                       </label>
                     );
                   })}
@@ -250,29 +321,29 @@ export function FilterPanel({ currentAge }: FilterPanelProps) {
         {hasActiveFilters && (
           <button
             onClick={resetFilters}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-accent text-accent rounded-(--app-radius) text-sm font-medium hover:bg-accent/10 transition-colors cursor-pointer"
           >
             Filter zurücksetzen
-            <X size={16} />
+            <X size={16} className="text-accent" />
           </button>
         )}
       </div>
 
       {/* Active Filters Display */}
       {hasActiveFilters && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mt-4">
           {filterGroups.map((group) =>
             (selectedFilters[group.id] || []).map((value) => {
               const option = group.options.find((o) => o.value === value);
               return (
                 <div
                   key={`${group.id}-${value}`}
-                  className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-sm border border-blue-200"
+                  className="inline-flex items-center gap-2 bg-muted text-foreground px-3 py-1.5 rounded-(--app-radius) text-sm border border-muted-foreground/20"
                 >
                   <span className="font-medium">{option?.label}</span>
                   <button
                     onClick={() => handleFilterChange(group.id, value, false)}
-                    className="ml-1 hover:bg-blue-200 rounded-full p-0.5 transition-colors"
+                    className="ml-1 hover:bg-muted rounded-(--app-radius) p-0.5 transition-colors cursor-pointer"
                     aria-label={`Remove ${option?.label} filter`}
                   >
                     <X size={14} />

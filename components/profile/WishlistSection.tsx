@@ -1,10 +1,11 @@
 "use client";
 
 import { useWishlist } from "@/contexts/WishlistContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types";
 import Link from "next/link";
+import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
 
 type Product =
@@ -12,7 +13,8 @@ type Product =
     starting_variant_id?: string;
   };
 
-export function WishlistSection() {
+// ✅ Memoize to prevent unnecessary re-renders
+export const WishlistSection = memo(function WishlistSection() {
   const { wishlist, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
@@ -32,31 +34,36 @@ export function WishlistSection() {
 
       const productIds = wishlist.map((item) => item.productId);
 
-      // Get products with their starting variant
-      const { data, error } = await supabase
-        .from("products_with_primary_image")
-        .select("*")
-        .in("id", productIds);
+      // ✅ OPTIMIZED: Fetch products and variants in parallel
+      const [productsResult, variantsResult] = await Promise.all([
+        supabase
+          .from("products_with_primary_image")
+          .select("*")
+          .in("id", productIds),
+        supabase
+          .from("product_variants")
+          .select("id, product_id, price")
+          .in("product_id", productIds)
+          .order("price", { ascending: true }),
+      ]);
 
-      if (error) {
-        console.error("Error loading wishlist products:", error);
+      if (productsResult.error) {
+        console.error("Error loading wishlist products:", productsResult.error);
         setProducts([]);
       } else {
-        // For each product, get the starting variant ID
-        const productsWithVariants = await Promise.all(
-          (data || []).map(async (product) => {
-            const { data: variant } = await supabase
-              .from("product_variants")
-              .select("id")
-              .eq("product_id", product.id)
-              .order("price", { ascending: true })
-              .limit(1)
-              .single();
+        // ✅ Create a map of product_id -> cheapest variant
+        const variantMap = new Map<string, string>();
+        variantsResult.data?.forEach((variant) => {
+          if (!variantMap.has(variant.product_id)) {
+            variantMap.set(variant.product_id, variant.id);
+          }
+        });
 
-            return {
-              ...product,
-              starting_variant_id: variant?.id,
-            };
+        // Map variants to products
+        const productsWithVariants = (productsResult.data || []).map(
+          (product) => ({
+            ...product,
+            starting_variant_id: variantMap.get(product.id),
           })
         );
 
@@ -107,8 +114,6 @@ export function WishlistSection() {
 
       // Remove from wishlist after successfully adding to cart
       removeFromWishlist(product.id);
-
-      alert(`${product.name} wurde zum Warenkorb hinzugefügt!`);
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Fehler beim Hinzufügen zum Warenkorb");
@@ -186,10 +191,13 @@ export function WishlistSection() {
               onClick={() => setSelectedProduct(product)}
             >
               {product.primary_image_url ? (
-                <img
+                <Image
                   src={product.primary_image_url}
                   alt={product.name || "Product"}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover"
+                  loading="lazy"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -309,10 +317,13 @@ export function WishlistSection() {
               {/* Product Image */}
               <div className="aspect-square relative bg-muted rounded-lg overflow-hidden">
                 {selectedProduct.primary_image_url ? (
-                  <img
+                  <Image
                     src={selectedProduct.primary_image_url}
                     alt={selectedProduct.name || "Product"}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -421,4 +432,4 @@ export function WishlistSection() {
       )}
     </div>
   );
-}
+});

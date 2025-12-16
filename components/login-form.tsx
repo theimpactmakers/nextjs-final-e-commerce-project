@@ -42,13 +42,24 @@ export function LoginForm({
         <div className="text-center mb-10">
           <div className="inline-block mb-4">
             <div className="bg-linear-to-r from-primary to-accent text-primary-foreground w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                />
               </svg>
             </div>
           </div>
-          <h1 className="text-4xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mb-3">
-            Willkommen zurück
+          <h1 className="text-2xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mb-3">
+            Bei deinem Profil anmelden
           </h1>
           <p className="text-gray-600 text-base max-w-2xl mx-auto">
             Melden Sie sich an, um auf Ihr Kundenkonto zuzugreifen
@@ -57,7 +68,7 @@ export function LoginForm({
             <div className="h-1 w-12 bg-linear-to-r from-primary to-accent rounded-full"></div>
           </div>
         </div>
-        
+
         <form onSubmit={handleLogin}>
           <div className="space-y-4">
             <div className="space-y-4">
@@ -104,7 +115,7 @@ export function LoginForm({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 bg-accent hover:bg-primary/90 text-primary-foreground font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Wird angemeldet..." : "JETZT ANMELDEN"}
             </button>

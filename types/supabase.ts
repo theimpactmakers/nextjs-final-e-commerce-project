@@ -934,6 +934,87 @@ export type Database = {
           source?: string | null;
         };
       };
+      reviews: {
+        Row: {
+          id: string;
+          product_id: string;
+          user_id: string;
+          order_id: string | null;
+          rating: number;
+          title: string | null;
+          comment: string | null;
+          is_verified_purchase: boolean | null;
+          is_approved: boolean | null;
+          helpful_count: number | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          user_id: string;
+          order_id?: string | null;
+          rating: number;
+          title?: string | null;
+          comment?: string | null;
+          is_verified_purchase?: boolean | null;
+          is_approved?: boolean | null;
+          helpful_count?: number | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          user_id?: string;
+          order_id?: string | null;
+          rating?: number;
+          title?: string | null;
+          comment?: string | null;
+          is_verified_purchase?: boolean | null;
+          is_approved?: boolean | null;
+          helpful_count?: number | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reviews_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products_with_primary_image";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products_with_ratings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       products_with_primary_image: {
@@ -961,6 +1042,32 @@ export type Database = {
           specials: Database["public"]["Enums"]["specials"] | null;
           starting_variant_name: string | null;
           updated_at: string | null;
+        };
+        Relationships: [];
+      };
+      products_with_ratings: {
+        Row: {
+          id: string | null;
+          name: string | null;
+          description: string | null;
+          age_group: Database["public"]["Enums"]["age_group"] | null;
+          meat_type: Database["public"]["Enums"]["meat_type"] | null;
+          specials: Database["public"]["Enums"]["specials"] | null;
+          created_at: string | null;
+          updated_at: string | null;
+          ean: number | null;
+          slug: string | null;
+          is_featured: boolean | null;
+          is_new: boolean | null;
+          is_on_sale: boolean | null;
+          feeding_recommendation: string | null;
+          meta_title: string | null;
+          meta_description: string | null;
+          meta_keywords: string | null;
+          published_at: string | null;
+          bestseller: boolean | null;
+          average_rating: number | null;
+          review_count: number | null;
         };
         Relationships: [];
       };

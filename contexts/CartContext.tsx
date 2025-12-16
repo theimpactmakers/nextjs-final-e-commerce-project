@@ -6,10 +6,12 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { calculatePromotionDiscount } from "@/lib/supabase/products";
 import type { CartItem, DbCartItem, CartContextType } from "@/types";
+import { toast } from "sonner";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -18,6 +20,290 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const supabase = createClient();
+
+  // Format cart items helper
+  const formatCartItems = useCallback(
+    async (cartItems: DbCartItem[]): Promise<CartItem[]> => {
+      const productIds = (cartItems || [])
+        .map((item) => {
+          const variant = Array.isArray(item.product_variants)
+            ? item.product_variants[0]
+            : item.product_variants;
+          return variant?.product_id;
+        })
+        .filter((id) => id);
+      const { data: images } = await supabase
+        .from("product_images")
+        .select("product_id, image_url")
+        .in("product_id", productIds)
+        .eq("is_primary", true);
+      const imageMap = new Map<string, string>(
+        (images?.map((img: { product_id: string; image_url: string }) => [
+          img.product_id,
+          img.image_url,
+        ]) || []) as [string, string][]
+      );
+      const formattedItemsPromises = (cartItems || [])
+        .filter((item) => {
+          const variant = Array.isArray(item.product_variants)
+            ? item.product_variants[0]
+            : item.product_variants;
+          const product = variant
+            ? Array.isArray(variant.products)
+              ? variant.products[0]
+              : variant.products
+            : null;
+          return variant && product;
+        })
+        .map(async (item) => {
+          const variant = Array.isArray(item.product_variants)
+            ? item.product_variants[0]
+            : item.product_variants;
+          const product = Array.isArray(variant.products)
+            ? variant.products[0]
+            : variant.products;
+          const promotionData = await calculatePromotionDiscount(
+            variant.product_id,
+            variant.id,
+            parseFloat(variant.price)
+          );
+          const basePrice = parseFloat(variant.price);
+          const comparePrice = variant.compare_at_price
+            ? parseFloat(variant.compare_at_price)
+            : null;
+          let finalPrice = basePrice;
+          let originalPrice = comparePrice || basePrice;
+          if (promotionData) {
+            finalPrice = promotionData.discountedPrice;
+            originalPrice = promotionData.originalPrice;
+          }
+          return {
+            id: item.id,
+            variant_id: item.variant_id,
+            product_id: variant.product_id,
+            product_name: product.name,
+            variant_name: variant.name,
+            price: finalPrice,
+            original_price: originalPrice,
+            quantity: item.quantity,
+            image_url:
+              typeof imageMap.get(variant.product_id) === "string"
+                ? imageMap.get(variant.product_id)!
+                : null,
+            stock_quantity: variant.stock_quantity,
+          };
+        });
+      return Promise.all(formattedItemsPromises);
+    },
+    [supabase]
+  );
+
+  // Add to cart
+  const addToCart = useCallback(
+    async (
+      variantId: string,
+      productId: string,
+      productName: string,
+      variantName: string,
+      price: number,
+      imageUrl: string | null,
+      stockQuantity: number,
+      quantity: number = 1
+    ) => {
+      if (userId) {
+        // Add to database for logged-in users
+        try {
+          // Get or create cart
+          let { data: cart } = await supabase
+            .from("carts")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("status", "OPEN")
+            .single();
+
+          if (!cart) {
+            const { data: newCart } = await supabase
+              .from("carts")
+              .insert({ user_id: userId })
+              .select("id")
+              .single();
+            cart = newCart;
+          }
+
+          if (cart) {
+            // Try insert, handle duplicate by updating quantity
+            const { error: insertError } = await supabase
+              .from("cart_items")
+              .insert({
+                cart_id: cart.id,
+                variant_id: variantId,
+                quantity,
+                price_at_add: price,
+              });
+
+            if (insertError) {
+              // Check for duplicate key constraint (23505)
+              if (insertError.code === "23505") {
+                // Always update quantity if conflict
+                const { data: retryItem } = await supabase
+                  .from("cart_items")
+                  .select("id, quantity")
+                  .eq("cart_id", cart.id)
+                  .eq("variant_id", variantId)
+                  .single();
+                if (retryItem) {
+                  await supabase
+                    .from("cart_items")
+                    .update({ quantity: retryItem.quantity + quantity })
+                    .eq("id", retryItem.id);
+                }
+              } else {
+                // Other error - show error toast
+                toast.error(`Fehler beim Hinzufügen: ${insertError.message}`);
+                return;
+              }
+            }
+            // Always reload cart after insert/update
+            const { data: cartReload } = await supabase
+              .from("carts")
+              .select("id")
+              .eq("user_id", userId)
+              .eq("status", "OPEN")
+              .single();
+            if (!cartReload) {
+              setItems([]);
+              return;
+            }
+            const { data: cartItems } = await supabase
+              .from("cart_items")
+              .select(
+                `
+                id,
+                quantity,
+                price_at_add,
+                variant_id,
+                product_variants!inner(
+                  id,
+                  name,
+                  price,
+                  compare_at_price,
+                  stock_quantity,
+                  product_id,
+                  products!inner(
+                    id,
+                    name,
+                    slug
+                  )
+                )
+              `
+              )
+              .eq("cart_id", cartReload.id);
+            const formattedItems = await formatCartItems(cartItems || []);
+            setItems(formattedItems);
+
+            // Show success toast
+            toast.custom(
+              () => (
+                <div className="flex items-center gap-3 bg-card border-2 border-primary/20 rounded-lg p-4 shadow-xl animate-slide-in-right">
+                  <div className="shrink-0">
+                    <div className="relative">
+                      <svg
+                        className="w-10 h-10 text-primary animate-bounce"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-primary text-base">
+                      Zum Warenkorb hinzugefügt!
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {productName} ({variantName})
+                    </p>
+                  </div>
+                </div>
+              ),
+              {
+                duration: 3000,
+              }
+            );
+          }
+        } catch (error) {
+          console.error("Error adding to cart:", error);
+        }
+      } else {
+        // Guest: Add to localStorage
+        const localCart = getLocalCart();
+        const itemIndex = localCart.findIndex(
+          (item) => item.variant_id === variantId
+        );
+        if (itemIndex > -1) {
+          localCart[itemIndex].quantity += quantity;
+        } else {
+          localCart.push({
+            id: `${variantId}-${Date.now()}`,
+            variant_id: variantId,
+            product_id: productId,
+            product_name: productName,
+            variant_name: variantName,
+            price,
+            original_price: price,
+            quantity,
+            image_url: imageUrl,
+            stock_quantity: stockQuantity,
+          });
+        }
+        saveLocalCart(localCart);
+        setItems(localCart);
+
+        // Show success toast for guests too
+        toast.custom(
+          () => (
+            <div className="flex items-center gap-3 bg-card border-2 border-primary/20 rounded-lg p-4 shadow-xl animate-slide-in-right">
+              <div className="shrink-0">
+                <div className="relative">
+                  <svg
+                    className="w-10 h-10 text-primary animate-bounce"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="font-bold text-primary text-base">
+                  Zum Warenkorb hinzugefügt!
+                </p>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {productName} ({variantName})
+                </p>
+              </div>
+            </div>
+          ),
+          {
+            duration: 3000,
+          }
+        );
+      }
+    },
+    [userId, supabase, formatCartItems]
+  );
 
   // Get cart from localStorage (for guests)
   const getLocalCart = (): CartItem[] => {
@@ -84,7 +370,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         if (cart) {
           // Get cart items with product details
-          const { data: cartItems } = await supabase
+          const { data: cartItems, error: cartItemsError } = await supabase
             .from("cart_items")
             .select(
               `
@@ -109,6 +395,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             )
             .eq("cart_id", cart.id);
 
+          if (cartItemsError) {
+            console.error("Error fetching cart items:", cartItemsError);
+          }
+
           if (cartItems) {
             // Get primary images for each product
             const productIds = (cartItems as DbCartItem[])
@@ -128,7 +418,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               .eq("is_primary", true);
 
             const imageMap = new Map(
-              images?.map((img) => [img.product_id, img.image_url]) || []
+              images?.map((img: { product_id: string; image_url: string }) => [
+                img.product_id,
+                img.image_url,
+              ]) || []
             );
 
             // Format items with promotion prices
@@ -226,10 +519,38 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
 
     loadCart();
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const newUserId = session?.user?.id || null;
+      setUserId(newUserId);
+
+      if (event === "SIGNED_IN" && newUserId) {
+        // User logged in - load database cart
+        await loadDatabaseCart(newUserId);
+      } else if (event === "SIGNED_OUT") {
+        // User logged out - clear cart and load empty localStorage cart
+        setItems([]);
+        localStorage.removeItem("cart");
+      } else if (newUserId) {
+        // Session restored - load database cart
+        await loadDatabaseCart(newUserId);
+      } else {
+        // No user - load localStorage cart
+        const cartWithPromotions = await loadLocalCartWithPromotions();
+        setItems(cartWithPromotions);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [loadDatabaseCart, loadLocalCartWithPromotions, supabase.auth]);
 
   // Refresh cart
-  const refreshCart = async () => {
+  const refreshCart = useCallback(async () => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -240,146 +561,78 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const cartWithPromotions = await loadLocalCartWithPromotions();
       setItems(cartWithPromotions);
     }
-  };
+  }, [supabase, loadDatabaseCart, loadLocalCartWithPromotions]);
 
-  // Add to cart
-  const addToCart = async (
-    variantId: string,
-    productId: string,
-    productName: string,
-    variantName: string,
-    price: number,
-    imageUrl: string | null,
-    stockQuantity: number,
-    quantity: number = 1
-  ) => {
-    if (userId) {
-      // Add to database for logged-in users
-      try {
-        // Get or create cart
-        let { data: cart } = await supabase
-          .from("carts")
-          .select("id")
-          .eq("user_id", userId)
-          .eq("status", "OPEN")
-          .single();
-
-        if (!cart) {
-          const { data: newCart } = await supabase
-            .from("carts")
-            .insert({ user_id: userId })
-            .select("id")
-            .single();
-          cart = newCart;
-        }
-
-        if (cart) {
-          // Check if item already exists
-          const { data: existingItem } = await supabase
-            .from("cart_items")
-            .select("id, quantity")
-            .eq("cart_id", cart.id)
-            .eq("variant_id", variantId)
-            .single();
-
-          if (existingItem) {
-            // Update quantity
-            await supabase
-              .from("cart_items")
-              .update({ quantity: existingItem.quantity + quantity })
-              .eq("id", existingItem.id);
-          } else {
-            // Insert new item
-            await supabase.from("cart_items").insert({
-              cart_id: cart.id,
-              variant_id: variantId,
-              quantity,
-              price_at_add: price,
-            });
-          }
-
+  // Remove item
+  const removeItem = useCallback(
+    async (itemId: string) => {
+      if (userId) {
+        // Remove from database
+        try {
+          await supabase.from("cart_items").delete().eq("id", itemId);
           await loadDatabaseCart(userId);
+        } catch (error) {
+          console.error("Error removing item:", error);
         }
-      } catch (error) {
-        console.error("Error adding to cart:", error);
-      }
-    } else {
-      // Add to localStorage for guests
-      const localCart = getLocalCart();
-      const existingItemIndex = localCart.findIndex(
-        (item) => item.variant_id === variantId
-      );
-
-      if (existingItemIndex > -1) {
-        localCart[existingItemIndex].quantity += quantity;
       } else {
-        localCart.push({
-          id: `local-${Date.now()}-${variantId}`,
-          variant_id: variantId,
-          product_id: productId,
-          product_name: productName,
-          variant_name: variantName,
-          price,
-          quantity,
-          image_url: imageUrl,
-          stock_quantity: stockQuantity,
-        });
-      }
-
-      saveLocalCart(localCart);
-      setItems(localCart);
-    }
-  };
-
-  // Update quantity
-  const updateQuantity = async (itemId: string, quantity: number) => {
-    if (quantity <= 0) {
-      await removeItem(itemId);
-      return;
-    }
-
-    if (userId) {
-      // Update in database
-      try {
-        await supabase.from("cart_items").update({ quantity }).eq("id", itemId);
-
-        await loadDatabaseCart(userId);
-      } catch (error) {
-        console.error("Error updating quantity:", error);
-      }
-    } else {
-      // Update in localStorage
-      const localCart = getLocalCart();
-      const itemIndex = localCart.findIndex((item) => item.id === itemId);
-
-      if (itemIndex > -1) {
-        localCart[itemIndex].quantity = quantity;
+        // Remove from localStorage
+        const localCart = getLocalCart().filter((item) => item.id !== itemId);
         saveLocalCart(localCart);
         setItems(localCart);
       }
-    }
-  };
+    },
+    [userId, supabase, loadDatabaseCart]
+  );
 
-  // Remove item
-  const removeItem = async (itemId: string) => {
-    if (userId) {
-      // Remove from database
-      try {
-        await supabase.from("cart_items").delete().eq("id", itemId);
-        await loadDatabaseCart(userId);
-      } catch (error) {
-        console.error("Error removing item:", error);
+  // Update quantity
+  const updateQuantity = useCallback(
+    async (itemId: string, quantity: number) => {
+      if (quantity <= 0) {
+        // Inline removeItem logic to avoid circular dependency
+        if (userId) {
+          try {
+            await supabase.from("cart_items").delete().eq("id", itemId);
+            await loadDatabaseCart(userId);
+          } catch (error) {
+            console.error("Error removing item:", error);
+          }
+        } else {
+          const localCart = getLocalCart().filter((item) => item.id !== itemId);
+          saveLocalCart(localCart);
+          setItems(localCart);
+        }
+        return;
       }
-    } else {
-      // Remove from localStorage
-      const localCart = getLocalCart().filter((item) => item.id !== itemId);
-      saveLocalCart(localCart);
-      setItems(localCart);
-    }
-  };
+
+      if (userId) {
+        // Update in database
+        try {
+          await supabase
+            .from("cart_items")
+            .update({ quantity })
+            .eq("id", itemId);
+
+          await loadDatabaseCart(userId);
+        } catch (error) {
+          console.error("Error updating quantity:", error);
+        }
+      } else {
+        // Update in localStorage
+        const localCart = getLocalCart();
+        const itemIndex = localCart.findIndex((item) => item.id === itemId);
+
+        if (itemIndex > -1) {
+          localCart[itemIndex].quantity = quantity;
+          saveLocalCart(localCart);
+          setItems(localCart);
+        }
+      }
+    },
+    [userId, supabase, loadDatabaseCart]
+  );
 
   // Clear cart
-  const clearCart = async () => {
+  const clearCart = useCallback(async () => {
     if (userId) {
       try {
         const { data: cart } = await supabase
@@ -401,7 +654,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem("cart");
       setItems([]);
     }
-  };
+  }, [userId, supabase]);
 
   // Calculate totals
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -410,22 +663,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     0
   );
 
+  const contextValue = useMemo(
+    () => ({
+      items,
+      itemCount,
+      totalPrice,
+      isLoading,
+      addToCart,
+      updateQuantity,
+      removeItem,
+      clearCart,
+      refreshCart,
+    }),
+    [
+      items,
+      itemCount,
+      totalPrice,
+      isLoading,
+      addToCart,
+      updateQuantity,
+      removeItem,
+      clearCart,
+      refreshCart,
+    ]
+  );
+
   return (
-    <CartContext.Provider
-      value={{
-        items,
-        itemCount,
-        totalPrice,
-        isLoading,
-        addToCart,
-        updateQuantity,
-        removeItem,
-        clearCart,
-        refreshCart,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+    <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>
   );
 }
 

@@ -1,52 +1,65 @@
+import Image from "next/image";
+
+export const dynamic = "force-static";
+export const revalidate = 86400; // 24 hours
+
 export default function LieferzeitenPage() {
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))] py-8">
-      <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-[hsl(var(--foreground))] mb-8 text-center">
+    <div className="min-h-screen bg-[hsl(var(--background))] pt-8">
+      <div className="container mx-auto pt-4">
+        <h1 className="text-3xl font-bold text-[hsl(var(--foreground))] mb-8 text-center">
           Lieferzeiten
         </h1>
 
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-8 border border-[hsl(var(--border))] mb-8">
-            <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-6">
+          <div className=" rounded-lg shadow-md p-8 border border-primary mb-8">
+            <h2 className="text-2xl font-bold text-[hsl(var(--primary))] text-center mb-12">
               Schnelle und zuverlässige Lieferung
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div>
-                <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] mb-4">
+                <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] ml-3 mb-4">
                   Deutschland
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center p-3 bg-[hsl(var(--secondary))] rounded-lg">
-                    <span className="font-medium text-[hsl(var(--foreground))]">
-                      Standardversand
-                    </span>
-                    <span className="font-bold text-[hsl(var(--primary))]">
-                      1-3 Werktage
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src="/images/shipping/dhl.webp"
+                        alt="DHL Logo"
+                        width={48}
+                        height={24}
+                        className="object-contain"
+                      />
+                      <span className="font-medium text-[hsl(var(--foreground))]">
+                        Standardversand
+                      </span>
+                    </div>
+                    <span className="font-bold text-primary">1-3 Werktage</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-[hsl(var(--accent))]/10 border-2 border-[hsl(var(--accent))] rounded-lg">
-                    <span className="font-medium text-[hsl(var(--foreground))]">
-                      Expressversand
-                    </span>
-                    <span className="font-bold text-[hsl(var(--primary))]">
+                  <div className="flex justify-between items-center p-3 bg-primary/30 border border-primary rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src="/images/shipping/express.webp"
+                        alt="DHL Express Logo"
+                        width={48}
+                        height={24}
+                        className="object-contain"
+                      />
+                      <span className="font-medium text-[hsl(var(--foreground))]">
+                        Expressversand
+                      </span>
+                    </div>
+                    <span className="font-bold text-primary">
                       Nächster Werktag*
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <span className="font-medium text-[hsl(var(--foreground))]">
-                      Abholung im Laden
-                    </span>
-                    <span className="font-bold text-green-600">
-                      Nach Vereinbarung
                     </span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] mb-4">
+                <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] mb-4 ml-3">
                   Europa
                 </h3>
                 <div className="space-y-3">
@@ -54,79 +67,64 @@ export default function LieferzeitenPage() {
                     <span className="font-medium text-[hsl(var(--foreground))]">
                       Österreich & Niederlande
                     </span>
-                    <span className="font-bold text-[hsl(var(--primary))]">
-                      2-5 Werktage
-                    </span>
+                    <span className="font-bold text-primary">2-5 Werktage</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-[hsl(var(--secondary))] rounded-lg">
                     <span className="font-medium text-[hsl(var(--foreground))]">
                       Übriges Europa
                     </span>
-                    <span className="font-bold text-[hsl(var(--primary))]">
-                      3-7 Werktage
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                    <span className="font-medium text-[hsl(var(--foreground))]">
-                      Inseln (UK, Irland)
-                    </span>
-                    <span className="font-bold text-orange-600">
-                      5-10 Werktage
-                    </span>
+                    <span className="font-bold text-primary">3-7 Werktage</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-blue-800 text-sm">
+            <div className="bg-accent/10 border border-accent rounded-lg p-4 mb-6">
+              <p className="text-accent text-sm">
                 <strong>* Expressversand:</strong> Bestellungen bis 12:00 Uhr
-                werden am nächsten Werktag geliefert. Nicht verfügbar für Inseln
-                und abgelegene Regionen.
+                werden am nächsten Werktag geliefert.
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-md p-6 border border-[hsl(var(--border))] text-center">
+            <div className="bg-primary/20 rounded-lg shadow-md p-6 border border-primary text-center">
               <div className="text-4xl mb-4">📦</div>
               <h3 className="font-semibold text-[hsl(var(--primary))] mb-2">
                 Kostenloser Versand
               </h3>
-              <p className="text-[hsl(var(--muted-foreground))]">
+              <p className="text-primary">
                 Ab €50 Bestellwert innerhalb Deutschlands
               </p>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6 border border-[hsl(var(--border))] text-center">
+            <div className="bg-primary/20 rounded-lg shadow-md p-6 border border-primary text-center">
               <div className="text-4xl mb-4">🚚</div>
               <h3 className="font-semibold text-[hsl(var(--primary))] mb-2">
                 Sendungsverfolgung
               </h3>
-              <p className="text-[hsl(var(--muted-foreground))]">
+              <p className="text-primary">
                 Vollständige Transparenz über den Lieferweg
               </p>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6 border border-[hsl(var(--border))] text-center">
+            <div className="bg-primary/20 rounded-lg shadow-md p-6 border border-primary text-center">
               <div className="text-4xl mb-4">🔄</div>
               <h3 className="font-semibold text-[hsl(var(--primary))] mb-2">
                 Flexibel & Zuverlässig
               </h3>
-              <p className="text-[hsl(var(--muted-foreground))]">
-                Terminänderungen jederzeit möglich
-              </p>
+              <p className="text-primary">Terminänderungen jederzeit möglich</p>
             </div>
           </div>
 
           <div className="bg-[hsl(var(--secondary))] rounded-lg p-8 mb-8">
-            <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-6 text-center">
-              Wichtige Hinweise zu Lieferzeiten
+            <h2 className="text-2xl ml-3 font-bold text-[hsl(var(--primary))] mb-8">
+              Wichtige Hinweise zu Lieferzeiten:
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="font-semibold text-[hsl(var(--foreground))] mb-3">
+                <h3 className="ml-4 font-semibold text-primary mb-3">
                   Feiertage & Ferien
                 </h3>
                 <ul className="space-y-2 text-[hsl(var(--muted-foreground))]">
@@ -146,7 +144,7 @@ export default function LieferzeitenPage() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-[hsl(var(--foreground))] mb-3">
+                <h3 className="ml-4 font-semibold text-primary mb-3">
                   Zusätzliche Services
                 </h3>
                 <ul className="space-y-2 text-[hsl(var(--muted-foreground))]">
@@ -163,26 +161,6 @@ export default function LieferzeitenPage() {
                     Packstation-Lieferung
                   </li>
                 </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center">
-            <div className="bg-linear-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] text-white rounded-lg p-8">
-              <h2 className="text-2xl font-bold mb-4">
-                Haben Sie Fragen zu Ihrer Lieferung?
-              </h2>
-              <p className="mb-6">
-                Unser Kundenservice hilft Ihnen gerne bei allen Fragen zu
-                Lieferzeiten und -kosten.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-white text-[hsl(var(--primary))] px-6 py-3 rounded-lg hover:bg-[hsl(var(--secondary))] transition-colors font-semibold">
-                  Lieferstatus prüfen
-                </button>
-                <button className="border border-white text-white px-6 py-3 rounded-lg hover:bg-white/10 transition-colors font-semibold">
-                  Kontakt aufnehmen
-                </button>
               </div>
             </div>
           </div>

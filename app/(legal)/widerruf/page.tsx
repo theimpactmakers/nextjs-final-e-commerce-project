@@ -1,3 +1,6 @@
+export const dynamic = 'force-static';
+export const revalidate = 604800; // 7 days
+
 export default function WiderrufPage() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] py-8">
@@ -7,7 +10,7 @@ export default function WiderrufPage() {
         </h1>
 
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-8 border border-[hsl(var(--border))] mb-8">
+          <div className="p-8">
             <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-6">
               Ihr Widerrufsrecht
             </h2>
@@ -22,8 +25,7 @@ export default function WiderrufPage() {
               </p>
 
               <p className="text-[hsl(var(--foreground))] mb-4">
-                Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Elite Dog
-                TREATS GmbH, Musterstraße 123, 12345 Musterstadt, Deutschland,
+                Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (EliteDogTREATS GmbH, Hunde Straße 123, 12345 Wuff, Deutschland,
                 Telefon: +49 123 456789, E-Mail: info@elitedogtreats.de) mittels
                 einer eindeutigen Erklärung (z. B. ein mit der Post versandter
                 Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu
@@ -31,48 +33,48 @@ export default function WiderrufPage() {
               </p>
             </div>
 
-            <div className="bg-[hsl(var(--secondary))] rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-semibold text-[hsl(var(--primary))] mb-4">
+            <div className=" mt-16 bg-[hsl(var(--secondary))] shadow-sm border border-primary rounded-lg p-6 mb-6">
+              <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">
                 Muster-Widerrufsformular
               </h3>
 
               <div className="text-[hsl(var(--foreground))] space-y-2">
                 <p>
-                  <strong>An:</strong> Elite Dog TREATS GmbH, Musterstraße 123,
-                  12345 Musterstadt, Deutschland
+                  <strong>An:</strong> <span className="text-primary">Elite Dog TREATS GmbH, Musterstraße 123,
+                  12345 Musterstadt, Deutschland</span>
                 </p>
                 <p>
-                  <strong>E-Mail:</strong> widerruf@elitedogtreats.de
+                  <strong>E-Mail:</strong> <span className="text-primary">widerruf@elitedogtreats.de</span>
                 </p>
                 <br />
                 <p>
-                  Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*)
-                  abgeschlossenen Vertrag über den Kauf der folgenden Waren (*):
+                  Hiermit widerrufe(n) ich/wir <span className="text-accent">(*)</span> den von mir/uns <span className="text-accent">(*)</span>
+                  abgeschlossenen Vertrag über den Kauf der folgenden Waren <span className="text-accent">(*)</span>:
                 </p>
-                <p>
+                <p className="text-accent">
                   ___________________________________________________________
                 </p>
                 <p>
-                  Bestellt am (*)/erhalten am (*): ___________________________
+                  Bestellt am <span className="text-accent"><span className="text-accent">(*)</span></span>/erhalten am <span className="text-accent"><span className="text-accent">(*)</span></span>: <span className="text-accent">___________________________</span>
                 </p>
                 <p>
-                  Name des/der Verbraucher(s): _______________________________
+                  Name des/der Verbraucher(s): <span className="text-accent">_______________________________</span>
                 </p>
                 <p>
-                  Anschrift des/der Verbraucher(s): ___________________________
+                  Anschrift des/der Verbraucher(s): <span className="text-accent">___________________________</span>
                 </p>
-                <p>
+                <p className="text-accent">
                   ___________________________________________________________
                 </p>
-                <p>Datum: ___________________________</p>
-                <p>
+                <p>Datum: <span className="text-accent">___________________________</span></p>
+                <p className="text-accent">
                   ___________________________________________________________
                 </p>
-                <p>(*) Unzutreffendes streichen</p>
+                <p className="text-primary"><span className="text-accent">(*)</span> Unzutreffendes streichen</p>
               </div>
             </div>
 
-            <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] mb-4">
+            <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]  mt-16 mb-4">
               Folgen des Widerrufs
             </h3>
 
@@ -95,7 +97,7 @@ export default function WiderrufPage() {
               berechnet.
             </p>
 
-            <p className="text-[hsl(var(--foreground))] mb-4">
+            <p className="text-[hsl(var(--foreground))]">
               Wir können die Rückzahlung verweigern, bis wir die Waren wieder
               zurückerhalten haben oder bis Sie den Nachweis erbracht haben,
               dass Sie die Waren zurückgesandt haben, je nachdem, welches der
@@ -103,7 +105,7 @@ export default function WiderrufPage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-8 border border-[hsl(var(--border))] mb-8">
+          <div className="p-8  mb-4">
             <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-6">
               Ausschluss des Widerrufsrechts
             </h2>
@@ -116,7 +118,7 @@ export default function WiderrufPage() {
               des Verbrauchers zugeschnitten sind.
             </p>
 
-            <p className="text-[hsl(var(--foreground))] mb-4">
+            <p className="text-[hsl(var(--foreground))]">
               Das Widerrufsrecht erlischt vorzeitig bei Verträgen zur Lieferung
               versiegelter Waren, die aus Gründen des Gesundheitsschutzes oder
               der Hygiene nicht zur Rückgabe geeignet sind, wenn ihre
@@ -124,8 +126,8 @@ export default function WiderrufPage() {
             </p>
           </div>
 
-          <div className="bg-[hsl(var(--secondary))] rounded-lg p-8">
-            <h2 className="text-2xl font-bold text-[hsl(var(--primary))] mb-6 text-center">
+          <div className="bg-[hsl(var(--secondary))] rounded-lg border shadow-sm p-8">
+            <h2 className="text-2xl font-bold text-primary mb-6 text-center">
               Noch Fragen zum Widerruf?
             </h2>
 
@@ -161,7 +163,7 @@ export default function WiderrufPage() {
               </div>
             </div>
 
-            <div className="text-center">
+            <div className=" mt-8 text-center">
               <p className="text-[hsl(var(--muted-foreground))]">
                 Unser Kundenservice steht Ihnen bei allen Fragen zum
                 Widerrufsrecht zur Verfügung.

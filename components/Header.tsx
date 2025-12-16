@@ -24,6 +24,7 @@ export default function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [activePromotions, setActivePromotions] = useState<Promotion[]>([]);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const { itemCount } = useCart();
   const { wishlistCount } = useWishlist();
   const { user, signOut } = useAuth();
@@ -84,6 +85,29 @@ export default function Header() {
     });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Load user role
+  useEffect(() => {
+    const loadUserRole = async () => {
+      if (!user) {
+        setUserRole(null);
+        return;
+      }
+
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (!error && data) {
+        setUserRole(data.role);
+      }
+    };
+
+    loadUserRole();
+  }, [user]);
 
   // Load active promotions
   useEffect(() => {
@@ -168,7 +192,7 @@ export default function Header() {
             } logo-md-narrow`}
           >
             <Image
-              src="/images/Logo_example_6.png"
+              src="/images/Logo.webp"
               alt="Elite Tail Treats"
               width={120}
               height={48}
@@ -379,9 +403,7 @@ export default function Header() {
                 href="/promotions"
                 className="relative inline-flex items-center h-9 px-2 transition-colors text-foreground hover:text-[hsl(33,100%,37%)]!"
               >
-                <span className="flex items-center gap-1">
-                  Angebote
-                </span>
+                <span className="flex items-center gap-1">Angebote</span>
                 <span
                   className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[3px] w-11/12 origin-left scale-x-0 group-hover:scale-x-100 -translate-y-1 transform transition-transform duration-300 rounded"
                   style={{
@@ -467,7 +489,7 @@ export default function Header() {
                 <ul className="space-y-1 text-sm">
                   <li>
                     <Link
-                      href="/specials/darm"
+                      href="/specials?special=diat#produkte"
                       className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Diätfutter
@@ -475,7 +497,7 @@ export default function Header() {
                   </li>
                   <li>
                     <Link
-                      href="/specials/hypoallergen"
+                      href="/specials?special=hypoallergen#produkte"
                       className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Hypoallergen
@@ -483,7 +505,7 @@ export default function Header() {
                   </li>
                   <li>
                     <Link
-                      href="/specials/darmgesundheit"
+                      href="/specials?special=darm#produkte"
                       className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Darmgesundheit
@@ -491,7 +513,7 @@ export default function Header() {
                   </li>
                   <li>
                     <Link
-                      href="/specials/gelenk"
+                      href="/specials?special=gelenk#produkte"
                       className="block rounded-md px-3 py-2 text-primary hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 transition-colors"
                     >
                       Gelenkfit
@@ -711,25 +733,17 @@ export default function Header() {
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <button
-                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="relative p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer"
+              <Link
+                href={user ? "/userProfile" : loginUrl}
+                onClick={() => setProfileDropdownOpen(false)}
+                className="relative p-1 rounded hover:bg-accent/10 text-accent transition-colors cursor-pointer inline-block"
                 aria-label="Benutzerprofil"
-              > 
-
-                {!user && (
-                  <User className="w-7 h-7 bold" strokeWidth={2}/>
-                )}
-
-                {/* Grüner Online-Indikator wenn angemeldet */}
+              >
+                <User className="w-6 h-6 text-accent" strokeWidth={2} />
                 {user && (
-                    <>
-                      <User className="w-7 h-7 bold text-green-600" />
-                      <span className="absolute top-0 right-0.5 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
-                    </>
-                  )
-                }
-              </button>
+                  <span className="absolute top-0 right-0.5 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
+                )}
+              </Link>
 
               {profileDropdownOpen && (
                 <div className="absolute right-0 top-full mt-1 w-56 bg-white/98 backdrop-blur-sm border border-gray-200/30 rounded-md shadow-sm p-2 z-50">
@@ -812,6 +826,35 @@ export default function Header() {
                         </svg>
                         <span>Bestellungen</span>
                       </Link>
+
+                      {userRole === "admin" && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors"
+                        >
+                          <svg
+                            className="w-4 h-4 text-accent"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          <span>Admin-Bereich</span>
+                        </Link>
+                      )}
                     </>
                   )}
 
@@ -823,10 +866,12 @@ export default function Header() {
                         setProfileDropdownOpen(false);
                         signOut();
                       }}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] hover:text-foreground decoration-accent decoration-2 hover:underline underline-offset-2 text-foreground transition-colors cursor-pointer"
+                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md hover:bg-[hsl(var(--secondary))] cursor-pointer"
                     >
                       <LogOut className="w-4 h-4 text-accent" />
-                      <span>Abmelden</span>
+                      <span className="text-accent hover:text-primary transition-colors">
+                        Abmelden
+                      </span>
                     </button>
                   ) : (
                     <>
@@ -908,15 +953,15 @@ export default function Header() {
             {/* Wishlist Icon */}
             <Link
               href="/userProfile?tab=wishlist"
-              className="relative p-1 rounded hover:bg-accent/10 group"
+              className="relative p-1 w-7 h-7 flex items-center justify-center rounded hover:bg-accent/10 group"
               aria-label="Wunschliste"
             >
               <Heart
-                className="w-6 h-6 text-accent group-hover:text-red-500 transition-colors"
+                className="w-9 h-9 text-accent group-hover:text-black transition-colors"
                 strokeWidth={2.3}
               />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1">
+                <span className="absolute -top-1 -right-1 bg-white text-accent text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1 border border-accent">
                   {wishlistCount}
                 </span>
               )}
@@ -932,7 +977,7 @@ export default function Header() {
                 strokeWidth={2}
               />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1">
+                <span className="absolute -top-1 -right-1 bg-accent text-white text-xs font-bold rounded-full h-4 min-w-4 flex items-center justify-center px-1">
                   {itemCount}
                 </span>
               )}
@@ -946,7 +991,7 @@ export default function Header() {
               aria-label="Wunschliste"
             >
               <Heart
-                className="w-5 h-5 text-accent group-active:text-red-500 transition-colors"
+                className="w-5 h-5 text-accent group-active:text-black-500 transition-colors"
                 strokeWidth={2}
               />
               {wishlistCount > 0 && (
@@ -978,8 +1023,8 @@ export default function Header() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
+                width="16"
+                height="16"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -994,7 +1039,9 @@ export default function Header() {
               {user && (
                 <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-600"></span>
               )}
-              <span className="sr-only">{user ? "Benutzerprofil" : "Anmelden"}</span>
+              <span className="sr-only">
+                {user ? "Benutzerprofil" : "Anmelden"}
+              </span>
             </Link>
             {/* Hamburger menu */}
             <button
@@ -1059,7 +1106,7 @@ export default function Header() {
                 className="inline-flex items-center"
               >
                 <Image
-                  src="/images/Logo_example_6.png"
+                  src="/images/Logo.webp"
                   alt="Elite"
                   width={60}
                   height={18}
@@ -1127,7 +1174,11 @@ export default function Header() {
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2 text-lg font-medium hover:text-[hsl(var(--accent))]"
               >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
                 Angebote
@@ -1141,28 +1192,28 @@ export default function Header() {
               </Link>
               <div className="pl-3 space-y-1">
                 <Link
-                  href="/specials/diat"
+                  href="/specials?special=diat#produkte"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
                   Diätfutter
                 </Link>
                 <Link
-                  href="/specials/hypoallergen"
+                  href="/specials?special=hypoallergen#produkte"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
                   Hypoallergen
                 </Link>
                 <Link
-                  href="/specials/darmgesundheit"
+                  href="/specials?special=darm#produkte"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >
                   Darmgesundheit
                 </Link>
                 <Link
-                  href="/specials/gelenkfit"
+                  href="/specials?special=gelenk#produkte"
                   onClick={() => setMobileOpen(false)}
                   className="block text-sm hover:text-[hsl(var(--accent))]"
                 >

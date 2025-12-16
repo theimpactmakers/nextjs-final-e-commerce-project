@@ -3,7 +3,15 @@
 import { useCart } from "@/contexts/CartContext";
 import Link from "next/link";
 import Image from "next/image";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
+import {
+  Minus,
+  Plus,
+  Trash2,
+  ShoppingCart,
+  ArrowLeft,
+  Wallet,
+  Truck,
+} from "lucide-react";
 
 export default function CartPage() {
   const {
@@ -46,14 +54,16 @@ export default function CartPage() {
     return (
       <div className="container max-w-6xl px-4 py-16 mx-auto">
         <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <ShoppingBag className="w-16 h-16 text-muted-foreground" />
-          <h2 className="text-2xl font-bold">Ihr Warenkorb ist leer</h2>
+          <ShoppingCart className="w-16 h-16 text-muted-foreground" />
+          <h2 className="text-2xl font-bold">
+            Ihr Warenkorb ist aktuell leer!
+          </h2>
           <p className="text-muted-foreground">
-            Fügen Sie Produkte hinzu, um mit dem Einkauf zu beginnen
+            Füge Produkte hinzu, um mit dem Einkauf zu beginnen.
           </p>
           <Link
             href="/shop"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 mt-4"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--app-radius) border-2 border-accent-foreground text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-accent text-accent-foreground hover:bg-accent-700 hover:scale-105 h-11 px-8 mt-4 shadow-md"
           >
             <ArrowLeft className="w-4 h-4" />
             Weiter einkaufen
@@ -66,9 +76,9 @@ export default function CartPage() {
   return (
     <div className="container max-w-6xl px-4 py-8 mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Warenkorb</h1>
+          <h1 className="text-3xl font-bold">Dein Warenkorb</h1>
           <p className="text-muted-foreground">
             {itemCount} {itemCount === 1 ? "Artikel" : "Artikel"}
           </p>
@@ -76,10 +86,10 @@ export default function CartPage() {
         {items.length > 0 && (
           <button
             onClick={clearCart}
-            className="inline-flex items-center gap-2 text-sm text-destructive hover:text-destructive/80"
+            className="inline-flex underline items-center gap-2 text-ml mr-16 mt-10 text-red-900 hover:text-red-700 cursor-pointer hover:no-underline"
           >
-            <Trash2 className="w-4 h-4" />
-            Warenkorb leeren
+            <Trash2 className=" text-red-900 w-5 h-5" />
+            Gesamten Warenkorb leeren
           </button>
         )}
       </div>
@@ -90,7 +100,7 @@ export default function CartPage() {
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex gap-4 p-4 bg-card rounded-lg border shadow-sm"
+              className="flex items-center gap-8 p-4 bg-card rounded-lg border shadow-sm"
             >
               {/* Product Image */}
               <div className="relative w-24 h-24 shrink-0 bg-muted rounded-md overflow-hidden">
@@ -102,9 +112,7 @@ export default function CartPage() {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="flex items-center justify-center w-full h-full text-muted-foreground">
-                    <ShoppingBag className="w-8 h-8" />
-                  </div>
+                  <div className="flex items-center justify-center w-full h-full text-muted-foreground"></div>
                 )}
               </div>
 
@@ -140,41 +148,50 @@ export default function CartPage() {
 
               {/* Quantity Controls */}
               <div className="flex flex-col items-end justify-between">
-                <button
-                  onClick={() => removeItem(item.id)}
-                  className="text-muted-foreground hover:text-destructive transition-colors"
-                  aria-label="Artikel entfernen"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-10 w-full justify-between">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      disabled={item.quantity <= 1}
+                      className="group inline-flex items-center justify-center w-8 h-8 rounded-md border-2 border-accent bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md"
+                      aria-label="Menge verringern"
+                    >
+                      <Minus
+                        className="w-4 h-4 text-accent group-hover:text-white"
+                        strokeWidth={2}
+                      />
+                    </button>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    disabled={item.quantity <= 1}
-                    className="inline-flex items-center justify-center w-8 h-8 rounded-md border bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Menge verringern"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
+                    <span className="w-12 text-center font-medium">
+                      {item.quantity}
+                    </span>
 
-                  <span className="w-12 text-center font-medium">
-                    {item.quantity}
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      disabled={item.quantity >= item.stock_quantity}
+                      className="group inline-flex items-center justify-center w-8 h-8 rounded-md border-2 border-accent bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md"
+                      aria-label="Menge erhöhen"
+                    >
+                      <Plus
+                        className="w-4 h-4 text-accent group-hover:text-white"
+                        strokeWidth={3}
+                      />
+                    </button>
+                  </div>
+                  <span className="text-lg font-bold min-w-[60px] text-right">
+                    {(item.price * item.quantity).toFixed(2)} €
                   </span>
-
                   <button
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    disabled={item.quantity >= item.stock_quantity}
-                    className="inline-flex items-center justify-center w-8 h-8 rounded-md border bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Menge erhöhen"
+                    onClick={() => removeItem(item.id)}
+                    className="ml-2 text-muted-foreground transition-colors cursor-pointer group"
+                    aria-label="Artikel entfernen"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Trash2
+                      className="w-6 h-6 mr-4 text-black group-hover:scale-85 group-hover:text-accent
+                    hover:scale-95 transition-transform duration-150"
+                    />
                   </button>
                 </div>
-
-                <p className="text-sm font-semibold">
-                  {(item.price * item.quantity).toFixed(2)} €
-                </p>
               </div>
             </div>
           ))}
@@ -182,34 +199,43 @@ export default function CartPage() {
 
         {/* Order Summary */}
         <div className="lg:col-span-1">
-          <div className="sticky top-4 p-6 bg-card rounded-lg border shadow-md space-y-4">
+          <div className="sticky top-4 p-6 bg-muted/80 rounded-lg border  shadow-md space-y-4 backdrop-blur-md">
             <h2 className="text-xl font-bold">Bestellübersicht</h2>
 
             <div className="space-y-2 pt-4 border-t">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Zwischensumme</span>
+                <span className="text-muted-foreground font-bold">
+                  Zwischensumme
+                </span>
                 <span className="font-medium">{totalPrice.toFixed(2)} €</span>
               </div>
 
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Versand</span>
+                <span className="text-muted-foreground font-bold">
+                  Versandkosten
+                </span>
                 <span className="font-medium">
                   {totalPrice >= 50 ? "Kostenlos" : "4,99 €"}
                 </span>
               </div>
 
               {totalPrice < 50 && (
-                <p className="text-xs text-muted-foreground">
-                  Noch {(50 - totalPrice).toFixed(2)} € bis zum kostenlosen
-                  Versand
+                <p className="text-xs mt-4 text-primary">
+                  Nur noch {(50 - totalPrice).toFixed(2)} € bis zum kostenlosen
+                  Versand!
                 </p>
               )}
             </div>
 
             <div className="flex justify-between text-lg font-bold pt-4 border-t">
-              <span>Gesamt</span>
-              <span className="text-green-600">
-                {(totalPrice + (totalPrice >= 50 ? 0 : 4.99)).toFixed(2)} €
+              <span>Gesamtbetrag</span>
+              <span className="flex flex-col items-end text-accent leading-tight">
+                <span className="text-lg font-bold">
+                  {(totalPrice + (totalPrice >= 50 ? 0 : 4.99)).toFixed(2)} €
+                </span>
+                <span className="text-xs text-black mt-0 leading-none font-light">
+                  inkl. MwSt.
+                </span>
               </span>
             </div>
 
@@ -239,14 +265,14 @@ export default function CartPage() {
 
             <Link
               href="/checkout"
-              className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"
+              className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--app-radius) text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-accent text-accent-foreground hover:bg-accent-700 hover:scale-105 h-11 px-8 shadow-md"
             >
               Zur Kasse
             </Link>
 
             <Link
               href="/shop"
-              className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8"
+              className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--app-radius) text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-black bg-background hover:bg-accent hover:text-accent-foreground hover:border-accent h-11 px-8 shadow-md"
             >
               <ArrowLeft className="w-4 h-4" />
               Weiter einkaufen
@@ -255,20 +281,8 @@ export default function CartPage() {
             {/* Trust Badges */}
             <div className="pt-4 border-t space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <svg
-                  className="w-5 h-5 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Sichere Zahlung
+                <Wallet className="w-4 h-4 text-green-600" />
+                Sichere & schnelle Bezahlung
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <svg
@@ -287,20 +301,8 @@ export default function CartPage() {
                 Kostenlose Rücksendung
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <svg
-                  className="w-5 h-5 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Schnelle Lieferung
+                <Truck className="w-4 h-4 text-green-600" />
+                Schnelle Lieferung: 1-3 Werktage
               </div>
             </div>
           </div>
