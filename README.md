@@ -330,4 +330,4 @@ Dieses Projekt ist lizenziert unter der MIT License - siehe [LICENSE](LICENSE) D
 
 ## Entwickelt mit ❤️
 
-Elite Dog Treats - Premium Hundefutter mit intelligenter Beratung
+Elite Dog Treats - Premium Hundefutter mit intelligenter Beratung !
